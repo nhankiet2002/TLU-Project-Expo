@@ -1,89 +1,89 @@
-# Findlt-TLU
-Mô Tả Chi Tiết Bài Toán Ứng Dụng "FindIt@TLU" (Tìm Đồ Thất Lạc TLU)
-1. Tên ứng dụng: FindIt@TLU (Tìm đồ thất lạc tại Đại học Thủy Lợi)
+# TLU Project Expo
+Mô Tả Chi Tiết Bài Toán Ứng Dụng "TLU Project Expo" (Triển lãm Dự án TLU)
+1. Tên ứng dụng: TLU Project Expo (Nền tảng Trưng bày Dự án Sinh viên TLU)
 2. Nền tảng:
 •	Back-end: ASP.NET Core Web API (sử dụng C#)
-•	Front-end: Ứng dụng Web (ví dụ: sử dụng ASP.NET Core MVC/Razor Pages) hoặc Ứng dụng Di động (Android/iOS gọi API). Giả định trong mô tả này là một ứng dụng Web.
+•	Front-end: Ứng dụng Web (ví dụ: sử dụng ASP.NET Core MVC/Razor Pages)
 •	Ngôn ngữ Back-end: C#
 3. Cơ sở dữ liệu: Microsoft SQL Server
-4. Mô tả tổng quan: FindIt@TLU là một nền tảng trực tuyến giúp kết nối cộng đồng Đại học Thủy Lợi (sinh viên, cán bộ, giảng viên) trong việc thông báo và tìm kiếm đồ vật bị thất lạc hoặc nhặt được trong khuôn viên trường hoặc khu vực lân cận. Ứng dụng cho phép người dùng đăng tin về đồ vật bị mất hoặc nhặt được, tìm kiếm trong danh sách các tin đã đăng, và hỗ trợ quá trình liên hệ để trao trả đồ vật.
+4. Mô tả tổng quan: TLU Project Expo là một nền tảng trực tuyến hoạt động như một "triển lãm số", nơi sinh viên Đại học Thủy Lợi có thể giới thiệu các dự án (đồ án môn học, dự án cá nhân, nghiên cứu khoa học...) mà họ đã thực hiện. Nền tảng cho phép sinh viên tạo hồ sơ dự án chi tiết, bao gồm mô tả, công nghệ sử dụng, thành viên nhóm, liên kết đến mã nguồn hoặc sản phẩm demo. Những người dùng khác (sinh viên, giảng viên, nhà tuyển dụng tiềm năng) có thể duyệt, tìm kiếm và xem các dự án, để lại bình luận hoặc phản hồi, tạo cơ hội học hỏi, giao lưu và giới thiệu năng lực bản thân.
 5. Yêu cầu chức năng chi tiết:
 5.1. Quản lý Tài khoản Người dùng:
-•	Đăng ký: 
-o	Người dùng đăng ký tài khoản mới (có thể yêu cầu dùng email trường @tlu.edu.vn/@e.tlu.edu.vn để giới hạn cộng đồng hoặc cho phép email cá nhân).
-o	Thông tin cần thiết: Email (duy nhất), Mật khẩu (băm và lưu an toàn), Họ và tên.
-o	Có thể yêu cầu xác thực email.
-•	Đăng nhập: 
-o	Người dùng đăng nhập bằng Email và Mật khẩu.
-o	Xác thực thông tin với bảng Users trong CSDL.
-o	Có chức năng "Quên mật khẩu".
-•	Thông tin liên hệ (Tùy chọn bảo mật): Người dùng có thể tùy chọn cung cấp số điện thoại hoặc phương thức liên lạc khác trong hồ sơ cá nhân, và có thể chọn hiển thị/ẩn thông tin này trên các tin đăng của mình.
-5.2. Đăng Tin Đồ Vật:
-•	Chọn loại tin đăng: Người dùng chọn đăng tin "Tôi làm mất đồ" hoặc "Tôi nhặt được đồ".
-•	Nhập thông tin đồ vật: 
-o	Tiêu đề tin: Mô tả ngắn gọn (ví dụ: "Mất ví màu đen gần thư viện", "Nhặt được thẻ sinh viên Nguyễn Văn A"). (Bắt buộc)
-o	Mô tả chi tiết: Cung cấp thêm thông tin về đồ vật (đặc điểm, nhãn hiệu, tình trạng...), hoàn cảnh mất/tìm thấy. (Bắt buộc)
-o	Danh mục đồ vật: Chọn từ danh sách có sẵn (ví dụ: Điện tử, Giấy tờ tùy thân, Ví/Túi xách, Quần áo/Phụ kiện, Sách vở, Khác...). (Bắt buộc)
-o	Địa điểm: Mô tả địa điểm mất hoặc nhặt được (ví dụ: "Sân C1", "Nhà ăn", "Thư viện tầng 3", "Tuyến bus 21"). Có thể tích hợp bản đồ nếu muốn (phức tạp hơn). (Bắt buộc)
-o	Ngày mất/nhặt được: Chọn ngày xảy ra sự việc. (Bắt buộc)
-o	Ảnh đồ vật (Tùy chọn): Cho phép tải lên 1 hoặc nhiều ảnh minh họa. Ảnh sẽ được lưu trữ (ví dụ: trên server hoặc dịch vụ lưu trữ đám mây) và đường dẫn lưu vào CSDL.
-o	Thông tin liên hệ: Người đăng có thể chọn hiển thị thông tin liên hệ nào (email/số điện thoại từ hồ sơ) hoặc cho phép liên hệ qua hệ thống nhắn tin nội bộ (nếu có).
-•	Lưu tin đăng: Thông tin được lưu vào bảng Items trong CSDL với trạng thái tương ứng ("Lost" hoặc "Found"). Tin đăng sẽ liên kết với UserId của người đăng.
-5.3. Tìm Kiếm và Duyệt Tin Đăng:
-•	Hiển thị danh sách: Hiển thị danh sách các tin đăng đồ vật (cả mất và tìm thấy) dưới dạng thẻ hoặc danh sách. 
-o	Thông tin hiển thị cơ bản: Ảnh (nếu có), Tiêu đề, Danh mục, Ngày đăng, Địa điểm (tóm tắt), Trạng thái (Mất/Tìm thấy/Đã trả).
+•	Đăng ký/Đăng nhập: Tương tự các ứng dụng trước (Email - có thể yêu cầu email trường, Mật khẩu băm, Họ tên). Xác thực email. Quên mật khẩu.
+•	Hồ sơ người dùng (Profile): Hiển thị thông tin cơ bản (Tên, Khoa/Lớp, Ảnh đại diện), danh sách các dự án đã đăng/tham gia.
+•	Vai trò người dùng: 
+o	Student: Có thể tạo/quản lý dự án của mình, tham gia dự án của người khác, xem và bình luận các dự án khác.
+o	Faculty (Giảng viên - Tùy chọn): Có thể xem các dự án, xác nhận/bảo trợ cho các dự án thuộc môn học mình phụ trách (tùy chọn), tìm kiếm sinh viên theo dự án.
+o	Admin: Quản lý người dùng, quản lý danh mục công nghệ/lĩnh vực, quản lý/kiểm duyệt nội dung dự án/bình luận, làm nổi bật các dự án tiêu biểu.
+o	Guest (Khách - Tùy chọn): Có thể chỉ cho phép xem danh sách và chi tiết dự án mà không cần đăng nhập.
+5.2. Quản lý Dự án (Student):
+•	Tạo Dự án Mới: 
+o	Thông tin cơ bản: Tên dự án (Bắt buộc), Mô tả chi tiết (Bắt buộc), Ảnh đại diện/Thumbnail cho dự án (Tùy chọn).
+o	Phân loại: Chọn Lĩnh vực/Chủ đề (ví dụ: Web Development, Mobile App, AI/ML, IoT, Data Science...) và các Công nghệ/Ngôn ngữ lập trình đã sử dụng (ví dụ: C#, ASP.NET Core, Java, Python, React...). Danh sách này có thể do Admin quản lý hoặc cho phép người dùng thêm mới (cần kiểm duyệt).
+o	Môn học liên quan (Tùy chọn): Chọn môn học mà dự án này thuộc về (nếu là đồ án môn học).
+o	Thành viên nhóm: Mời hoặc thêm các thành viên khác (đã có tài khoản trên hệ thống) vào dự án. Xác định vai trò (ví dụ: Leader, Member).
+o	Liên kết: Cung cấp các đường link liên quan: 
+	Link mã nguồn (GitHub, GitLab...).
+	Link sản phẩm chạy thử (Live Demo URL).
+	Link video giới thiệu (YouTube...).
+o	Trạng thái dự án: Đang thực hiện, Đã hoàn thành, Tạm dừng...
+•	Tải lên Media: Cho phép tải lên thêm hình ảnh, hoặc nhúng video mô tả dự án.
+•	Quản lý Dự án: 
+o	Xem danh sách các dự án mình đã tạo hoặc tham gia.
+o	Chỉnh sửa thông tin dự án.
+o	Quản lý thành viên nhóm (thêm/xóa thành viên - chỉ Leader/Admin dự án).
+o	Xóa dự án.
+5.3. Duyệt và Tìm kiếm Dự án:
+•	Xem danh sách dự án: Hiển thị các dự án (có thể là các dự án nổi bật, mới nhất...) dưới dạng thẻ (card) hoặc danh sách. Thông tin tóm tắt: Ảnh, Tên dự án, Mô tả ngắn, Người tạo/Nhóm, Lĩnh vực/Công nghệ chính.
 •	Chức năng: 
-o	Tìm kiếm: Tìm kiếm theo từ khóa trong Tiêu đề, Mô tả.
-o	Lọc: Lọc theo trạng thái (Mất/Tìm thấy/Đã trả), theo Danh mục, theo Khu vực/Địa điểm (nếu có cấu trúc), theo Khoảng thời gian.
-o	Sắp xếp: Sắp xếp theo ngày đăng mới nhất/cũ nhất.
-•	Xem chi tiết tin đăng: 
-o	Hiển thị đầy đủ thông tin đã nhập khi đăng tin.
-o	Hiển thị thông tin liên hệ của người đăng (nếu họ cho phép) hoặc nút để bắt đầu liên hệ qua hệ thống (nếu có).
-o	Hiển thị trạng thái hiện tại của tin (Mất/Tìm thấy/Đã trả).
-5.4. Liên Hệ và Xác Nhận Trao Trả:
-•	Cơ chế liên hệ: 
-o	Cách 1 (Đơn giản): Hiển thị thông tin liên hệ (email/SĐT) mà người đăng đã chọn công khai. Người tìm thấy/làm mất sẽ tự liên hệ bên ngoài ứng dụng.
-o	Cách 2 (Phức tạp hơn): Xây dựng hệ thống nhắn tin/bình luận đơn giản ngay dưới mỗi tin đăng để người dùng trao đổi ẩn danh (chỉ người đăng và người liên hệ thấy?). Cần cân nhắc kỹ về độ phức tạp.
-•	Đánh dấu "Đã trả/Đã tìm thấy": 
-o	Người đăng tin (cả mất và nhặt được) có quyền đánh dấu tin của mình là "Đã hoàn thành" hoặc "Đã trả lại".
-o	Tin đăng được đánh dấu sẽ chuyển sang trạng thái "Returned" và có thể bị ẩn khỏi danh sách tìm kiếm chính nhưng vẫn có thể xem lại trong lịch sử của người đăng.
-5.5. Quản Lý Tin Đăng Cá Nhân:
-•	Người dùng đã đăng nhập có thể xem danh sách các tin mình đã đăng (cả mất và tìm thấy).
-•	Cho phép người dùng chỉnh sửa thông tin tin đăng của mình (trừ một số thông tin cốt lõi như loại tin?).
-•	Cho phép người dùng xóa tin đăng của mình.
-•	Cho phép người dùng đánh dấu tin là đã hoàn thành/đã trả lại.
+o	Tìm kiếm: Theo Tên dự án, Mô tả, Công nghệ sử dụng, Tên thành viên.
+o	Lọc: Lọc theo Lĩnh vực/Chủ đề, theo Công nghệ, theo Môn học (nếu có), theo Trạng thái.
+o	Sắp xếp: Theo ngày đăng, theo tên, theo lượt xem/bình chọn (nếu có).
+•	Xem chi tiết dự án: 
+o	Hiển thị đầy đủ các thông tin người dùng đã nhập khi tạo dự án.
+o	Hiển thị hình ảnh/video.
+o	Hiển thị danh sách thành viên nhóm (có thể link đến profile của họ).
+o	Hiển thị các bình luận/phản hồi.
+5.4. Tương tác và Phản hồi:
+•	Bình luận/Phản hồi: Người dùng đã đăng nhập có thể để lại bình luận, câu hỏi hoặc phản hồi mang tính xây dựng dưới mỗi dự án.
+•	Bình chọn (Upvote - Tùy chọn): Người dùng có thể bình chọn (upvote) cho các dự án họ thấy hay và hữu ích. Số lượt vote có thể dùng để xếp hạng hoặc làm nổi bật dự án.
+•	Theo dõi dự án/người dùng (Tùy chọn): Cho phép người dùng theo dõi các dự án hoặc tác giả cụ thể để nhận thông báo khi có cập nhật.
+5.5. Quản lý Hệ thống (Admin):
+•	Quản lý người dùng: Xem danh sách người dùng, phân quyền, khóa/mở khóa tài khoản.
+•	Quản lý Danh mục/Thẻ: Quản lý danh sách các Lĩnh vực, Công nghệ, Môn học dùng để phân loại dự án.
+•	Kiểm duyệt nội dung: Xem xét và duyệt/xóa các dự án hoặc bình luận không phù hợp, vi phạm quy định.
+•	Làm nổi bật dự án: Chọn các dự án tiêu biểu để hiển thị ở trang chủ hoặc mục riêng.
 6. Cấu trúc cơ sở dữ liệu gợi ý (SQL Server):
-•	Bảng Users: UserId (PK, INT, IDENTITY), Email (VARCHAR, UNIQUE), PasswordHash (NVARCHAR), FullName (NVARCHAR), PhotoUrl (NVARCHAR), PhoneNumber (VARCHAR), CreatedAt (DATETIME2). (Có thể không cần bảng Roles nếu chỉ có 1 loại người dùng).
-•	Bảng Categories: CategoryId (PK, INT, IDENTITY), Name (NVARCHAR, NOT NULL, UNIQUE). (Ví dụ: Điện tử, Giấy tờ, Ví/Túi...).
-•	Bảng Items: 
-o	ItemId (PK, INT, IDENTITY): Khóa chính tin đăng.
-o	UserId (FK -> Users, INT, NOT NULL): Người đăng tin.
-o	CategoryId (FK -> Categories, INT, NOT NULL): Loại đồ vật.
-o	Title (NVARCHAR(200), NOT NULL): Tiêu đề tin.
-o	Description (NVARCHAR(MAX), NOT NULL): Mô tả chi tiết.
-o	Location (NVARCHAR(500), NOT NULL): Địa điểm mất/tìm thấy.
-o	ItemStatus (VARCHAR(10), NOT NULL): Trạng thái ('Lost', 'Found', 'Returned'). Cần tạo CHECK constraint.
-o	DateLostOrFound (DATE, NOT NULL): Ngày mất/tìm thấy.
-o	CreatedAt (DATETIME2, NOT NULL, DEFAULT GETDATE()): Ngày đăng tin.
-o	UpdatedAt (DATETIME2, NULL): Ngày cập nhật tin.
-o	IsContactInfoPublic (BIT, NOT NULL, DEFAULT 0): Cờ cho biết có hiển thị SĐT/Email của người đăng không.
-•	Bảng ItemImages (Tùy chọn): 
-o	ImageId (PK, INT, IDENTITY): Khóa chính ảnh.
-o	ItemId (FK -> Items, INT, NOT NULL): Tin đăng chứa ảnh này.
-o	ImageUrl (NVARCHAR(500), NOT NULL): Đường dẫn đến file ảnh.
-•	(Tùy chọn) Bảng Messages hoặc Claims: Nếu muốn xây dựng hệ thống liên hệ/xác nhận trong ứng dụng. Cần thiết kế cẩn thận hơn.
+•	Bảng Users, Roles, UserRoles: Tương tự các ví dụ trước. Roles có thể là 'Admin', 'Faculty', 'Student'.
+•	Bảng Categories (Lĩnh vực): CategoryId (PK), Name.
+•	Bảng Technologies: TechnologyId (PK), Name (NVARCHAR, UNIQUE).
+•	Bảng Courses (Tùy chọn): CourseId (PK), CourseCode, CourseName.
+•	Bảng Projects: 
+o	ProjectId (PK, INT, IDENTITY).
+o	Title (NVARCHAR, NOT NULL).
+o	Description (NVARCHAR(MAX)).
+o	ThumbnailUrl (NVARCHAR, NULL).
+o	ProjectUrl (NVARCHAR, NULL): Link GitHub/GitLab...
+o	DemoUrl (NVARCHAR, NULL): Link chạy thử.
+o	VideoUrl (NVARCHAR, NULL).
+o	Status (VARCHAR: 'InProgress', 'Completed', 'Paused').
+o	CourseId (FK -> Courses, NULL).
+o	CreatorUserId (FK -> Users, INT, NOT NULL).
+o	CreatedAt (DATETIME2).
+o	UpdatedAt (DATETIME2, NULL).
+o	IsApproved (BIT, DEFAULT 0): Trạng thái kiểm duyệt (nếu cần).
+o	VoteCount (INT, DEFAULT 0) (Nếu có tính năng vote).
+•	Bảng ProjectCategories: ProjectId (FK), CategoryId (FK). (PK gồm ProjectId, CategoryId).
+•	Bảng ProjectTechnologies: ProjectId (FK), TechnologyId (FK). (PK gồm ProjectId, TechnologyId).
+•	Bảng ProjectMembers: ProjectId (FK), UserId (FK), RoleInProject (VARCHAR: 'Leader', 'Member'). (PK gồm ProjectId, UserId).
+•	Bảng ProjectImages (Tùy chọn): ImageId (PK), ProjectId (FK), ImageUrl, Caption.
+•	Bảng Comments: CommentId (PK, INT, IDENTITY), ProjectId (FK -> Projects), AuthorUserId (FK -> Users), Content (NVARCHAR(MAX)), CreatedAt, ParentCommentId (FK -> Comments, NULL - để làm trả lời bình luận).
+•	Bảng Votes (Tùy chọn): VoteId (PK), UserId (FK), ProjectId (FK, NULL), CommentId (FK, NULL), VoteType (BIT/SMALLINT: 1 for upvote). UNIQUE (UserId, ProjectId), UNIQUE (UserId, CommentId).
 7. Lưu ý quan trọng:
-•	Bảo mật & Riêng tư: 
-o	Băm mật khẩu an toàn.
-o	Cẩn thận với việc hiển thị thông tin liên hệ cá nhân. Cần cho người dùng lựa chọn rõ ràng. Nếu có hệ thống nhắn tin nội bộ, cần đảm bảo an toàn.
-o	Validate dữ liệu đầu vào kỹ lưỡng.
-•	Hiệu suất: 
-o	Tối ưu truy vấn tìm kiếm/lọc (sử dụng index cho CategoryId, ItemStatus, DateLostOrFound, full-text search cho Title/Description nếu cần).
-o	Xử lý tải ảnh hiệu quả (nén ảnh, sử dụng CDN nếu cần).
-o	Phân trang khi hiển thị danh sách tin đăng.
-•	Trải nghiệm người dùng: 
-o	Giao diện tìm kiếm, lọc, đăng tin phải đơn giản, dễ sử dụng.
-o	Hiển thị ảnh rõ ràng.
-o	Quy trình đánh dấu "đã trả" cần thuận tiện.
-•	Quản trị (Tùy chọn): Có thể cần vai trò Admin để quản lý danh mục, xóa các tin không phù hợp, quản lý người dùng.
-Ý tưởng "FindIt@TLU" này tập trung vào việc giải quyết một vấn đề thực tế trong môi trường học đường/cộng đồng, có các chức năng CRUD cơ bản và tiềm năng mở rộng, phù hợp cho một đồ án môn học.
+•	Xử lý Media: Cần có cơ chế tải lên, lưu trữ (trên server hoặc cloud storage như Azure Blob Storage, AWS S3) và hiển thị hình ảnh/video hiệu quả.
+•	Tìm kiếm & Lọc: Chức năng tìm kiếm và lọc cần được thiết kế tốt và tối ưu (sử dụng index, có thể cân nhắc Full-Text Search).
+•	Quản lý Thẻ/Danh mục: Quyết định cơ chế quản lý (Admin tạo trước hay cho người dùng tự do thêm - cần kiểm duyệt).
+•	Quyền riêng tư: Cân nhắc quyền xem dự án (công khai, chỉ thành viên TLU, chỉ thành viên nhóm?).
+•	Kiểm duyệt: Cần có quy trình kiểm duyệt nội dung nếu cho phép người dùng đăng tải tự do để tránh nội dung không phù hợp.
+Đề tài "TLU Project Expo" tạo ra một không gian giá trị để sinh viên thể hiện năng lực, học hỏi lẫn nhau và có thể là cầu nối với giảng viên hoặc nhà tuyển dụng. Nó bao gồm đủ các yếu tố CRUD, quản lý quan hệ và các tính năng tương tác thú vị.
+
