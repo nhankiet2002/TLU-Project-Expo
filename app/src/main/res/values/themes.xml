@@ -6,4 +6,10 @@
     </style>
 
     <style name="Theme.TluProjectExpo" parent="Base.Theme.TluProjectExpo" />
+    <style name="TitleAdministrator" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/inter_variable_font</item>
+    </style>
 </resources>

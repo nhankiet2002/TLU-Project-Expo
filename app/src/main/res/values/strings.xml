@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">TluProjectExpo</string>
+    <string name="sys_manager">Quản lý hệ thống</string>
+    <string name="user">Người dùng</string>
+    <string name="category">Danh mục</string>
+    <string name="featured">Nổi bật</string>
+    <string name="censor">Kiểm duyệt</string>
 </resources>
