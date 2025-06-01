@@ -30,30 +30,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgTLU" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnLogIn"
         android:layout_width="361dp"
         android:layout_height="55dp"
         android:layout_marginTop="36dp"
-        android:textSize="17dp"
-        android:backgroundTint="@color/black"
         android:text="Đăng nhập"
-        android:textColor="@color/white"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@color/black"
+        app:strokeWidth="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtTitleTLU" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSignUp"
         android:layout_width="361dp"
         android:layout_height="55dp"
-        android:text="Đăng kí"
+        android:text="Đăng ký"
         android:textColor="@color/black"
-        android:textSize="20dp"
+        android:textSize="17sp"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@android:color/transparent"
+        app:strokeWidth="2dp"
+        app:strokeColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:backgroundTint="@android:color/transparent"
         app:layout_constraintTop_toBottomOf="@+id/btnLogIn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
