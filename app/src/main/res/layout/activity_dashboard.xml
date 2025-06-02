@@ -66,21 +66,12 @@
                             android:layout_width="wrap_content"
                             android:text="Admin"
                             />
-                        <TextView
-                            android:id="@+id/rapnw3rt66e9"
-                            android:textColor="#49454F"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Admin"
-                            />
                     </LinearLayout>
                     <ImageView
                         android:id="@+id/rd023rygvl5n"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:src="@mipmap/ic_launcher"
+                        app:srcCompat="@drawable/ic_chevrons_right"
                         android:scaleType="fitXY"
                         />
                 </LinearLayout>
