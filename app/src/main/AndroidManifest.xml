@@ -13,10 +13,13 @@
         android:theme="@style/Theme.TluProjectExpo"
         tools:targetApi="31">
         <activity
+            android:name=".CatalogManagementPage"
+            android:exported="false" />
+        <activity
             android:name=".Dashboard"
             android:exported="false" />
         <activity
-            android:name=".UserAdministrationPage"
+            android:name=".UserManagementPage"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
