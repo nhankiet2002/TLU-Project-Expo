@@ -83,7 +83,7 @@
                     android:layout_marginBottom="31dp"
                     android:orientation="vertical">
                     <LinearLayout
-                        android:id="@+id/rljo0tfkciic"
+                        android:id="@+id/btn_logout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
@@ -101,7 +101,7 @@
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_marginEnd="90dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/ic_chevron_one_right"
                             android:scaleType="fitXY"
                             />
                         <TextView
@@ -118,12 +118,12 @@
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/ic_logout"
                             android:scaleType="fitXY"
                             />
                     </LinearLayout>
                     <LinearLayout
-                        android:id="@+id/rseyzxpsvllr"
+                        android:id="@+id/btn_user"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
@@ -140,7 +140,7 @@
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/ic_users"
                             android:scaleType="fitXY"
                             />
                         <View
@@ -166,12 +166,12 @@
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/ic_chevron_one_right"
                             android:scaleType="fitXY"
                             />
                     </LinearLayout>
                     <LinearLayout
-                        android:id="@+id/r0nsll4yogfjm"
+                        android:id="@+id/btn_censor"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
@@ -188,7 +188,7 @@
                             app:shapeAppearanceOverlay="@style/cr8"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/ic_shield"
                             android:scaleType="fitXY"
                             />
                         <View
@@ -214,52 +214,54 @@
                             app:shapeAppearanceOverlay="@style/cr8"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/ic_chevron_one_right"
                             android:scaleType="fitXY"
                             />
                     </LinearLayout>
+
                     <LinearLayout
-                        android:id="@+id/r7hfofxlsoug"
+                        android:id="@+id/btn_featured"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/s383838sw1cr5bffffff"
-                        android:paddingVertical="15dp"
-                        android:paddingHorizontal="12dp"
-                        android:layout_marginBottom="60dp"
                         android:layout_marginHorizontal="15dp"
+                        android:layout_marginBottom="60dp"
+                        android:background="@drawable/s383838sw1cr5bffffff"
                         android:clickable="true"
                         android:focusable="true"
-                        android:orientation="horizontal">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="15dp">
+
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/rgsbbiinlahm"
-                            app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_marginEnd="92dp"
-                            android:src="@mipmap/ic_launcher"
                             android:scaleType="fitXY"
-                            />
+                            app:shapeAppearanceOverlay="@style/cr5"
+                            app:srcCompat="@drawable/ic_star" />
+
                         <TextView
                             android:id="@+id/rrdw7se39ldl"
-                            android:textColor="#1E1E1E"
-                            android:textSize="20sp"
-                            android:layout_height="wrap_content"
                             android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Nổi bật"
-                            />
+                            android:textColor="#1E1E1E"
+                            android:textSize="20sp" />
+
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/ru3qe8mi1w6o"
-                            app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:src="@mipmap/ic_launcher"
                             android:scaleType="fitXY"
-                            />
+                            app:shapeAppearanceOverlay="@style/cr5"
+                            app:srcCompat="@drawable/ic_chevron_one_right" />
                     </LinearLayout>
+
                     <LinearLayout
-                        android:id="@+id/ry95pej9qcyo"
+                        android:id="@+id/btn_category"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
@@ -276,7 +278,7 @@
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_marginEnd="92dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/ic_tag"
                             android:scaleType="fitXY"
                             />
                         <TextView
@@ -293,7 +295,7 @@
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/ic_chevron_one_right"
                             android:scaleType="fitXY"
                             />
                     </LinearLayout>
@@ -318,7 +320,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginBottom="8dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/"
                             android:scaleType="fitXY"
                             />
                         <TextView
@@ -345,7 +347,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginBottom="8dp"
-                            android:src="@mipmap/ic_launcher"
+                            app:srcCompat="@drawable/"
                             android:scaleType="fitXY"
                             />
                         <TextView
