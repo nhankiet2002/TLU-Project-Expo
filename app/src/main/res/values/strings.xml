@@ -5,4 +5,7 @@
     <string name="category">Danh mục</string>
     <string name="featured">Nổi bật</string>
     <string name="censor">Kiểm duyệt</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="admin">Admin</string>
+    <string name="home">Trang chủ</string>
 </resources>
