@@ -7,14 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <ScrollView
-        android:id="@+id/rpezyrqtbh1e"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@drawable/s000000sw1cr5">
+        android:layout_weight="1">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
             <LinearLayout
                 android:id="@+id/r6w9myzt70p3"
@@ -23,33 +21,23 @@
                 android:background="#FFFFFF"
                 android:orientation="vertical">
                 <LinearLayout
-                    android:id="@+id/r6bfbkeilgz8"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:paddingVertical="20dp"
                     android:paddingHorizontal="25dp"
                     android:orientation="horizontal">
-                    <LinearLayout
-                        android:id="@+id/r31834ej3sx5"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/cr999b000000"
-                        android:padding="19dp"
-                        android:layout_marginEnd="23dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/r36giznrer3i"
-                            android:textColor="#FFFFFF"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="A"
-                            />
-                    </LinearLayout>
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/avatar_image_view"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:padding="4dp"
+                        android:layout_marginEnd="20dp"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                        android:src="@drawable/image7"
+                        android:scaleType="centerCrop" />
+
                     <LinearLayout
                         android:id="@+id/riufyej4q04"
                         android:layout_width="0dp"
@@ -68,18 +56,19 @@
                             />
                     </LinearLayout>
                     <ImageView
-                        android:id="@+id/rd023rygvl5n"
+                        android:id="@+id/btn_go_to_admin_profile"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         app:srcCompat="@drawable/ic_chevrons_right"
                         android:scaleType="fitXY"
+                        android:clickable="true"
+                        android:focusable="true"
                         />
                 </LinearLayout>
                 <LinearLayout
-                    android:id="@+id/rrv5vbi291yb"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="84dp"
+                    android:paddingVertical="10dp"
                     android:layout_marginBottom="31dp"
                     android:orientation="vertical">
                     <LinearLayout
@@ -87,7 +76,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:background="@drawable/s383838sw1cr5bffffff"
                         android:paddingVertical="15dp"
                         android:paddingHorizontal="13dp"
                         android:layout_marginBottom="60dp"
@@ -95,25 +83,33 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:orientation="horizontal">
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <ImageView
                             android:id="@+id/rhael7ta1zeq"
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:layout_marginEnd="90dp"
                             app:srcCompat="@drawable/ic_chevron_one_right"
                             android:scaleType="fitXY"
+                            />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
                             />
                         <TextView
                             android:id="@+id/r05cibtqkl713"
                             android:textColor="#1E1E1E"
                             android:textSize="20sp"
                             android:layout_height="wrap_content"
-                            android:layout_width="match_parent"
-                            android:layout_weight="1"
+                            android:layout_width="wrap_content"
                             android:text="Đăng xuất"
                             />
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            />
+                        <ImageView
                             android:id="@+id/ryeuv3a8uvw"
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
@@ -127,7 +123,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:background="@drawable/s383838sw1cr5bffffff"
                         android:paddingVertical="15dp"
                         android:paddingHorizontal="12dp"
                         android:layout_marginBottom="60dp"
@@ -135,7 +130,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:orientation="horizontal">
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <ImageView
                             android:id="@+id/rhn6jqe48lq6"
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
@@ -161,7 +156,7 @@
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             />
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <ImageView
                             android:id="@+id/rl69y2fdlec"
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
@@ -183,7 +178,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:orientation="horizontal">
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <ImageView
                             android:id="@+id/rbwfrcxvy6is"
                             app:shapeAppearanceOverlay="@style/cr8"
                             android:layout_width="30dp"
@@ -209,7 +204,7 @@
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             />
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <ImageView
                             android:id="@+id/r7vcr2g8xb9g"
                             app:shapeAppearanceOverlay="@style/cr8"
                             android:layout_width="30dp"
@@ -225,7 +220,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="15dp"
                         android:layout_marginBottom="60dp"
-                        android:background="@drawable/s383838sw1cr5bffffff"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center_vertical"
@@ -233,25 +227,31 @@
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="15dp">
 
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <ImageView
                             android:id="@+id/rgsbbiinlahm"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:layout_marginEnd="92dp"
                             android:scaleType="fitXY"
                             app:shapeAppearanceOverlay="@style/cr5"
                             app:srcCompat="@drawable/ic_star" />
-
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            />
                         <TextView
                             android:id="@+id/rrdw7se39ldl"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:text="Nổi bật"
                             android:textColor="#1E1E1E"
                             android:textSize="20sp" />
-
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            />
+                        <ImageView
                             android:id="@+id/ru3qe8mi1w6o"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
@@ -265,32 +265,39 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:background="@drawable/s383838sw1cr5bffffff"
                         android:paddingVertical="15dp"
                         android:paddingHorizontal="12dp"
                         android:layout_marginHorizontal="15dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:orientation="horizontal">
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <ImageView
                             android:id="@+id/r1e8ic3m5io3"
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:layout_marginEnd="92dp"
                             app:srcCompat="@drawable/ic_tag"
                             android:scaleType="fitXY"
+                            />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
                             />
                         <TextView
                             android:id="@+id/rs70okr42eb"
                             android:textColor="#1E1E1E"
                             android:textSize="20sp"
                             android:layout_height="wrap_content"
-                            android:layout_width="match_parent"
-                            android:layout_weight="1"
+                            android:layout_width="wrap_content"
                             android:text="Danh mục"
                             />
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            />
+                        <ImageView
                             android:id="@+id/rq2uq78ub3l"
                             app:shapeAppearanceOverlay="@style/cr5"
                             android:layout_width="30dp"
@@ -314,13 +321,15 @@
                         android:gravity="center_horizontal"
                         android:paddingVertical="8dp"
                         android:paddingHorizontal="69dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true">
                         <ImageView
                             android:id="@+id/rlyyqonama0i"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginBottom="8dp"
-                            app:srcCompat="@drawable/"
+                            app:srcCompat="@drawable/ic_home1"
                             android:scaleType="fitXY"
                             />
                         <TextView
@@ -341,13 +350,15 @@
                         android:gravity="center_horizontal"
                         android:paddingVertical="8dp"
                         android:paddingHorizontal="81dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true">
                         <ImageView
                             android:id="@+id/rvum14zthb1"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginBottom="8dp"
-                            app:srcCompat="@drawable/"
+                            app:srcCompat="@drawable/ic_one_user"
                             android:scaleType="fitXY"
                             />
                         <TextView
