@@ -8,4 +8,8 @@
     <string name="logout">Đăng xuất</string>
     <string name="admin">Admin</string>
     <string name="home">Trang chủ</string>
+    <string name="search_user">Tìm kiếm người dùng...</string>
+    <string name="active">Hoạt động</string>
+    <string name="locked">Đã khóa</string>
+    <string name="see_more">Xem thêm</string>
 </resources>

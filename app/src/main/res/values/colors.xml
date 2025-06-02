@@ -2,4 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="light_gray">#BDBDBD</color>
+    <color name="active">#2E9364</color>
+    <color name="active_background">#C9EAC6</color>
+    <color name="locked">#C92B2B</color>
+    <color name="locked_background">#EAC6C6</color>
+    <color name="switch_track_green_on">#0abe6a</color>
+    <color name="switch_thumb_white_on">#FFFFFF</color>
+    <color name="switch_track_gray_off">#e6e0e9</color>
+    <color name="switch_thumb_dark_gray_off">#79747e</color>
 </resources>
