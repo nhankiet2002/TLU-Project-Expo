@@ -1,4 +1,4 @@
-package com.example.tlu_project_expo.fragment;
+package com.cse441.tluprojectexpo.fragment;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;

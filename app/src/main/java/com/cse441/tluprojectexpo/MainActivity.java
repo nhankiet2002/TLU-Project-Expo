@@ -1,4 +1,4 @@
-package com.example.tlu_project_expo;
+package com.cse441.tluprojectexpo;
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -16,7 +16,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.example.tlu_project_expo.fragment.ViewPagerAdapter;
+import com.cse441.tluprojectexpo.fragment.ViewPagerAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

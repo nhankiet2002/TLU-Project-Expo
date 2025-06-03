@@ -1,4 +1,4 @@
-package com.example.tlu_project_expo.fragment;
+package com.cse441.tluprojectexpo.fragment;
 
 import android.os.Bundle;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.tlu_project_expo.R;
+import com.cse441.tluprojectexpo.R;
 
 /**
  * A simple {@link Fragment} subclass.

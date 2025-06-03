@@ -1,4 +1,4 @@
-package com.example.tlu_project_expo;
+package com.cse441.tluprojectexpo;
 
 import org.junit.Test;
 

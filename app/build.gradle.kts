@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tlu_project_expo"
+    namespace = "com.cse441.tluprojectexpo"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.tlu_project_expo"
+        applicationId = "com.cse441.tluprojectexpo"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
