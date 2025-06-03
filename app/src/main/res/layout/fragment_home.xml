@@ -31,44 +31,30 @@
             android:paddingBottom="12dp">
 
             <EditText
-            android:id="@+id/searchEditText"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
+                android:id="@+id/searchEditText"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
                 android:background="@drawable/search_bar_background"
                 android:drawableStart="@drawable/search"
-            android:drawablePadding="12dp"
-            android:hint="Tìm kiếm"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:inputType="text"
-            android:maxLines="1"
-            android:textColorHint="#8A000000"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"/>
+                android:drawablePadding="12dp"
+                android:hint="Tìm kiếm"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColorHint="#8A000000"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"/>
         </RelativeLayout>
 
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:fillViewport="true">
-
-        <LinearLayout
+        <!-- Filter Chips Container - Moved inside AppBarLayout -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp">
-
-        <!-- Filter Chips -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
             android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"> <!-- Adjusted padding -->
+
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupFilter"
                 android:layout_width="wrap_content"
@@ -81,10 +67,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Lĩnh vực/ Chủ đề"
-                    app:chipStrokeColor="@color/black"
-                    app:chipStrokeWidth="1dp"
+                    android:textColor="@android:color/black"
                     app:chipBackgroundColor="@android:color/white"
-                    android:textColor="@android:color/black"/>
+                    app:chipStrokeColor="@color/black"
+                    app:chipStrokeWidth="1dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_cong_nghe"
@@ -92,10 +78,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Công nghệ"
-                    app:chipStrokeColor="@color/black"
-                    app:chipStrokeWidth="1dp"
+                    android:textColor="@android:color/black"
                     app:chipBackgroundColor="@android:color/white"
-                    android:textColor="@android:color/black"/>
+                    app:chipStrokeColor="@color/black"
+                    app:chipStrokeWidth="1dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_trang_thai"
@@ -103,25 +89,44 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Trạng thái"
-                    app:chipStrokeColor="@color/black"
-                    app:chipStrokeWidth="1dp"
+                    android:textColor="@android:color/black"
                     app:chipBackgroundColor="@android:color/white"
-                    android:textColor="@android:color/black"/>
+                    app:chipStrokeColor="@color/black"
+                    app:chipStrokeWidth="1dp" />
 
             </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
+        </RelativeLayout>
 
+    </com.google.android.material.appbar.AppBarLayout>
 
-            <!-- RecyclerView để hiển thị danh sách dự án -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewProjects"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:nestedScrollingEnabled="false"
-                android:clipToPadding="false"
-                tools:listitem="@layout/list_item"/>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    <!-- Scrollable Content Area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:clipToPadding="false"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewProjects"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:listitem="@layout/list_item" />
+    <!-- android:nestedScrollingEnabled="false" is typically not needed here -->
+
+    <ProgressBar
+        android:id="@+id/progressBarLoadMore"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:padding="8dp"
+        android:visibility="gone" />
+</LinearLayout>
+
+    <!-- The empty NestedScrollView from the original code has been removed as it's not needed with this structure -->
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
