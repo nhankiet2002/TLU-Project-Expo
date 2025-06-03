@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.cse441.tluprojectexpo" />
+                  <option name="mobileSdkAppId" value="1:20110998428:android:20c72b8d50a4de7efa2659" />
+                  <option name="projectId" value="tlu-project-1ea40" />
+                  <option name="projectNumber" value="20110998428" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
