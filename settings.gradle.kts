@@ -19,6 +19,10 @@ dependencyResolutionManagement {
     }
 }
 
+<<<<<<< HEAD
 rootProject.name = "TluProjectExpo"
+=======
+rootProject.name = "TLU-Project-Expo"
+>>>>>>> 3bd8c38497bbcf2f73e1f90a33889359674805bb
 include(":app")
  

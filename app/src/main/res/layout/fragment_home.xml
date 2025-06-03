@@ -120,7 +120,11 @@
                 android:layout_marginTop="12dp"
                 android:nestedScrollingEnabled="false"
                 android:clipToPadding="false"
+<<<<<<< HEAD
                 tools:listitem="@layout/list_item"
+=======
+                tools:listitem="@layout/list_item_project"
+>>>>>>> 3bd8c38497bbcf2f73e1f90a33889359674805bb
                 tools:itemCount="3" />
 
     </LinearLayout>
