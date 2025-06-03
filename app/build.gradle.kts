@@ -32,7 +32,11 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.android.material:material:1.10.0")
+<<<<<<< HEAD
+=======
 
+>>>>>>> 3bd8c38497bbcf2f73e1f90a33889359674805bb
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
