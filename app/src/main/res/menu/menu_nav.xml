@@ -8,7 +8,7 @@
         android:title="Thêm dự án"
         android:icon="@drawable/create"
         />
-    <item android:id="@+id/menu_user"
+    <item android:id="@+id/menu_profile"
         android:title="Trang cá nhân"
         android:icon="@drawable/user"
 

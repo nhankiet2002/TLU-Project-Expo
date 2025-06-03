@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "20110998428",
+    "project_id": "tlu-project-1ea40",
+    "storage_bucket": "tlu-project-1ea40.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20110998428:android:20c72b8d50a4de7efa2659",
+        "android_client_info": {
+          "package_name": "com.cse441.tluprojectexpo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMcOOguKSdV9b8jZciBz1kOu61DUqp5GQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
