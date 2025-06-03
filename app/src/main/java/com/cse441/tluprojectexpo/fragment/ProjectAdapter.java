@@ -12,7 +12,7 @@ import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.Project; // Đảm bảo đúng đường dẫn
 import java.util.List;
 
-public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectViewHolder> {
+public class    ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectViewHolder> {
 
     private List<Project> projectList;
     private Context context; // Thêm context nếu cần cho Glide hoặc các thao tác khác

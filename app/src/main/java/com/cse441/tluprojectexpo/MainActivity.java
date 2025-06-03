@@ -71,16 +71,15 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
 
-                // SỬA LỖI 2: Sử dụng if-else if để tránh lỗi "constant expression required"
                 if (itemId == R.id.menu_home) {
                     viewPager.setCurrentItem(0);
                     return true; // Quan trọng: trả về true để đánh dấu đã xử lý
                 } else if (itemId == R.id.menu_create) {
                     viewPager.setCurrentItem(1);
-                    return true; // Quan trọng: trả về true
+                    return true;
                 }else if (itemId == R.id.menu_profile) {
                     viewPager.setCurrentItem(2);
-                    return true; // Quan trọng: trả về true
+                    return true;
                 }
                 return false; // Trả về false nếu không có item nào khớp (hoặc true tùy logic)
             }
