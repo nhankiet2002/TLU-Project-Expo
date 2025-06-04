@@ -19,5 +19,7 @@
     <string name="technology">Công nghệ</string>
     <string name="search_prj_comment">Tìm kiếm dự án, bình luận</string>
     <string name="wait_censor">Nội dung chờ duyệt</string>
-
+    <string name="search_featured">Tìm kiếm dự án nổi bật...</string>
+    <string name="project_featured">Dự án nổi bật</string>
+    <string name="add_project">Thêm dự án</string>
 </resources>
