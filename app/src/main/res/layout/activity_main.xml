@@ -5,12 +5,14 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottom_navigation"/>
+        android:layout_above="@+id/bottom_navigation"
+        android:clipToPadding="false"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -20,6 +22,6 @@
         android:background="@color/white"
         app:itemTextColor="@color/custom_color_nav"
         app:itemIconTint="@color/custom_color_nav"
-        app:menu="@menu/menu_nav" />
+        app:menu="@menu/menu_nav"/>
 
 </RelativeLayout>

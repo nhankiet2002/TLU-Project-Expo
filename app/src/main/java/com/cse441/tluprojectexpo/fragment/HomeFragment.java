@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore db;
     private ProgressBar progressBarMain; // ProgressBar chính khi tải lần đầu
     private ProgressBar progressBarLoadMore; // ProgressBar ở cuối danh sách khi tải thêm
+    private EditText searchEditText;
 
     private boolean isLoading = false; // Cờ báo đang tải dữ liệu
     private boolean isLastPage = false; // Cờ báo đã tải hết dữ liệu
@@ -72,6 +74,7 @@ public class HomeFragment extends Fragment {
 
         recyclerViewProjects = view.findViewById(R.id.recyclerViewProjects);
         progressBarMain = view.findViewById(R.id.progressBar); // ID của ProgressBar chính
+        searchEditText = view.findViewById(R.id.searchEditText);
         // Giả sử bạn có một ProgressBar khác ở cuối layout của Fragment hoặc trong item đặc biệt của RecyclerView
         // Nếu không, bạn có thể quản lý việc hiển thị/ẩn progressBarMain cho cả hai trường hợp
         // progressBarLoadMore = view.findViewById(R.id.progressBarLoadMore); // ID của ProgressBar load more
@@ -83,6 +86,9 @@ public class HomeFragment extends Fragment {
 
         // Thêm Listener để phát hiện cuộn
         setupScrollListener();
+
+        // Thiết lập EditText tìm kiếm
+        setupSearchEditText();
 
         // Tải dữ liệu ban đầu
         loadInitialProjects();
@@ -200,6 +206,59 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    private void setupSearchEditText() {
+        // Ngăn EditText tự động nhận focus khi fragment được tạo
+        searchEditText.clearFocus();
+        
+        // Thêm sự kiện click để hiện bàn phím khi người dùng chạm vào
+        searchEditText.setOnClickListener(v -> {
+            searchEditText.setFocusable(true);
+            searchEditText.setFocusableInTouchMode(true);
+            searchEditText.requestFocus();
+        });
+
+        // Thêm sự kiện khi người dùng nhập text
+        searchEditText.setOnEditorActionListener((v, actionId, event) -> {
+            // Xử lý tìm kiếm ở đây
+            String searchText = searchEditText.getText().toString();
+            if (!searchText.isEmpty()) {
+                // Thực hiện tìm kiếm
+                searchProjects(searchText);
+            }
+            return true;
+        });
+    }
+
+    private void searchProjects(String searchText) {
+        // Xóa dữ liệu cũ
+        projectDataList.clear();
+        projectAdapter.notifyDataSetChanged();
+        
+        // Tạo query tìm kiếm
+        Query searchQuery = db.collection("projects")
+                .whereGreaterThanOrEqualTo("name", searchText)
+                .whereLessThanOrEqualTo("name", searchText + '\uf8ff')
+                .limit(ITEMS_PER_PAGE);
+
+        // Thực hiện tìm kiếm
+        searchQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    for (QueryDocumentSnapshot document : querySnapshot) {
+                        Project project = document.toObject(Project.class);
+                        project.setId(document.getId());
+                        projectDataList.add(project);
+                    }
+                    projectAdapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(getContext(), "Không tìm thấy kết quả", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "Lỗi tìm kiếm: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     @Override
     public void onDestroyView() {

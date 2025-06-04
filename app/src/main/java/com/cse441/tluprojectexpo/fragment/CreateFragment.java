@@ -109,8 +109,8 @@ public class CreateFragment extends Fragment {
         // "Lĩnh vực" là tiền tố cho log
         fetchDataFromFirestore("categories", "name", categoryList, categoryAdapter, "Lĩnh vực");
         fetchDataFromFirestore("technologies", "name", technologyList, technologyAdapter, "Công nghệ");
-        // Giả sử collection cho Trạng thái là "project_statuses" và field chứa tên trạng thái là "status_name"
-        fetchDataFromFirestore("project_statuses", "status_name", statusList, statusAdapter, "Trạng thái");
+        // Giả sử collection cho Trạng thái là "projectStatuses" và field chứa tên trạng thái là "status_name"
+        fetchDataFromFirestore("projectStatuses", "name", statusList, statusAdapter, "Trạng thái");
 
         // --- (Tùy chọn) Thiết lập sự kiện khi người dùng chọn một mục trong dropdown ---
         setupItemClickListener(actvCategory, "Lĩnh vực");

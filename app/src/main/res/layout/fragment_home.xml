@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -12,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
+        android:fitsSystemWindows="true"
         app:elevation="2dp">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -42,18 +44,20 @@
                 android:paddingEnd="16dp"
                 android:inputType="text"
                 android:maxLines="1"
+                android:focusable="false"
+                android:focusableInTouchMode="true"
                 android:textColorHint="#8A000000"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"/>
         </RelativeLayout>
 
-        <!-- Filter Chips Container - Moved inside AppBarLayout -->
+        <!-- Filter Chips Container -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:paddingBottom="8dp"> <!-- Adjusted padding -->
+            android:paddingBottom="8dp">
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupFilter"
@@ -103,30 +107,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
-    android:clipToPadding="false"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewProjects"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        tools:listitem="@layout/list_item" />
-    <!-- android:nestedScrollingEnabled="false" is typically not needed here -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewProjects"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            tools:listitem="@layout/list_item" />
 
-    <ProgressBar
-        android:id="@+id/progressBarLoadMore"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:padding="8dp"
-        android:visibility="gone" />
-</LinearLayout>
+        <ProgressBar
+            android:id="@+id/progressBarLoadMore"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:padding="8dp"
+            android:visibility="gone" />
+    </LinearLayout>
 
-    <!-- The empty NestedScrollView from the original code has been removed as it's not needed with this structure -->
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

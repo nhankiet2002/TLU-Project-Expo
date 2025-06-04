@@ -2,19 +2,16 @@ package com.cse441.tluprojectexpo;
 
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View; // Thêm import này
-// import android.widget.TableLayout; // Import này không được sử dụng
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-// import androidx.annotation.Nullable; // Import này không được sử dụng
 import androidx.appcompat.app.AppCompatActivity;
-// import androidx.cardview.widget.CardView; // Import này không được sử dụng
-// import androidx.core.graphics.Insets; // Import này không được sử dụng
-// import androidx.core.view.ViewCompat; // Import này không được sử dụng
-// import androidx.core.view.WindowInsetsCompat; // Import này không được sử dụng
+
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-// import androidx.viewpager.widget.PagerAdapter; // Import này không được sử dụng
 import androidx.viewpager.widget.ViewPager;
 
 import com.cse441.tluprojectexpo.fragment.ViewPagerAdapter;
@@ -102,5 +99,27 @@ public class MainActivity extends AppCompatActivity {
 
         // Không cần gọi setVisibility ban đầu ở đây vì onPageSelected sẽ được gọi
         // khi ViewPager được thiết lập adapter và trang đầu tiên được chọn.
+        ViewCompat.setOnApplyWindowInsetsListener(bottomNavigationView, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+            // Chỉ áp dụng padding dưới cho BottomNavigationView
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.bottom);
+
+            // Quan trọng: Trả về windowInsets để các View khác vẫn có thể sử dụng
+            // nhưng không CONSUMED hoàn toàn nếu bạn không muốn chặn insets cho View con (nếu có)
+            // Tuy nhiên, đối với BottomNavigationView, thường là nó sẽ không có View con cần insets nữa.
+            // return windowInsets;
+
+            // Nếu bạn muốn báo là đã xử lý padding dưới:
+            // Tạo một WindowInsetsCompat mới không còn bottom inset nữa để truyền đi nếu cần
+            // return WindowInsetsCompat.Builder(windowInsets)
+            //         .setInsets(WindowInsetsCompat.Type.systemBars(),
+            //                 Insets.of(insets.left, insets.top, insets.right, 0)) // loại bỏ bottom inset
+            //         .build();
+
+            // Đơn giản nhất, nếu chỉ BottomNav cần padding dưới và không có gì dưới nó:
+            // Áp dụng padding và không truyền inset nữa (vì đã dùng)
+            return WindowInsetsCompat.CONSUMED; // Thử cách này trước
+        });
     }
+
 }
