@@ -37,4 +37,5 @@
     <string name="video">Video</string>
     <string name="member">Thành viên</string>
     <string name="comment">Bình luận</string>
+    <string name="delete_project">Xóa dự án</string>
 </resources>
