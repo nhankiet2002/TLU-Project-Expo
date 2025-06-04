@@ -170,17 +170,18 @@
                             />
                     </LinearLayout>
                 </LinearLayout>
+
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/custom_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@null"
-                    app:trackTint="@null"
                     android:layout_marginTop="30dp"
+                    android:checked="true"
+                    app:trackTint="@null"
+                    app:thumbTint="@null"
                     android:thumb="@drawable/switch_thumb_selector"
                     app:track="@drawable/switch_track_selector"
-                    android:checked="true"
-                    />
+                     />
             </LinearLayout>
 
 
@@ -251,11 +252,11 @@
                     android:id="@+id/custom_switch2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@null"
-                    app:trackTint="@null"
+                    android:thumbTint="@null"
+                    android:trackTint="@null"
                     android:layout_marginTop="30dp"
                     android:thumb="@drawable/switch_thumb_selector"
-                    app:track="@drawable/switch_track_selector"
+                    android:track="@drawable/switch_track_selector"
                     android:checked="false"
                     />
             </LinearLayout>

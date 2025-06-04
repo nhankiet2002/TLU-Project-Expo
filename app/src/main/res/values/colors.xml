@@ -11,4 +11,5 @@
     <color name="switch_thumb_white_on">#FFFFFF</color>
     <color name="switch_track_gray_off">#e6e0e9</color>
     <color name="switch_thumb_dark_gray_off">#79747e</color>
+    <color name="featured">#FF9800</color>
 </resources>

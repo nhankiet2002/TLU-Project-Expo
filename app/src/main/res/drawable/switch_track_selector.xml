@@ -6,7 +6,7 @@
             <corners android:radius="200dp" />
             <size
                 android:height="32dp"
-                android:width="60dp" />
+                android:width="80dp" />
         </shape>
     </item>
 
@@ -17,7 +17,7 @@
             <corners android:radius="200dp" />
             <size
                 android:height="32dp"
-                android:width="60dp" />
+                android:width="80dp" />
         </shape>
     </item>
 </selector>
