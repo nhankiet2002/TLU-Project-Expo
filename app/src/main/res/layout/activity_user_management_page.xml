@@ -149,13 +149,13 @@
                             android:id="@+id/role"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="11dp"
+                            android:background="@drawable/s00000040sw1cr12bffffff"
+                            android:padding="7dp"
                             android:text="@string/admin"
                             android:textColor="#000000"
                             android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:padding="7dp"
-                            android:layout_marginEnd="11dp"
-                            android:background="@drawable/s00000040sw1cr12bffffff"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/user_active"

@@ -17,5 +17,7 @@
     <string name="catalog_tag">Danh mục / Thẻ</string>
     <string name="field">Lĩnh vực</string>
     <string name="technology">Công nghệ</string>
+    <string name="search_prj_comment">Tìm kiếm dự án, bình luận</string>
+    <string name="wait_censor">Nội dung chờ duyệt</string>
 
 </resources>
