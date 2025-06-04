@@ -31,4 +31,10 @@
     <string name="email">Email:</string>
     <string name="role">Vai trò:</string>
     <string name="status">Trạng thái:</string>
+    <string name="project_detail">Chi tiết dự án</string>
+    <string name="short_description">Mô tả dự án</string>
+    <string name="source_code">Mã nguồn</string>
+    <string name="video">Video</string>
+    <string name="member">Thành viên</string>
+    <string name="comment">Bình luận</string>
 </resources>
