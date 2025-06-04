@@ -23,4 +23,12 @@
     <string name="project_featured">Dự án nổi bật</string>
     <string name="add_project">Thêm dự án</string>
     <string name="view_more">Xem chi tiết ></string>
+    <string name="save_record">Lưu thông tin</string>
+    <string name="back_user_detail">Người dùng/Chi tiết</string>
+    <string name="user_name1">Tên người dùng:</string>
+    <string name="department">Khoa:</string>
+    <string name="class_name">Lớp:</string>
+    <string name="email">Email:</string>
+    <string name="role">Vai trò:</string>
+    <string name="status">Trạng thái:</string>
 </resources>
