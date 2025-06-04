@@ -66,7 +66,7 @@
             app:layout_constraintTop_toBottomOf="@id/lblEmail">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editEmail"
+                android:id="@+id/edUsername"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:inputType="textEmailAddress"
