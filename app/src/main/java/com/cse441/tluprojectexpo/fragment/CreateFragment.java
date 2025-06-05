@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView; // Added for the label
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -24,10 +25,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment; // Dùng cho hành động quay lại của Navigation Component
+import androidx.navigation.fragment.NavHostFragment;
 
-import com.bumptech.glide.Glide; // Thư viện được khuyến nghị để tải ảnh
+import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
+import com.google.android.flexbox.FlexboxLayout; // Added for FlexboxLayout
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -36,7 +38,6 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
-// import java.util.Map; // Không còn được sử dụng trong đoạn mã này
 
 public class CreateFragment extends Fragment {
 
@@ -56,27 +57,30 @@ public class CreateFragment extends Fragment {
 
     private FirebaseFirestore db;
 
-    // Các View để xử lý ảnh/media
+    // Views for single project cover image
     private ImageView ivBackArrow;
     private FrameLayout flProjectImageContainer;
     private ImageView ivProjectImagePreview;
     private ImageView ivProjectImagePlaceholderIcon;
+    private Uri projectImageUri = null;
+
+    // Views and data for multiple media (gallery)
     private MaterialButton btnAddMedia;
+    private FlexboxLayout flexboxMediaPreviewContainer; // Added
+    private TextView tvMediaGalleryLabel; // Added
+    private List<Uri> selectedMediaUris = new ArrayList<>(); // Added to store multiple URIs
 
-    private Uri projectImageUri = null; // Để lưu trữ URI của ảnh dự án đã chọn
-
-    // Các ActivityResultLauncher để chọn tệp và yêu cầu quyền
     private ActivityResultLauncher<Intent> projectImagePickerLauncher;
     private ActivityResultLauncher<Intent> mediaPickerLauncher;
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
 
     private static final int PICK_PROJECT_IMAGE_ACTION = 1;
     private static final int PICK_MEDIA_ACTION = 2;
-    private int currentPickerAction; // Để biết trình chọn nào sẽ khởi chạy sau khi cấp quyền
+    private int currentPickerAction;
 
 
     public CreateFragment() {
-        // Constructor công khai rỗng bắt buộc
+        // Required empty public constructor
     }
 
     @Override
@@ -84,8 +88,6 @@ public class CreateFragment extends Fragment {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
 
-        // Khởi tạo ActivityResultLaunchers
-        // Dùng để yêu cầu quyền
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), permissions -> {
             boolean allGranted = true;
             for (Boolean granted : permissions.values()) {
@@ -105,32 +107,30 @@ public class CreateFragment extends Fragment {
             }
         });
 
-        // Dùng để chọn ảnh dự án
         projectImagePickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 projectImageUri = result.getData().getData();
                 if (projectImageUri != null && getContext() != null) {
                     Glide.with(this)
                             .load(projectImageUri)
-                            .centerCrop() // Đảm bảo ảnh lấp đầy ImageView
+                            .centerCrop()
                             .into(ivProjectImagePreview);
                     ivProjectImagePreview.setVisibility(View.VISIBLE);
                     ivProjectImagePlaceholderIcon.setVisibility(View.GONE);
-                    flProjectImageContainer.setBackground(null); // Xóa nền của trình giữ chỗ
+                    flProjectImageContainer.setBackground(null);
                     Log.d(TAG, "Đã chọn ảnh dự án: " + projectImageUri.toString());
                 }
             }
         });
 
-        // Dùng để chọn media chung (ảnh/video)
         mediaPickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 Uri selectedMediaUri = result.getData().getData();
                 if (selectedMediaUri != null) {
-                    // Xử lý URI media đã chọn (ví dụ: hiển thị, thêm vào danh sách)
-                    Toast.makeText(getContext(), "Đã chọn Media: " + selectedMediaUri.toString(), Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "Đã chọn media chung: " + selectedMediaUri.toString());
-                    // TODO: Thêm logic để xử lý media đã chọn này (ví dụ: thêm vào danh sách media của dự án)
+                    selectedMediaUris.add(selectedMediaUri); // Add to the list
+                    updateMediaPreviewGallery(); // Refresh the gallery display
+                    Log.d(TAG, "Đã chọn media chung: " + selectedMediaUri.toString() + ". Tổng số: " + selectedMediaUris.size());
+                    Toast.makeText(getContext(), "Đã thêm media.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -154,14 +154,17 @@ public class CreateFragment extends Fragment {
         TextInputLayout tilTechnology = view.findViewById(R.id.til_technology);
         TextInputLayout tilStatus = view.findViewById(R.id.til_status);
 
-        // Các view ảnh/media
+        // Single project cover image views
         ivBackArrow = view.findViewById(R.id.iv_back_arrow);
         flProjectImageContainer = view.findViewById(R.id.fl_project_image_container);
         ivProjectImagePreview = view.findViewById(R.id.iv_project_image_preview);
         ivProjectImagePlaceholderIcon = view.findViewById(R.id.iv_project_image_placeholder_icon);
-        btnAddMedia = view.findViewById(R.id.btn_add_media);
 
-        // --- Thiết lập Adapters ---
+        // Multiple media gallery views
+        btnAddMedia = view.findViewById(R.id.btn_add_media);
+        flexboxMediaPreviewContainer = view.findViewById(R.id.flexbox_media_preview_container); // Initialize FlexboxLayout
+        tvMediaGalleryLabel = view.findViewById(R.id.tv_media_gallery_label); // Initialize Label
+
         categoryAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, categoryList);
         actvCategory.setAdapter(categoryAdapter);
 
@@ -171,33 +174,19 @@ public class CreateFragment extends Fragment {
         statusAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, statusList);
         actvStatus.setAdapter(statusAdapter);
 
-        // --- Tải dữ liệu từ Firestore ---
         fetchDataFromFirestore("categories", "name", categoryList, categoryAdapter, "Lĩnh vực");
         fetchDataFromFirestore("technologies", "name", technologyList, technologyAdapter, "Công nghệ");
         fetchDataFromFirestore("projectStatuses", "name", statusList, statusAdapter, "Trạng thái");
 
-        // --- Bộ lắng nghe sự kiện Click cho AutoCompleteTextViews ---
         setupItemClickListener(actvCategory, "Lĩnh vực");
         setupItemClickListener(actvTechnology, "Công nghệ");
         setupItemClickListener(actvStatus, "Trạng thái");
 
-        // --- Bộ chuyển đổi Dropdown cho TextInputLayouts ---
         setupDropdownToggle(tilCategory, actvCategory);
         setupDropdownToggle(tilTechnology, actvTechnology);
         setupDropdownToggle(tilStatus, actvStatus);
 
-        // --- Thiết lập Bộ lắng nghe sự kiện Click cho các chức năng mới ---
-        ivBackArrow.setOnClickListener(v -> {
-            // Lựa chọn 1: Nếu sử dụng Android Navigation Component
-            NavHostFragment.findNavController(CreateFragment.this).navigateUp();
-
-            // Lựa chọn 2: Nếu quản lý giao dịch fragment thủ công
-            // if (getParentFragmentManager().getBackStackEntryCount() > 0) {
-            //     getParentFragmentManager().popBackStack();
-            // } else {
-            //     requireActivity().finish(); // Hoặc hành động quay lại phù hợp khác
-            // }
-        });
+        ivBackArrow.setOnClickListener(v -> NavHostFragment.findNavController(CreateFragment.this).navigateUp());
 
         flProjectImageContainer.setOnClickListener(v -> {
             currentPickerAction = PICK_PROJECT_IMAGE_ACTION;
@@ -206,17 +195,18 @@ public class CreateFragment extends Fragment {
             }
         });
 
-        btnAddMedia.setOnClickListener(v -> {
+        btnAddMedia.setOnClickListener(v -> { // This button now populates the gallery
             currentPickerAction = PICK_MEDIA_ACTION;
             if (checkAndRequestPermissions()) {
                 launchMediaPicker();
             }
         });
+        updateMediaPreviewGallery(); // Initial call in case there's saved state (though not implemented here)
     }
 
     private boolean checkAndRequestPermissions() {
         String[] permissionsToRequest;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionsToRequest = new String[]{
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_VIDEO
@@ -241,22 +231,68 @@ public class CreateFragment extends Fragment {
 
     private void launchProjectImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        // Để chọn ảnh chung, cũng có thể sử dụng:
-        // Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // intent.setType("image/*");
         projectImagePickerLauncher.launch(intent);
     }
 
     private void launchMediaPicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*"); // Ban đầu cho phép mọi loại tệp
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"}); // Chỉ định các loại tệp mong muốn
-        // Đối với Android 10 (API 29) trở lên, Intent.ACTION_OPEN_DOCUMENT có thể được ưu tiên để người dùng kiểm soát tốt hơn
-        // Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        // intent.addCategory(Intent.CATEGORY_OPENABLE);
-        // intent.setType("*/*");
-        // intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Allow multiple selection if desired
         mediaPickerLauncher.launch(intent);
+    }
+
+    private void updateMediaPreviewGallery() {
+        if (getContext() == null) return;
+
+        flexboxMediaPreviewContainer.removeAllViews(); // Clear existing previews
+
+        if (selectedMediaUris.isEmpty()) {
+            flexboxMediaPreviewContainer.setVisibility(View.GONE);
+            tvMediaGalleryLabel.setVisibility(View.GONE);
+            return;
+        }
+
+        flexboxMediaPreviewContainer.setVisibility(View.VISIBLE);
+        tvMediaGalleryLabel.setVisibility(View.VISIBLE);
+
+        // Convert 120dp to pixels
+        int imageSizeInDp = 120;
+        int imageSizeInPx = (int) (imageSizeInDp * getResources().getDisplayMetrics().density);
+        int marginInDp = 4; // Margin around each image
+        int marginInPx = (int) (marginInDp * getResources().getDisplayMetrics().density);
+
+        for (int i = 0; i < selectedMediaUris.size(); i++) {
+            Uri uri = selectedMediaUris.get(i);
+            ImageView imageView = new ImageView(getContext());
+            FlexboxLayout.LayoutParams layoutParams = new FlexboxLayout.LayoutParams(imageSizeInPx, imageSizeInPx);
+            layoutParams.setMargins(marginInPx, marginInPx, marginInPx, marginInPx);
+            imageView.setLayoutParams(layoutParams);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            // You might want a placeholder drawable
+            // imageView.setBackgroundResource(R.drawable.image_placeholder_square);
+
+
+            Glide.with(this)
+                    .load(uri)
+                    .placeholder(R.drawable.image_placeholder_square) // Make sure you have this drawable
+                    .error(R.drawable.error) // Make sure you have this drawable
+                    .centerCrop()
+                    .into(imageView);
+
+            // Add long click listener to remove the image
+            final int indexToRemove = i;
+            imageView.setOnLongClickListener(v -> {
+                selectedMediaUris.remove(indexToRemove);
+                updateMediaPreviewGallery(); // Refresh the gallery
+                Toast.makeText(getContext(), "Đã xóa ảnh/video.", Toast.LENGTH_SHORT).show();
+                return true; // Consume the long click
+            });
+            // Optional: click listener for other actions (e.g., view full screen)
+            // imageView.setOnClickListener(v -> { /* ... */ });
+
+            flexboxMediaPreviewContainer.addView(imageView);
+        }
     }
 
 
@@ -312,4 +348,23 @@ public class CreateFragment extends Fragment {
             });
         }
     }
+
+    // Make sure you have these drawables in your res/drawable folder:
+    // 1. image_placeholder_square.xml (e.g., a light gray square)
+    // <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    //     <solid android:color="#E0E0E0"/>
+    //     <corners android:radius="4dp"/>
+    // </shape>
+
+    // 2. ic_broken_image.xml (a generic broken image icon)
+    // <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    //     android:width="24dp"
+    //     android:height="24dp"
+    //     android:viewportWidth="24.0"
+    //     android:viewportHeight="24.0"
+    //     android:tint="?attr/colorControlNormal">
+    //     <path
+    //         android:fillColor="@android:color/darker_gray"
+    //         android:pathData="M21,5L3,5v14h18L21,5zM5,17l3.5,-4.5 2.5,3.01L14.5,11l4.5,6L5,17z"/>
+    // </vector>
 }
