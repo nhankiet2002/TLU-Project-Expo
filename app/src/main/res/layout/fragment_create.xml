@@ -9,14 +9,13 @@
     android:fitsSystemWindows="true"
     tools:context="com.cse441.tluprojectexpo.fragment.CreateFragment">
 
-    <!-- Top Bar -->
+    <!-- ... (Top Bar không đổi) ... -->
     <RelativeLayout
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:paddingStart="8dp"
         android:paddingEnd="16dp">
-        <!-- ... (nội dung Top Bar không đổi) ... -->
         <ImageView
             android:id="@+id/iv_back_arrow"
             android:layout_width="wrap_content"
@@ -39,6 +38,7 @@
             android:layout_toEndOf="@id/iv_back_arrow"
             android:layout_marginStart="8dp" />
     </RelativeLayout>
+
 
     <ScrollView
         android:layout_width="match_parent"
@@ -176,131 +176,122 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-        <!-- Khối chứa các nút Thêm thành viên, liên kết VÀ NÚT THÊM MEDIA SAU GALLERY -->
+        <!-- KHỐI NÚT "THÊM THÀNH VIÊN" (Chỉ chứa nút) -->
         <LinearLayout
+            android:id="@+id/ll_member_section_root"
             android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="start"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="0dp"> <!-- Không có margin bottom ở đây -->
 
-        <!-- Thêm thành viên Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_add_member"
             android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Thêm thành viên"
-        app:icon="@drawable/ic_person"
-        android:textColor="@android:color/white"
-        app:iconTint="@android:color/white"
-        app:iconGravity="textStart"
-        app:iconPadding="12dp"
-        app:backgroundTint="@color/button_gray_action_background_color"
-        app:cornerRadius="8dp"
-        android:textAllCaps="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:minHeight="48dp"
-        android:layout_marginBottom="8dp"
-        android:textSize="14sp"
-        android:gravity="start|center_vertical" />
+            android:layout_height="wrap_content"
+            android:text="Thêm thành viên"
+            app:icon="@drawable/ic_person"
+            style="@style/ActionMaterialButton" />
+    </LinearLayout>
 
-        <!-- Thêm liên kết Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_add_link"
-            android:layout_width="match_parent"
+    <!-- CONTAINER HIỂN THỊ THÀNH VIÊN ĐÃ CHỌN (Full width) -->
+    <LinearLayout
+        android:id="@+id/ll_selected_members_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+
+    <!-- KHỐI NÚT "THÊM LIÊN KẾT" (Chỉ chứa nút) -->
+    <LinearLayout
+        android:id="@+id/ll_link_section_root"
+        android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="start"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="0dp">
+    <!-- TODO: LinearLayout để chứa các liên kết đã thêm (full width, tương tự ll_selected_members_container) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_add_link"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Thêm liên kết"
         app:icon="@drawable/ic_link"
-        android:textColor="@android:color/white"
-        app:iconTint="@android:color/white"
-        app:iconGravity="textStart"
-        app:iconPadding="12dp"
-        app:backgroundTint="@color/button_gray_action_background_color"
-        app:cornerRadius="8dp"
-        android:textAllCaps="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:minHeight="48dp"
-        android:layout_marginBottom="8dp"
-        android:textSize="14sp"
-        android:gravity="start|center_vertical" />
+        style="@style/ActionMaterialButton" />
+</LinearLayout>
 
-        <!-- Label for the media gallery - Sẽ được hiển thị/ẩn bằng code -->
-        <TextView
-            android:id="@+id/tv_media_gallery_label"
-            android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ảnh/Video đã chọn (Nhấn giữ để xóa)"
-        android:textColor="@color/cardview_dark_background"
-        android:textSize="16sp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"/>
+    <!-- CONTAINER HIỂN THỊ GALLERY MEDIA (Full width) -->
+<TextView
+android:id="@+id/tv_media_gallery_label"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:text="Ảnh/Video đã chọn (Nhấn giữ để xóa)"
+android:textColor="@color/cardview_dark_background"
+android:textSize="16sp"
+android:layout_marginTop="12dp"
+android:layout_marginBottom="8dp"
+android:visibility="gone"/>
 
-        <!-- Container for selected media previews - Sẽ được hiển thị/ẩn bằng code -->
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/flexbox_media_preview_container"
-            android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:flexWrap="wrap"
-        app:alignItems="flex_start"
-        app:justifyContent="flex_start"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"/> <!-- Ban đầu ẩn -->
+<com.google.android.flexbox.FlexboxLayout
+android:id="@+id/flexbox_media_preview_container"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+app:flexWrap="wrap"
+app:alignItems="flex_start"
+app:justifyContent="flex_start"
+android:layout_marginBottom="8dp"
+android:visibility="gone"/>
 
-        <!-- Thêm ảnh/ video Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_add_media"
-            android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Thêm ảnh/ video"
-        app:icon="@drawable/ic_camera"
-        android:textColor="@android:color/white"
-        app:iconTint="@android:color/white"
-        app:iconGravity="textStart"
-        app:iconPadding="12dp"
-        app:backgroundTint="@color/button_gray_action_background_color"
-        app:cornerRadius="8dp"
-        android:textAllCaps="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:minHeight="48dp"
-        android:textSize="14sp"
-        android:gravity="start|center_vertical" />
+    <!-- KHỐI NÚT "THÊM ẢNH/VIDEO" (Chỉ chứa nút) -->
+<LinearLayout
+android:id="@+id/ll_media_section_root"
+android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="start"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="20dp">
+
+<com.google.android.material.button.MaterialButton
+android:id="@+id/btn_add_media"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:text="Thêm ảnh/ video"
+app:icon="@drawable/ic_camera"
+style="@style/ActionMaterialButton" />
     </LinearLayout>
 
 
     <!-- Trạng thái -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/til_status"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Trạng thái"
-        app:boxCornerRadiusTopStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusBottomEnd="8dp"
-        android:layout_marginBottom="16dp">
-        <AutoCompleteTextView
-            android:id="@+id/actv_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="none"
-            tools:ignore="LabelFor" />
-    </com.google.android.material.textfield.TextInputLayout>
+    <!-- ... (như cũ) ... -->
+<com.google.android.material.textfield.TextInputLayout
+android:id="@+id/til_status"
+style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="Trạng thái"
+app:boxCornerRadiusTopStart="8dp"
+app:boxCornerRadiusTopEnd="8dp"
+app:boxCornerRadiusBottomStart="8dp"
+app:boxCornerRadiusBottomEnd="8dp"
+android:layout_marginBottom="16dp">
+<AutoCompleteTextView
+    android:id="@+id/actv_status"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="none"
+    tools:ignore="LabelFor" />
+</com.google.android.material.textfield.TextInputLayout>
 
-</LinearLayout>
+
+    </LinearLayout>
     </ScrollView>
 
-    <!-- Create Project Button -->
+
 <com.google.android.material.button.MaterialButton
 android:id="@+id/btn_create_project"
 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"

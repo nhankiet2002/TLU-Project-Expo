@@ -1,5 +1,6 @@
 package com.cse441.tluprojectexpo.fragment;
 
+// ... (Imports như cũ) ...
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -12,11 +13,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView; // Added for the label
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,7 +32,8 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
-import com.google.android.flexbox.FlexboxLayout; // Added for FlexboxLayout
+import com.cse441.tluprojectexpo.model.Member;
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -39,9 +43,14 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateFragment extends Fragment {
+
+public class CreateFragment extends Fragment implements AddMemberDialogFragment.AddMemberDialogListener {
 
     private static final String TAG = "CreateFragment";
+
+    private ActivityResultLauncher<Intent> projectImagePickerLauncher;
+    private ActivityResultLauncher<Intent> mediaPickerLauncher;
+    private ActivityResultLauncher<String[]> requestPermissionLauncher;
 
     private AutoCompleteTextView actvCategory;
     private AutoCompleteTextView actvTechnology;
@@ -57,25 +66,26 @@ public class CreateFragment extends Fragment {
 
     private FirebaseFirestore db;
 
-    // Views for single project cover image
     private ImageView ivBackArrow;
     private FrameLayout flProjectImageContainer;
     private ImageView ivProjectImagePreview;
     private ImageView ivProjectImagePlaceholderIcon;
     private Uri projectImageUri = null;
 
-    // Views and data for multiple media (gallery)
     private MaterialButton btnAddMedia;
-    private FlexboxLayout flexboxMediaPreviewContainer; // Added
-    private TextView tvMediaGalleryLabel; // Added
-    private List<Uri> selectedMediaUris = new ArrayList<>(); // Added to store multiple URIs
+    private FlexboxLayout flexboxMediaPreviewContainer;
+    private TextView tvMediaGalleryLabel;
+    private List<Uri> selectedMediaUris = new ArrayList<>();
 
-    private ActivityResultLauncher<Intent> projectImagePickerLauncher;
-    private ActivityResultLauncher<Intent> mediaPickerLauncher;
-    private ActivityResultLauncher<String[]> requestPermissionLauncher;
+    private MaterialButton btnAddMember;
+    private MaterialButton btnAddLink;
+    private LinearLayout llSelectedMembersContainer;
+    private List<Member> selectedProjectMembers = new ArrayList<>();
 
-    private static final int PICK_PROJECT_IMAGE_ACTION = 1;
-    private static final int PICK_MEDIA_ACTION = 2;
+    private LinearLayout llMemberSectionRoot, llLinkSectionRoot, llMediaSectionRoot;
+
+    private static final int ACTION_PICK_PROJECT_IMAGE = 1;
+    private static final int ACTION_PICK_MEDIA = 2;
     private int currentPickerAction;
 
 
@@ -97,9 +107,9 @@ public class CreateFragment extends Fragment {
                 }
             }
             if (allGranted) {
-                if (currentPickerAction == PICK_PROJECT_IMAGE_ACTION) {
+                if (currentPickerAction == ACTION_PICK_PROJECT_IMAGE) {
                     launchProjectImagePicker();
-                } else if (currentPickerAction == PICK_MEDIA_ACTION) {
+                } else if (currentPickerAction == ACTION_PICK_MEDIA) {
                     launchMediaPicker();
                 }
             } else {
@@ -111,14 +121,10 @@ public class CreateFragment extends Fragment {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 projectImageUri = result.getData().getData();
                 if (projectImageUri != null && getContext() != null) {
-                    Glide.with(this)
-                            .load(projectImageUri)
-                            .centerCrop()
-                            .into(ivProjectImagePreview);
+                    Glide.with(this).load(projectImageUri).centerCrop().into(ivProjectImagePreview);
                     ivProjectImagePreview.setVisibility(View.VISIBLE);
                     ivProjectImagePlaceholderIcon.setVisibility(View.GONE);
-                    flProjectImageContainer.setBackground(null);
-                    Log.d(TAG, "Đã chọn ảnh dự án: " + projectImageUri.toString());
+                    if (flProjectImageContainer != null) flProjectImageContainer.setBackground(null);
                 }
             }
         });
@@ -127,9 +133,8 @@ public class CreateFragment extends Fragment {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 Uri selectedMediaUri = result.getData().getData();
                 if (selectedMediaUri != null) {
-                    selectedMediaUris.add(selectedMediaUri); // Add to the list
-                    updateMediaPreviewGallery(); // Refresh the gallery display
-                    Log.d(TAG, "Đã chọn media chung: " + selectedMediaUri.toString() + ". Tổng số: " + selectedMediaUris.size());
+                    selectedMediaUris.add(selectedMediaUri);
+                    updateMediaPreviewGallery();
                     Toast.makeText(getContext(), "Đã thêm media.", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -149,28 +154,30 @@ public class CreateFragment extends Fragment {
         actvCategory = view.findViewById(R.id.actv_category);
         actvTechnology = view.findViewById(R.id.actv_technology);
         actvStatus = view.findViewById(R.id.actv_status);
-
         TextInputLayout tilCategory = view.findViewById(R.id.til_category);
         TextInputLayout tilTechnology = view.findViewById(R.id.til_technology);
         TextInputLayout tilStatus = view.findViewById(R.id.til_status);
-
-        // Single project cover image views
         ivBackArrow = view.findViewById(R.id.iv_back_arrow);
         flProjectImageContainer = view.findViewById(R.id.fl_project_image_container);
         ivProjectImagePreview = view.findViewById(R.id.iv_project_image_preview);
         ivProjectImagePlaceholderIcon = view.findViewById(R.id.iv_project_image_placeholder_icon);
 
-        // Multiple media gallery views
+        llMemberSectionRoot = view.findViewById(R.id.ll_member_section_root);
+        btnAddMember = view.findViewById(R.id.btn_add_member);
+        llSelectedMembersContainer = view.findViewById(R.id.ll_selected_members_container);
+
+        llLinkSectionRoot = view.findViewById(R.id.ll_link_section_root);
+        btnAddLink = view.findViewById(R.id.btn_add_link);
+
+        llMediaSectionRoot = view.findViewById(R.id.ll_media_section_root);
         btnAddMedia = view.findViewById(R.id.btn_add_media);
-        flexboxMediaPreviewContainer = view.findViewById(R.id.flexbox_media_preview_container); // Initialize FlexboxLayout
-        tvMediaGalleryLabel = view.findViewById(R.id.tv_media_gallery_label); // Initialize Label
+        flexboxMediaPreviewContainer = view.findViewById(R.id.flexbox_media_preview_container);
+        tvMediaGalleryLabel = view.findViewById(R.id.tv_media_gallery_label);
 
         categoryAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, categoryList);
         actvCategory.setAdapter(categoryAdapter);
-
         technologyAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, technologyList);
         actvTechnology.setAdapter(technologyAdapter);
-
         statusAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, statusList);
         actvStatus.setAdapter(statusAdapter);
 
@@ -181,47 +188,79 @@ public class CreateFragment extends Fragment {
         setupItemClickListener(actvCategory, "Lĩnh vực");
         setupItemClickListener(actvTechnology, "Công nghệ");
         setupItemClickListener(actvStatus, "Trạng thái");
-
         setupDropdownToggle(tilCategory, actvCategory);
         setupDropdownToggle(tilTechnology, actvTechnology);
         setupDropdownToggle(tilStatus, actvStatus);
 
         ivBackArrow.setOnClickListener(v -> NavHostFragment.findNavController(CreateFragment.this).navigateUp());
-
         flProjectImageContainer.setOnClickListener(v -> {
-            currentPickerAction = PICK_PROJECT_IMAGE_ACTION;
-            if (checkAndRequestPermissions()) {
-                launchProjectImagePicker();
-            }
+            currentPickerAction = ACTION_PICK_PROJECT_IMAGE;
+            if (checkAndRequestPermissions()) launchProjectImagePicker();
+        });
+        btnAddMember.setOnClickListener(v -> {
+            AddMemberDialogFragment addMemberDialog = AddMemberDialogFragment.newInstance();
+            addMemberDialog.setDialogListener(this);
+            addMemberDialog.show(getChildFragmentManager(), "AddMemberDialog");
+        });
+        btnAddLink.setOnClickListener(v -> Toast.makeText(getContext(), "Chức năng Thêm liên kết sắp ra mắt!", Toast.LENGTH_SHORT).show());
+        btnAddMedia.setOnClickListener(v -> {
+            currentPickerAction = ACTION_PICK_MEDIA;
+            if (checkAndRequestPermissions()) launchMediaPicker();
         });
 
-        btnAddMedia.setOnClickListener(v -> { // This button now populates the gallery
-            currentPickerAction = PICK_MEDIA_ACTION;
-            if (checkAndRequestPermissions()) {
-                launchMediaPicker();
+        final View rootView = view;
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else {
+                    rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+                synchronizeButtonWidths();
             }
         });
-        updateMediaPreviewGallery(); // Initial call in case there's saved state (though not implemented here)
+        updateSelectedMembersUI();
+        updateMediaPreviewGallery();
+    }
+
+    private void synchronizeButtonWidths() {
+        if (llMemberSectionRoot == null || llLinkSectionRoot == null || llMediaSectionRoot == null) {
+            return;
+        }
+        int memberSectionWidth = llMemberSectionRoot.getWidth();
+        int linkSectionWidth = llLinkSectionRoot.getWidth();
+        int mediaSectionWidth = llMediaSectionRoot.getWidth();
+        int maxWidth = 0;
+        maxWidth = Math.max(maxWidth, memberSectionWidth);
+        maxWidth = Math.max(maxWidth, linkSectionWidth);
+        maxWidth = Math.max(maxWidth, mediaSectionWidth);
+        if (maxWidth > 0) {
+            ViewGroup.LayoutParams memberParams = llMemberSectionRoot.getLayoutParams();
+            memberParams.width = maxWidth;
+            llMemberSectionRoot.setLayoutParams(memberParams);
+            ViewGroup.LayoutParams linkParams = llLinkSectionRoot.getLayoutParams();
+            linkParams.width = maxWidth;
+            llLinkSectionRoot.setLayoutParams(linkParams);
+            ViewGroup.LayoutParams mediaParams = llMediaSectionRoot.getLayoutParams();
+            mediaParams.width = maxWidth;
+            llMediaSectionRoot.setLayoutParams(mediaParams);
+        }
     }
 
     private boolean checkAndRequestPermissions() {
         String[] permissionsToRequest;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionsToRequest = new String[]{
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO
-            };
+            permissionsToRequest = new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO};
         } else {
             permissionsToRequest = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
         }
-
         List<String> permissionsNeeded = new ArrayList<>();
         for (String permission : permissionsToRequest) {
             if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(permission);
             }
         }
-
         if (!permissionsNeeded.isEmpty()) {
             requestPermissionLauncher.launch(permissionsNeeded.toArray(new String[0]));
             return false;
@@ -238,30 +277,23 @@ public class CreateFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Allow multiple selection if desired
         mediaPickerLauncher.launch(intent);
     }
 
     private void updateMediaPreviewGallery() {
-        if (getContext() == null) return;
-
-        flexboxMediaPreviewContainer.removeAllViews(); // Clear existing previews
-
+        if (getContext() == null || flexboxMediaPreviewContainer == null || tvMediaGalleryLabel == null) return;
+        flexboxMediaPreviewContainer.removeAllViews();
         if (selectedMediaUris.isEmpty()) {
             flexboxMediaPreviewContainer.setVisibility(View.GONE);
             tvMediaGalleryLabel.setVisibility(View.GONE);
             return;
         }
-
         flexboxMediaPreviewContainer.setVisibility(View.VISIBLE);
         tvMediaGalleryLabel.setVisibility(View.VISIBLE);
-
-        // Convert 120dp to pixels
         int imageSizeInDp = 120;
         int imageSizeInPx = (int) (imageSizeInDp * getResources().getDisplayMetrics().density);
-        int marginInDp = 4; // Margin around each image
+        int marginInDp = 4;
         int marginInPx = (int) (marginInDp * getResources().getDisplayMetrics().density);
-
         for (int i = 0; i < selectedMediaUris.size(); i++) {
             Uri uri = selectedMediaUris.get(i);
             ImageView imageView = new ImageView(getContext());
@@ -269,73 +301,45 @@ public class CreateFragment extends Fragment {
             layoutParams.setMargins(marginInPx, marginInPx, marginInPx, marginInPx);
             imageView.setLayoutParams(layoutParams);
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            // You might want a placeholder drawable
-            // imageView.setBackgroundResource(R.drawable.image_placeholder_square);
-
-
-            Glide.with(this)
-                    .load(uri)
-                    .placeholder(R.drawable.image_placeholder_square) // Make sure you have this drawable
-                    .error(R.drawable.error) // Make sure you have this drawable
-                    .centerCrop()
-                    .into(imageView);
-
-            // Add long click listener to remove the image
+            Glide.with(this).load(uri).placeholder(R.drawable.image_placeholder_square).error(R.drawable.error).centerCrop().into(imageView);
             final int indexToRemove = i;
             imageView.setOnLongClickListener(v -> {
-                selectedMediaUris.remove(indexToRemove);
-                updateMediaPreviewGallery(); // Refresh the gallery
-                Toast.makeText(getContext(), "Đã xóa ảnh/video.", Toast.LENGTH_SHORT).show();
-                return true; // Consume the long click
+                if (indexToRemove < selectedMediaUris.size()) {
+                    selectedMediaUris.remove(indexToRemove);
+                    updateMediaPreviewGallery();
+                    Toast.makeText(getContext(), "Đã xóa ảnh/video.", Toast.LENGTH_SHORT).show();
+                }
+                return true;
             });
-            // Optional: click listener for other actions (e.g., view full screen)
-            // imageView.setOnClickListener(v -> { /* ... */ });
-
             flexboxMediaPreviewContainer.addView(imageView);
         }
     }
 
-
     private void fetchDataFromFirestore(String collectionName, String fieldName, List<String> dataList, ArrayAdapter<String> adapter, String logTagPrefix) {
-        Log.d(TAG, "Đang tải " + logTagPrefix + " từ Firestore (Collection: " + collectionName + ")");
         dataList.clear();
-
-        db.collection(collectionName)
-                .orderBy(fieldName)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        QuerySnapshot querySnapshot = task.getResult();
-                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            for (QueryDocumentSnapshot document : querySnapshot) {
-                                String value = document.getString(fieldName);
-                                if (value != null && !value.isEmpty()) {
-                                    dataList.add(value);
-                                }
-                            }
-                            adapter.notifyDataSetChanged();
-                            Log.d(TAG, "Đã tải xong " + logTagPrefix + ": " + dataList.size() + " mục.");
-                        } else {
-                            Log.d(TAG, "Không có " + logTagPrefix + " nào trong collection '" + collectionName + "'.");
-                            if(getContext() != null) {
-                                Toast.makeText(getContext(), "Không tìm thấy " + logTagPrefix.toLowerCase() + ".", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    } else {
-                        Log.w(TAG, "Lỗi khi lấy dữ liệu " + logTagPrefix + ": ", task.getException());
-                        if(getContext() != null) {
-                            Toast.makeText(getContext(), "Lỗi khi tải " + logTagPrefix.toLowerCase() + ".", Toast.LENGTH_SHORT).show();
-                        }
+        db.collection(collectionName).orderBy(fieldName).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    for (QueryDocumentSnapshot document : querySnapshot) {
+                        String value = document.getString(fieldName);
+                        if (value != null && !value.isEmpty()) dataList.add(value);
                     }
-                });
+                    if (adapter != null) adapter.notifyDataSetChanged();
+                } else {
+                    if (getContext() != null) Toast.makeText(getContext(), "Không tìm thấy " + logTagPrefix.toLowerCase() + ".", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                if (getContext() != null) Toast.makeText(getContext(), "Lỗi khi tải " + logTagPrefix.toLowerCase() + ".", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Lỗi khi lấy dữ liệu " + logTagPrefix + ": ", task.getException());
+            }
+        });
     }
 
     private void setupItemClickListener(AutoCompleteTextView autoCompleteTextView, String fieldName) {
         autoCompleteTextView.setOnItemClickListener((parent, MView, position, id) -> {
             String selectedItem = (String) parent.getItemAtPosition(position);
-            if(getContext() != null) {
-                Toast.makeText(requireContext(), "Đã chọn " + fieldName + ": " + selectedItem, Toast.LENGTH_SHORT).show();
-            }
+            if (getContext() != null) Toast.makeText(requireContext(), "Đã chọn " + fieldName + ": " + selectedItem, Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -344,27 +348,61 @@ public class CreateFragment extends Fragment {
             textInputLayout.setEndIconOnClickListener(v -> {
                 if (!autoCompleteTextView.isPopupShowing()) {
                     autoCompleteTextView.showDropDown();
+                } else {
+                    autoCompleteTextView.dismissDropDown();
                 }
             });
         }
     }
 
-    // Make sure you have these drawables in your res/drawable folder:
-    // 1. image_placeholder_square.xml (e.g., a light gray square)
-    // <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    //     <solid android:color="#E0E0E0"/>
-    //     <corners android:radius="4dp"/>
-    // </shape>
+    @Override
+    public void onMemberSelected(Member member) {
+        if (!isMemberAlreadyAdded(member.getUserId())) {
+            selectedProjectMembers.add(member);
+            updateSelectedMembersUI();
+            Toast.makeText(getContext(), member.getName() + " đã được thêm vào dự án.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), member.getName() + " đã có trong danh sách.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-    // 2. ic_broken_image.xml (a generic broken image icon)
-    // <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    //     android:width="24dp"
-    //     android:height="24dp"
-    //     android:viewportWidth="24.0"
-    //     android:viewportHeight="24.0"
-    //     android:tint="?attr/colorControlNormal">
-    //     <path
-    //         android:fillColor="@android:color/darker_gray"
-    //         android:pathData="M21,5L3,5v14h18L21,5zM5,17l3.5,-4.5 2.5,3.01L14.5,11l4.5,6L5,17z"/>
-    // </vector>
+    private boolean isMemberAlreadyAdded(String userId) {
+        if (userId == null) return false;
+        for (Member m : selectedProjectMembers) {
+            if (m.getUserId() != null && m.getUserId().equals(userId)) return true;
+        }
+        return false;
+    }
+
+    private void updateSelectedMembersUI() {
+        if (getContext() == null || llSelectedMembersContainer == null) return;
+        llSelectedMembersContainer.removeAllViews();
+        if (selectedProjectMembers.isEmpty()) {
+            llSelectedMembersContainer.setVisibility(View.GONE);
+            return;
+        }
+        llSelectedMembersContainer.setVisibility(View.VISIBLE);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        for (int i = 0; i < selectedProjectMembers.size(); i++) {
+            Member member = selectedProjectMembers.get(i);
+            if (member == null) continue;
+            View memberView = inflater.inflate(R.layout.item_selected_member, llSelectedMembersContainer, false);
+            ImageView ivAvatar = memberView.findViewById(R.id.iv_selected_member_avatar);
+            TextView tvName = memberView.findViewById(R.id.tv_selected_member_name);
+            TextView tvClass = memberView.findViewById(R.id.tv_selected_member_class);
+            ImageView ivRemove = memberView.findViewById(R.id.iv_remove_member);
+            tvName.setText(member.getName() != null ? member.getName() : "N/A");
+            tvClass.setText(member.getClassName() != null ? member.getClassName() : "N/A");
+            Glide.with(this).load(member.getAvatarUrl()).placeholder(R.drawable.ic_default_avatar).error(R.drawable.ic_default_avatar).into(ivAvatar);
+            final int memberIndexToRemove = i;
+            ivRemove.setOnClickListener(v -> {
+                if (memberIndexToRemove < selectedProjectMembers.size()) {
+                    Member removedMember = selectedProjectMembers.remove(memberIndexToRemove);
+                    updateSelectedMembersUI();
+                    Toast.makeText(getContext(), "Đã xóa " + (removedMember.getName() != null ? removedMember.getName() : "thành viên"), Toast.LENGTH_SHORT).show();
+                }
+            });
+            llSelectedMembersContainer.addView(memberView);
+        }
+    }
 }
