@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.adapter.ProjectAdapter;
 import com.cse441.tluprojectexpo.model.Project;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

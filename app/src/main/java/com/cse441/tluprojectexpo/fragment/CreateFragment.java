@@ -1,6 +1,5 @@
 package com.cse441.tluprojectexpo.fragment;
 
-// ... (Imports như cũ) ...
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -9,6 +8,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,12 +30,14 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.Member;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -42,7 +45,6 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class CreateFragment extends Fragment implements AddMemberDialogFragment.AddMemberDialogListener {
 
@@ -81,6 +83,8 @@ public class CreateFragment extends Fragment implements AddMemberDialogFragment.
     private MaterialButton btnAddLink;
     private LinearLayout llSelectedMembersContainer;
     private List<Member> selectedProjectMembers = new ArrayList<>();
+    private LinearLayout llAddedLinksContainer; // Container cho các link đã thêm
+    private List<String> projectLinks = new ArrayList<>(); // Danh sách lưu các URL
 
     private LinearLayout llMemberSectionRoot, llLinkSectionRoot, llMediaSectionRoot;
 
@@ -88,6 +92,9 @@ public class CreateFragment extends Fragment implements AddMemberDialogFragment.
     private static final int ACTION_PICK_MEDIA = 2;
     private int currentPickerAction;
 
+    private TextInputEditText etProjectName;
+    private TextInputEditText etProjectDescription;
+    private MaterialButton btnCreateProject;
 
     public CreateFragment() {
         // Required empty public constructor
@@ -168,6 +175,8 @@ public class CreateFragment extends Fragment implements AddMemberDialogFragment.
 
         llLinkSectionRoot = view.findViewById(R.id.ll_link_section_root);
         btnAddLink = view.findViewById(R.id.btn_add_link);
+        llAddedLinksContainer = view.findViewById(R.id.ll_added_links_container);
+
 
         llMediaSectionRoot = view.findViewById(R.id.ll_media_section_root);
         btnAddMedia = view.findViewById(R.id.btn_add_media);
@@ -192,7 +201,14 @@ public class CreateFragment extends Fragment implements AddMemberDialogFragment.
         setupDropdownToggle(tilTechnology, actvTechnology);
         setupDropdownToggle(tilStatus, actvStatus);
 
-        ivBackArrow.setOnClickListener(v -> NavHostFragment.findNavController(CreateFragment.this).navigateUp());
+        if (ivBackArrow != null) {
+            ivBackArrow.setOnClickListener(v -> {
+                ViewPager viewPager = requireActivity().findViewById(R.id.view_pager);
+                if (viewPager != null) {
+                    viewPager.setCurrentItem(0, true); // Lướt sang trái về Home
+                }
+            });
+        }
         flProjectImageContainer.setOnClickListener(v -> {
             currentPickerAction = ACTION_PICK_PROJECT_IMAGE;
             if (checkAndRequestPermissions()) launchProjectImagePicker();
@@ -202,7 +218,17 @@ public class CreateFragment extends Fragment implements AddMemberDialogFragment.
             addMemberDialog.setDialogListener(this);
             addMemberDialog.show(getChildFragmentManager(), "AddMemberDialog");
         });
-        btnAddLink.setOnClickListener(v -> Toast.makeText(getContext(), "Chức năng Thêm liên kết sắp ra mắt!", Toast.LENGTH_SHORT).show());
+        btnAddLink.setOnClickListener(v -> {
+            projectLinks.add(""); // Thêm một placeholder cho link mới
+            updateAddedLinksUI();
+            if (llAddedLinksContainer.getChildCount() > 0) {
+                View lastLinkView = llAddedLinksContainer.getChildAt(llAddedLinksContainer.getChildCount() - 1);
+                TextInputEditText etNewUrl = lastLinkView.findViewById(R.id.et_added_link_url);
+                if (etNewUrl != null) {
+                    etNewUrl.requestFocus();
+                }
+            }
+        });
         btnAddMedia.setOnClickListener(v -> {
             currentPickerAction = ACTION_PICK_MEDIA;
             if (checkAndRequestPermissions()) launchMediaPicker();
@@ -222,6 +248,66 @@ public class CreateFragment extends Fragment implements AddMemberDialogFragment.
         });
         updateSelectedMembersUI();
         updateMediaPreviewGallery();
+        updateAddedLinksUI();
+
+        etProjectName = view.findViewById(R.id.et_project_name);
+        etProjectDescription = view.findViewById(R.id.et_project_description);
+        btnCreateProject = view.findViewById(R.id.btn_create_project);
+        if (btnCreateProject != null && etProjectName != null) {
+            btnCreateProject.setOnClickListener(v -> {
+                String projectName = etProjectName.getText() != null ? etProjectName.getText().toString().trim() : "";
+                String projectDescription = etProjectDescription.getText() != null ? etProjectDescription.getText().toString().trim() : "";
+                String category = actvCategory.getText() != null ? actvCategory.getText().toString().trim() : "";
+                String technology = actvTechnology.getText() != null ? actvTechnology.getText().toString().trim() : "";
+                String status = actvStatus.getText() != null ? actvStatus.getText().toString().trim() : "";
+                List<String> memberIds = new ArrayList<>();
+                for (Member m : selectedProjectMembers) {
+                    if (m.getUserId() != null) memberIds.add(m.getUserId());
+                }
+                List<String> links = getValidProjectLinks();
+                List<String> mediaUris = new ArrayList<>();
+                for (Uri uri : selectedMediaUris) {
+                    if (uri != null) mediaUris.add(uri.toString());
+                }
+                String imageUri = projectImageUri != null ? projectImageUri.toString() : "";
+
+                if (projectName.isEmpty()) {
+                    SuccessNotificationDialogFragment dialog = SuccessNotificationDialogFragment.newInstance("Bạn chưa điền đủ thông tin");
+                    dialog.show(getParentFragmentManager(), "missing_info_dialog");
+                    return;
+                }
+
+                // Tạo map dữ liệu để lưu lên Firestore
+                java.util.Map<String, Object> projectData = new java.util.HashMap<>();
+                projectData.put("name", projectName);
+                projectData.put("description", projectDescription);
+                projectData.put("category", category);
+                projectData.put("technology", technology);
+                projectData.put("status", status);
+                projectData.put("imageUri", imageUri);
+                projectData.put("memberIds", memberIds);
+                projectData.put("links", links);
+                projectData.put("mediaUris", mediaUris);
+                projectData.put("createdAt", com.google.firebase.Timestamp.now());
+
+                db.collection("projects").add(projectData)
+                    .addOnSuccessListener(documentReference -> {
+                        SuccessNotificationDialogFragment dialog = SuccessNotificationDialogFragment.newInstance("Tạo dự án thành công");
+                        dialog.setOnDismissListener(() -> {
+                            // Quay lại HomeFragment khi tắt dialog
+                            ViewPager viewPager = requireActivity().findViewById(R.id.view_pager);
+                            if (viewPager != null) {
+                                viewPager.setCurrentItem(0, true);
+                            }
+                        });
+                        dialog.show(getParentFragmentManager(), "success_dialog");
+                    })
+                    .addOnFailureListener(e -> {
+                        SuccessNotificationDialogFragment dialog = SuccessNotificationDialogFragment.newInstance("Tạo dự án thất bại. Vui lòng thử lại!");
+                        dialog.show(getParentFragmentManager(), "fail_dialog");
+                    });
+            });
+        }
     }
 
     private void synchronizeButtonWidths() {
@@ -404,5 +490,63 @@ public class CreateFragment extends Fragment implements AddMemberDialogFragment.
             });
             llSelectedMembersContainer.addView(memberView);
         }
+    }
+
+    private void updateAddedLinksUI() {
+        if (getContext() == null || llAddedLinksContainer == null) {
+            return;
+        }
+        llAddedLinksContainer.removeAllViews();
+
+        if (projectLinks.isEmpty()) {
+            llAddedLinksContainer.setVisibility(View.GONE);
+            return;
+        }
+
+        llAddedLinksContainer.setVisibility(View.VISIBLE);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+
+        for (int i = 0; i < projectLinks.size(); i++) {
+            final int linkIndex = i;
+            String currentUrl = projectLinks.get(linkIndex);
+
+            View linkView = inflater.inflate(R.layout.item_added_link, llAddedLinksContainer, false);
+            TextInputEditText etLinkUrl = linkView.findViewById(R.id.et_added_link_url);
+            MaterialButton btnRemoveLink = linkView.findViewById(R.id.btn_remove_link_item);
+
+            etLinkUrl.setText(currentUrl);
+
+            etLinkUrl.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (linkIndex < projectLinks.size()) {
+                        projectLinks.set(linkIndex, s.toString());
+                    }
+                }
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
+
+            btnRemoveLink.setOnClickListener(v -> {
+                if (linkIndex < projectLinks.size()) {
+                    projectLinks.remove(linkIndex);
+                    updateAddedLinksUI();
+                    Toast.makeText(getContext(), "Đã xóa liên kết", Toast.LENGTH_SHORT).show();
+                }
+            });
+            llAddedLinksContainer.addView(linkView);
+        }
+    }
+
+    public List<String> getValidProjectLinks() {
+        List<String> validLinks = new ArrayList<>();
+        for (String link : projectLinks) {
+            if (link != null && !link.trim().isEmpty() && android.util.Patterns.WEB_URL.matcher(link.trim()).matches()) {
+                validLinks.add(link.trim());
+            }
+        }
+        return validLinks;
     }
 }
