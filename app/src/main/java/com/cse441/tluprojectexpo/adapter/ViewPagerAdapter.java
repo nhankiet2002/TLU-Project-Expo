@@ -1,10 +1,13 @@
-package com.cse441.tluprojectexpo.fragment;
+package com.cse441.tluprojectexpo.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import com.cse441.tluprojectexpo.fragment.CreateFragment;
+import com.cse441.tluprojectexpo.fragment.HomeFragment;
+import com.cse441.tluprojectexpo.fragment.ProfileFragment;
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public ViewPagerAdapter(@NonNull FragmentManager fm, int behavior) {

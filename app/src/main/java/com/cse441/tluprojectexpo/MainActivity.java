@@ -8,7 +8,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.core.graphics.Insets;
@@ -19,7 +18,7 @@ import androidx.viewpager.widget.ViewPager;
 // import androidx.coordinatorlayout.widget.CoordinatorLayout; // Không cần nếu root là RelativeLayout
 
 import com.cse441.tluprojectexpo.fragment.HomeFragment;
-import com.cse441.tluprojectexpo.fragment.ViewPagerAdapter;
+import com.cse441.tluprojectexpo.adapter.ViewPagerAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnScrollInteractionListener {
