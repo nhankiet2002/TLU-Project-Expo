@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">TluProjectExpo</string>
     <string name="sys_manager">Quản lý hệ thống</string>
     <string name="user">Người dùng</string>
     <string name="category">Danh mục</string>
@@ -38,4 +37,7 @@
     <string name="member">Thành viên</string>
     <string name="comment">Bình luận</string>
     <string name="delete_project">Xóa dự án</string>
+    <string name="app_name">TLU-Project-Expo</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

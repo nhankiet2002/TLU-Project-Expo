@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView
+        android:id="@+id/imgTLU"
+        android:layout_width="378dp"
+        android:layout_height="456dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/logo_tlu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtTitleTLU"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:textSize="35dp"
+        android:textStyle="bold"
+        android:text="TLU PROJECT EXPO"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgTLU" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLogIn"
+        android:layout_width="361dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="36dp"
+        android:text="Đăng nhập"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@color/black"
+        app:strokeWidth="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtTitleTLU" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSignUp"
+        android:layout_width="361dp"
+        android:layout_height="55dp"
+        android:text="Đăng ký"
+        android:textColor="@color/black"
+        android:textSize="17sp"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@android:color/transparent"
+        app:strokeWidth="2dp"
+        app:strokeColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnLogIn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
