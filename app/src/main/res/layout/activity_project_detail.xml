@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProjectDetail">
+    tools:context=".ProjectDetail"
+    android:background="@color/white">
 
     <!--Header Title-->
     <LinearLayout
@@ -246,6 +248,7 @@
 
     <LinearLayout
         android:id="@+id/tab_button"
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -255,8 +258,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_member"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -268,14 +272,16 @@
             android:paddingBottom="0dp"
             android:textColor="@color/change_button_text_selector"
             app:backgroundTint="@null"
-            app:insetTop="0dp"
-            app:insetBottom="0dp"
-            app:insetLeft="0dp"
-            app:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
             android:minHeight="0dp"
             android:minWidth="0dp" />
-        <Button
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_comment"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -287,10 +293,10 @@
             app:backgroundTint="@null"
             android:paddingTop="0dp"
             android:paddingBottom="0dp"
-            app:insetTop="0dp"
-            app:insetBottom="0dp"
-            app:insetLeft="0dp"
-            app:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
             android:minHeight="0dp"
             android:minWidth="0dp"/>
     </LinearLayout>
