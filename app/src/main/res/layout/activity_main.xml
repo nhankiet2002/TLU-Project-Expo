@@ -5,21 +5,30 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottom_navigation"/>
+        android:clipToPadding="false"
+        />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:minHeight="50dp"
         android:layout_alignParentBottom="true"
-        android:background="@color/white"
+        android:background="?android:attr/windowBackground"
+        app:elevation="8dp"
+        app:itemIconSize="24dp"
+        app:itemPaddingTop="6dp"
+        app:itemPaddingBottom="6dp"
         app:itemTextColor="@color/custom_color_nav"
         app:itemIconTint="@color/custom_color_nav"
-        app:menu="@menu/menu_nav" />
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_nav"/>
 
 </RelativeLayout>

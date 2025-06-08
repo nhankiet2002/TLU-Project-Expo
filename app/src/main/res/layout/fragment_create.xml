@@ -1,11 +1,327 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    tools:context=".fragment.HomeFragment">
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:fitsSystemWindows="true"
+    tools:context="com.cse441.tluprojectexpo.fragment.CreateFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- ... (Top Bar không đổi) ... -->
+    <RelativeLayout
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:paddingStart="8dp"
+        android:paddingEnd="16dp">
+        <ImageView
+            android:id="@+id/iv_back_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_back"
+            android:layout_centerVertical="true"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tạo dự án"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/iv_back_arrow"
+            android:layout_marginStart="8dp" />
+    </RelativeLayout>
 
 
-</RelativeLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp">
+
+        <!-- ... (Tên dự án, Mô tả, Ảnh dự án, Lĩnh vực, Công nghệ không đổi) ... -->
+        <!-- Tên dự án -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_project_name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tên dự án"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_project_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Mô tả -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_project_description"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mô tả"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_project_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="4"
+                android:gravity="top|start"
+                android:inputType="textMultiLine|textCapSentences" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Ảnh dự án Label -->
+        <TextView
+            android:id="@+id/tv_project_image_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ảnh dự án"
+            android:textColor="@color/cardview_dark_background"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Ảnh dự án Placeholder -->
+        <FrameLayout
+            android:id="@+id/fl_project_image_container"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/image_placeholder_square"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:layout_marginBottom="20dp">
+
+            <ImageView
+                android:id="@+id/iv_project_image_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:contentDescription="Xem trước ảnh dự án" />
+
+            <ImageView
+                android:id="@+id/iv_project_image_placeholder_icon"
+                android:layout_width="63dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:contentDescription="Thêm ảnh dự án"
+                android:src="@drawable/ic_add_circle" />
+        </FrameLayout>
+
+        <!-- Lĩnh vực/ Chủ đề -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_category"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Lĩnh vực/ Chủ đề"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            android:layout_marginBottom="16dp">
+            <AutoCompleteTextView
+                android:id="@+id/actv_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                tools:ignore="LabelFor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Công nghệ -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_technology"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Công nghệ"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            android:layout_marginBottom="16dp">
+            <AutoCompleteTextView
+                android:id="@+id/actv_technology"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                tools:ignore="LabelFor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <!-- KHỐI NÚT "THÊM THÀNH VIÊN" (Chỉ chứa nút) -->
+        <LinearLayout
+            android:id="@+id/ll_member_section_root"
+            android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="start"
+        android:layout_marginBottom="0dp"> <!-- Không có margin bottom ở đây -->
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_member"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thêm thành viên"
+            app:icon="@drawable/ic_person"
+            style="@style/ActionMaterialButton" />
+    </LinearLayout>
+
+    <!-- CONTAINER HIỂN THỊ THÀNH VIÊN ĐÃ CHỌN (Full width) -->
+    <LinearLayout
+        android:id="@+id/ll_selected_members_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+
+        <!-- KHỐI NÚT "THÊM LIÊN KẾT" (Chỉ chứa nút) -->
+        <LinearLayout
+            android:id="@+id/ll_link_section_root"
+            android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="start"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="0dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thêm liên kết"
+            app:icon="@drawable/ic_link"
+            style="@style/ActionMaterialButton" />
+    </LinearLayout>
+
+    <!-- CONTAINER HIỂN THỊ CÁC LIÊN KẾT ĐÃ THÊM (Full width) -->
+    <LinearLayout
+        android:id="@+id/ll_added_links_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"/>
+
+
+    <!-- CONTAINER HIỂN THỊ GALLERY MEDIA (Full width) -->
+    <!-- ... (tv_media_gallery_label và flexbox_media_preview_container như cũ) ... -->
+    <TextView
+        android:id="@+id/tv_media_gallery_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ảnh/Video đã chọn (Nhấn giữ để xóa)"
+        android:textColor="@color/cardview_dark_background"
+        android:textSize="16sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"/>
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/flexbox_media_preview_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:flexWrap="wrap"
+        app:alignItems="flex_start"
+        app:justifyContent="flex_start"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"/>
+
+
+    <!-- KHỐI NÚT "THÊM ẢNH/VIDEO" (Chỉ chứa nút) -->
+    <!-- ... (ll_media_section_root và btn_add_media như cũ) ... -->
+    <LinearLayout
+        android:id="@+id/ll_media_section_root"
+        android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="start"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="20dp">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_add_media"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Thêm ảnh/ video"
+        app:icon="@drawable/ic_camera"
+        style="@style/ActionMaterialButton" />
+</LinearLayout>
+
+
+    <!-- Trạng thái -->
+    <!-- ... (như cũ) ... -->
+<com.google.android.material.textfield.TextInputLayout
+android:id="@+id/til_status"
+style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="Trạng thái"
+app:boxCornerRadiusTopStart="8dp"
+app:boxCornerRadiusTopEnd="8dp"
+app:boxCornerRadiusBottomStart="8dp"
+app:boxCornerRadiusBottomEnd="8dp"
+android:layout_marginBottom="16dp">
+<AutoCompleteTextView
+    android:id="@+id/actv_status"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="none"
+    tools:ignore="LabelFor" />
+</com.google.android.material.textfield.TextInputLayout>
+
+
+    </LinearLayout>
+    </ScrollView>
+
+
+<com.google.android.material.button.MaterialButton
+android:id="@+id/btn_create_project"
+style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:text="Tạo dự án"
+android:textColor="@android:color/white"
+app:backgroundTint="@color/black"
+app:cornerRadius="8dp"
+android:textAllCaps="false"
+android:textSize="16sp"
+android:textStyle="bold"
+android:paddingVertical="14dp"
+android:layout_marginStart="16dp"
+android:layout_marginEnd="16dp"
+android:layout_marginBottom="16dp"
+android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
