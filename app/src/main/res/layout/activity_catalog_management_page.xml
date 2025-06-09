@@ -106,6 +106,7 @@
         app:layout_constraintStart_toStartOf="parent"
         />
     <LinearLayout
+        android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -126,7 +127,7 @@
             android:text="@string/field"
             />
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_technology"
+            android:id="@+id/recycler_view_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="9dp"
@@ -145,7 +146,7 @@
             android:text="@string/technology"
             />
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_catalog"
+            android:id="@+id/recycler_view_technology"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="9dp"
@@ -167,4 +168,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- Button xóa fields -->
+    <Button
+        android:id="@+id/btn_delete_fields"
+        android:text="@string/delete_field"
+        android:layout_width="380dp"
+        android:layout_height="40dp"
+        android:background="@drawable/button_see_more"
+        app:backgroundTint="@null"
+        android:layout_marginTop="61dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btn_see_more_dashboard"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

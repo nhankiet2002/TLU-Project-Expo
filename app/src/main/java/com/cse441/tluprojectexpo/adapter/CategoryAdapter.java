@@ -1,11 +1,11 @@
 package com.cse441.tluprojectexpo.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -44,6 +44,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             deleteButton = itemView.findViewById(R.id.delete_catalog);
         }
 
+        // 4. Hàm bind để gán dữ liệu và listener cho các view
         public void bind(final Category category, final OnCategoryClickListener listener) {
             tvItemText.setText(category.getName());
             editButton.setOnClickListener(v -> listener.onEditClick(category));
@@ -51,6 +52,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         }
     }
 
+    // 5. Phương thức để tạo ViewHolder mới(Custom layout được bày trí trong item_catalog.xml)
     @NonNull
     @Override
     public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

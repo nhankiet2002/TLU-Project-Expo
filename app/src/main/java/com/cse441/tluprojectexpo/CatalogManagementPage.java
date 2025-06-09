@@ -1,25 +1,22 @@
 package com.cse441.tluprojectexpo;
 
-import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.adapter.CategoryAdapter;
 import com.cse441.tluprojectexpo.model.Category;
+import com.cse441.tluprojectexpo.model.FirestoreUtils;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +47,8 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
         db = FirebaseFirestore.getInstance();
 
         // Ánh xạ Views từ XML
-        fieldsRecyclerView = findViewById(R.id.recycler_view_technology);
-        technologiesRecyclerView = findViewById(R.id.recycler_view_catalog);
+        fieldsRecyclerView = findViewById(R.id.recycler_view_field);
+        technologiesRecyclerView = findViewById(R.id.recycler_view_technology);
 
         // Khởi tạo các danh sách
         fieldsList = new ArrayList<>();
@@ -63,6 +60,50 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
         // Tải dữ liệu từ Firestore
         loadFields();
         loadTechnologies();
+
+        //Xóa các fields trong collection
+        //db = FirebaseFirestore.getInstance();
+
+        // Giả sử bạn có một nút bấm để thực hiện việc này
+        Button btnDeleteField = findViewById(R.id.btn_delete_fields);
+        // Cú pháp cũ, hoạt động trên cả Java 7
+        // Giả sử Button này tồn tại trong file layout của bạn
+
+        if(btnDeleteField !=null)
+
+        {
+            // Sử dụng cú pháp cũ cho setOnClickListener
+            btnDeleteField.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Toàn bộ code trong AlertDialog
+                    new AlertDialog.Builder(CatalogManagementPage.this)
+                            .setTitle("Xác nhận Xóa")
+                            .setMessage("Bạn có chắc chắn muốn xóa trường 'technologyId' khỏi TẤT CẢ các công nghệ không? Hành động này không thể hoàn tác.")
+
+                            // SỬA Ở ĐÂY: Dùng cú pháp cũ cho setPositiveButton
+                            .setPositiveButton("Xóa", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    String collection = "technologies";
+                                    String field = "technologyId";
+                                    // Gọi hàm tiện ích
+                                    FirestoreUtils.deleteFieldFromAllDocuments(db, collection, field);
+                                    Toast.makeText(CatalogManagementPage.this, "Đang xử lý...", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+
+                            // SỬA Ở ĐÂY: Dùng cú pháp cũ cho setNegativeButton (dù chỉ là null)
+                            .setNegativeButton("Hủy", null) // Có thể để null hoặc new OnClickListener rỗng
+
+                            .show();
+                }
+            });
+        } else
+
+        {
+            Log.e("CatalogManagementPage", "Không tìm thấy Button với ID: btn_delete_fields");
+        }
     }
 
     private void setupRecyclerViews() {
@@ -78,7 +119,7 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
     }
 
     private void loadFields() {
-        db.collection("fields") // Tên collection cho "Lĩnh vực"
+        db.collection("categories") // Tên collection cho "Lĩnh vực"
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
