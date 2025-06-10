@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.cse441.tluprojectexpo.fragment.CreateFragment;
 import com.cse441.tluprojectexpo.fragment.HomeFragment;
+import com.cse441.tluprojectexpo.fragment.NotificationFragment;
 import com.cse441.tluprojectexpo.fragment.ProfileFragment;
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
@@ -23,6 +24,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             case 1:
                 return new CreateFragment();
             case 2:
+                return new NotificationFragment();
+            case 3:
                 return new ProfileFragment();
             default:
                 return new HomeFragment();
@@ -31,6 +34,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 4;
     }
 }

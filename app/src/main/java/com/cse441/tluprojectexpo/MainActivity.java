@@ -74,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSc
                         }
                         break;
                     case 2:
+                        bottomNavigationView.getMenu().findItem(R.id.menu_notification).setChecked(true);
+                        break;
+                    case 3:
                         bottomNavigationView.getMenu().findItem(R.id.menu_profile).setChecked(true);
                         break;
                 }
@@ -91,8 +94,12 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSc
             } else if (itemId == R.id.menu_create) {
                 viewPager.setCurrentItem(1);
                 return true;
-            } else if (itemId == R.id.menu_profile) {
+            } else if (itemId == R.id.menu_notification) {
                 viewPager.setCurrentItem(2);
+                return true;
+
+            } else if (itemId == R.id.menu_profile) {
+                viewPager.setCurrentItem(3);
                 return true;
             }
             return false;
