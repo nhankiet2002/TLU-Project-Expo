@@ -86,4 +86,3 @@ o	VoteCount (INT, DEFAULT 0) (Nếu có tính năng vote).</br>
 •	Quyền riêng tư: Cân nhắc quyền xem dự án (công khai, chỉ thành viên TLU, chỉ thành viên nhóm?).</br>
 •	Kiểm duyệt: Cần có quy trình kiểm duyệt nội dung nếu cho phép người dùng đăng tải tự do để tránh nội dung không phù hợp.</br>
 Đề tài "TLU Project Expo" tạo ra một không gian giá trị để sinh viên thể hiện năng lực, học hỏi lẫn nhau và có thể là cầu nối với giảng viên hoặc nhà tuyển dụng. Nó bao gồm đủ các yếu tố CRUD, quản lý quan hệ và các tính năng tương tác thú vị.
-

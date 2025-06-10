@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        android:fitsSystemWindows="true"
+        app:elevation="2dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            app:title="Trang chủ"
+            app:titleTextColor="@android:color/black"
+            app:menu="@menu/main_toolbar_menu"
+            app:layout_scrollFlags="scroll|enterAlways|snap" />
+
+        <!-- Container cho Thanh tìm kiếm và Nút sắp xếp -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            app:layout_scrollFlags="scroll|enterAlways|snap">
+
+            <ImageButton
+                android:id="@+id/button_sort"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Sắp xếp"
+                android:padding="8dp"
+                android:src="@drawable/ic_sort"
+                app:tint="@android:color/black" />
+
+            <EditText
+                android:id="@+id/searchEditText"
+                android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_toStartOf="@id/button_sort"
+            android:layout_marginEnd="8dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/search_bar_background"
+            android:drawableStart="@drawable/search"
+            android:drawablePadding="12dp"
+            android:hint="Tìm kiếm"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:inputType="text"
+            android:maxLines="1"
+            android:imeOptions="actionSearch"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textColorHint="#8A000000"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"/>
+        </RelativeLayout>
+
+        <!-- Container cho các Chip bộ lọc -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            app:layout_scrollFlags="scroll|enterAlways|snap">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                app:singleLine="true">
+                <!-- Các Chip của bạn ở đây -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_linh_vuc"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lĩnh vực/ Chủ đề"
+                    android:textColor="@android:color/black"
+                    app:chipBackgroundColor="@android:color/white"
+                    app:chipStrokeColor="@color/black"
+                    app:chipStrokeWidth="1dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_cong_nghe"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Công nghệ"
+                    android:textColor="@android:color/black"
+                    app:chipBackgroundColor="@android:color/white"
+                    app:chipStrokeColor="@color/black"
+                    app:chipStrokeWidth="1dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_trang_thai"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trạng thái"
+                    android:textColor="@android:color/black"
+                    app:chipBackgroundColor="@android:color/white"
+                    app:chipStrokeColor="@color/black"
+                    app:chipStrokeWidth="1dp" />
+            </com.google.android.material.chip.ChipGroup>
+        </RelativeLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Thêm SwipeRefreshLayout ở đây -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <!-- Scrollable Content Area -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:clipToPadding="false">
+            <!-- Không cần app:layout_behavior ở đây nữa vì nó đã được đặt trên SwipeRefreshLayout -->
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewProjects"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                tools:listitem="@layout/list_item" />
+
+            <ProgressBar
+                android:id="@+id/progressBarLoadMore"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="8dp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+    <ProgressBar
+        android:id="@+id/progressBarMain"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

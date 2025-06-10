@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -32,11 +33,17 @@ android {
 }
 
 dependencies {
-
+    implementation ("com.google.android.material:material:1.10.0")
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation ("com.google.android.flexbox:flexbox:3.0.0")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.firebase.firestore)
+    implementation(libs.navigation.fragment)
+    implementation(libs.swiperefreshlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
