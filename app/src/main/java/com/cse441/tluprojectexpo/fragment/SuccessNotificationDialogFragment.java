@@ -68,7 +68,7 @@ public class SuccessNotificationDialogFragment extends DialogFragment {
         if (dialog != null && dialog.getWindow() != null) {
             Window window = dialog.getWindow();
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            window.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL); // Hiển thị ở trên cùng, giữa màn hình
+            window.setGravity(Gravity.CENTER | Gravity.CENTER_HORIZONTAL); // Hiển thị ở trên cùng, giữa màn hình
 
             DisplayMetrics displayMetrics = new DisplayMetrics();
             getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
