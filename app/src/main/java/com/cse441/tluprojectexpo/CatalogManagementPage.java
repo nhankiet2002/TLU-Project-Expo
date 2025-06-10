@@ -42,7 +42,7 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
         super.onCreate(savedInstanceState);
         // Thay R.layout.activity_catalog_management bằng tên file layout chính của bạn
         setContentView(R.layout.activity_catalog_management_page);
-
+        Log.d(TAG, "--- onCreate ĐÃ ĐƯỢC GỌI! MÀN HÌNH ĐÃ HIỂN THỊ. ---");
         // Khởi tạo Firestore
         db = FirebaseFirestore.getInstance();
 
@@ -61,49 +61,49 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
         loadFields();
         loadTechnologies();
 
-        //Xóa các fields trong collection
-        //db = FirebaseFirestore.getInstance();
-
-        // Giả sử bạn có một nút bấm để thực hiện việc này
-        Button btnDeleteField = findViewById(R.id.btn_delete_fields);
-        // Cú pháp cũ, hoạt động trên cả Java 7
-        // Giả sử Button này tồn tại trong file layout của bạn
-
-        if(btnDeleteField !=null)
-
-        {
-            // Sử dụng cú pháp cũ cho setOnClickListener
-            btnDeleteField.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Toàn bộ code trong AlertDialog
-                    new AlertDialog.Builder(CatalogManagementPage.this)
-                            .setTitle("Xác nhận Xóa")
-                            .setMessage("Bạn có chắc chắn muốn xóa trường 'technologyId' khỏi TẤT CẢ các công nghệ không? Hành động này không thể hoàn tác.")
-
-                            // SỬA Ở ĐÂY: Dùng cú pháp cũ cho setPositiveButton
-                            .setPositiveButton("Xóa", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    String collection = "technologies";
-                                    String field = "technologyId";
-                                    // Gọi hàm tiện ích
-                                    FirestoreUtils.deleteFieldFromAllDocuments(db, collection, field);
-                                    Toast.makeText(CatalogManagementPage.this, "Đang xử lý...", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-
-                            // SỬA Ở ĐÂY: Dùng cú pháp cũ cho setNegativeButton (dù chỉ là null)
-                            .setNegativeButton("Hủy", null) // Có thể để null hoặc new OnClickListener rỗng
-
-                            .show();
-                }
-            });
-        } else
-
-        {
-            Log.e("CatalogManagementPage", "Không tìm thấy Button với ID: btn_delete_fields");
-        }
+//        //Xóa các fields trong collection
+//        //db = FirebaseFirestore.getInstance();
+//
+//        // Giả sử bạn có một nút bấm để thực hiện việc này
+//        Button btnDeleteField = findViewById(R.id.btn_delete_fields);
+//        // Cú pháp cũ, hoạt động trên cả Java 7
+//        // Giả sử Button này tồn tại trong file layout của bạn
+//
+//        if(btnDeleteField !=null)
+//
+//        {
+//            // Sử dụng cú pháp cũ cho setOnClickListener
+//            btnDeleteField.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    // Toàn bộ code trong AlertDialog
+//                    new AlertDialog.Builder(CatalogManagementPage.this)
+//                            .setTitle("Xác nhận Xóa")
+//                            .setMessage("Bạn có chắc chắn muốn xóa trường 'technologyId' khỏi TẤT CẢ các công nghệ không? Hành động này không thể hoàn tác.")
+//
+//                            // SỬA Ở ĐÂY: Dùng cú pháp cũ cho setPositiveButton
+//                            .setPositiveButton("Xóa", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    String collection = "technologies";
+//                                    String field = "technologyId";
+//                                    // Gọi hàm tiện ích
+//                                    FirestoreUtils.deleteFieldFromAllDocuments(db, collection, field);
+//                                    Toast.makeText(CatalogManagementPage.this, "Đang xử lý...", Toast.LENGTH_SHORT).show();
+//                                }
+//                            })
+//
+//                            // SỬA Ở ĐÂY: Dùng cú pháp cũ cho setNegativeButton (dù chỉ là null)
+//                            .setNegativeButton("Hủy", null) // Có thể để null hoặc new OnClickListener rỗng
+//
+//                            .show();
+//                }
+//            });
+//        } else
+//
+//        {
+//            Log.e("CatalogManagementPage", "Không tìm thấy Button với ID: btn_delete_fields");
+//        }
     }
 
     private void setupRecyclerViews() {
@@ -126,6 +126,7 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
                         // Cách đơn giản để chuyển đổi toàn bộ kết quả thành danh sách các đối tượng
                         List<Category> fetchedList = task.getResult().toObjects(Category.class);
                         fieldsAdapter.updateData(fetchedList);
+                        Log.d(TAG, "[FIELDS] Yêu cầu thành công. Tìm thấy ");
                     } else {
                         Log.w(TAG, "Error getting documents.", task.getException());
                         Toast.makeText(this, "Lỗi khi tải Lĩnh vực.", Toast.LENGTH_SHORT).show();
@@ -140,6 +141,7 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
                     if (task.isSuccessful()) {
                         List<Category> fetchedList = task.getResult().toObjects(Category.class);
                         technologiesAdapter.updateData(fetchedList);
+                        Log.d(TAG, "[TECHNOLOGIES] Yêu cầu thành công. Tìm thấy ");
                     } else {
                         Log.w(TAG, "Error getting documents.", task.getException());
                         Toast.makeText(this, "Lỗi khi tải Công nghệ.", Toast.LENGTH_SHORT).show();
