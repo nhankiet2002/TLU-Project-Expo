@@ -2,11 +2,15 @@ package com.cse441.tluprojectexpo;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,11 +20,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cse441.tluprojectexpo.adapter.CategoryAdapter;
 import com.cse441.tluprojectexpo.model.Category;
 import com.cse441.tluprojectexpo.model.FirestoreUtils;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+import com.google.android.gms.tasks.OnFailureListener;
 // 1. Implement interface của Adapter để lắng nghe sự kiện click
 public class CatalogManagementPage extends AppCompatActivity implements CategoryAdapter.OnCategoryClickListener {
 
@@ -40,9 +48,9 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Thay R.layout.activity_catalog_management bằng tên file layout chính của bạn
         setContentView(R.layout.activity_catalog_management_page);
         Log.d(TAG, "--- onCreate ĐÃ ĐƯỢC GỌI! MÀN HÌNH ĐÃ HIỂN THỊ. ---");
+
         // Khởi tạo Firestore
         db = FirebaseFirestore.getInstance();
 
@@ -60,6 +68,15 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
         // Tải dữ liệu từ Firestore
         loadFields();
         loadTechnologies();
+
+        // 1. Ánh xạ và thiết lập sự kiện cho nút "Thêm mới"
+        Button btnAddNewCatalog = findViewById(R.id.add_new_catalog);
+        btnAddNewCatalog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAddOptionsDialog();
+            }
+        });
 
 //        //Xóa các fields trong collection
 //        //db = FirebaseFirestore.getInstance();
@@ -119,7 +136,7 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
     }
 
     private void loadFields() {
-        db.collection("categories") // Tên collection cho "Lĩnh vực"
+        db.collection("categories")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -135,7 +152,7 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
     }
 
     private void loadTechnologies() {
-        db.collection("technologies") // Tên collection cho "Công nghệ"
+        db.collection("technologies")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -155,8 +172,6 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
     public void onEditClick(Category category) {
         // Xử lý khi người dùng nhấn nút sửa
         Toast.makeText(this, "Sửa: " + category.getName() + " (ID: " + category.getId() + ")", Toast.LENGTH_SHORT).show();
-        // Tại đây, bạn có thể mở một Dialog hoặc Activity mới để cho phép người dùng sửa tên
-        // Sử dụng category.getId() để biết cần cập nhật document nào trên Firestore
     }
 
     @Override
@@ -179,5 +194,110 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
             })
             .addOnFailureListener(e -> Toast.makeText(this, "Xóa thất bại", Toast.LENGTH_SHORT).show());
         */
+    }
+
+    private void showAddOptionsDialog() {
+        // Mảng chứa các lựa chọn sẽ hiển thị
+        final CharSequence[] options = {"Thêm Lĩnh vực mới", "Thêm Công nghệ mới", "Quay lại"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Thêm danh mục mới");
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (options[item].equals("Thêm Lĩnh vực mới")) {
+                    showAddInputDialog("field", "categories");
+                } else if (options[item].equals("Thêm Công nghệ mới")) {
+                    showAddInputDialog("technology", "technologies");
+                } else if (options[item].equals("Hủy")) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private void showAddInputDialog(final String type, final String collectionName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // Thiết lập tiêu đề cho dialog
+        if (type.equals("field")) {
+            builder.setTitle("Thêm Lĩnh vực mới");
+        } else {
+            builder.setTitle("Thêm Công nghệ mới");
+        }
+
+        // Tạo một EditText để người dùng nhập liệu
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setHint("Nhập tên tại đây...");
+
+        // Thêm một layout để có padding cho EditText
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(40, 0, 40, 0);
+        input.setLayoutParams(lp);
+        container.addView(input);
+        builder.setView(container);
+
+        // Thiết lập nút "Thêm"
+        builder.setPositiveButton("Thêm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String name = input.getText().toString().trim();
+                if (name.isEmpty()) {
+                    Toast.makeText(CatalogManagementPage.this, "Tên không được để trống!", Toast.LENGTH_SHORT).show();
+                } else {
+                    addNewCategoryToFirestore(name, collectionName, type);
+                }
+            }
+        });
+
+        // Thiết lập nút "Hủy"
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    /**
+     * Phương thức cuối cùng, thực hiện việc thêm document mới vào Firestore.
+     * @param name Tên của danh mục mới.
+     * @param collectionName Tên collection trên Firestore.
+     * @param type Loại danh mục để biết cần reload RecyclerView nào.
+     */
+    private void addNewCategoryToFirestore(final String name, final String collectionName, final String type) {
+        // Tạo một đối tượng mới
+        Category newCategory = new Category(name);
+        // Để trống ID, Firestore sẽ tự sinh
+
+        db.collection(collectionName)
+                .add(newCategory) // Sử dụng add() để Firestore tự tạo ID
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Toast.makeText(CatalogManagementPage.this, "Thêm thành công!", Toast.LENGTH_SHORT).show();
+                        // Tải lại danh sách tương ứng để cập nhật giao diện
+                        if (type.equals("field")) {
+                            loadFields();
+                        } else {
+                            loadTechnologies();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Lỗi khi thêm document", e);
+                        Toast.makeText(CatalogManagementPage.this, "Thêm thất bại!", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
