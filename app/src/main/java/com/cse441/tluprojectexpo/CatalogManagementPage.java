@@ -277,7 +277,6 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
         // Tạo một đối tượng mới
         Category newCategory = new Category(name);
         // Để trống ID, Firestore sẽ tự sinh
-
         db.collection(collectionName)
                 .add(newCategory) // Sử dụng add() để Firestore tự tạo ID
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
