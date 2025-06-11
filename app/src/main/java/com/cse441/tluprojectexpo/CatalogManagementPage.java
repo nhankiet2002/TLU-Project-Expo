@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,22 +18,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.adapter.CategoryAdapter;
 import com.cse441.tluprojectexpo.model.Category;
-import com.cse441.tluprojectexpo.model.FirestoreUtils;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
+
+import com.cse441.tluprojectexpo.repository.CatalogRepository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import com.google.android.gms.tasks.OnFailureListener;
-// 1. Implement interface của Adapter để lắng nghe sự kiện click
-public class CatalogManagementPage extends AppCompatActivity implements CategoryAdapter.OnCategoryClickListener {
+
+public class CatalogManagementPage extends AppCompatActivity {
 
     private static final String TAG = "CatalogManagementPage";
 
-    private FirebaseFirestore db;
+    // THAY ĐỔI: Bỏ FirebaseFirestore db, thay bằng CatalogRepository
+    private CatalogRepository catalogRepository;
 
     private RecyclerView fieldsRecyclerView;
     private RecyclerView technologiesRecyclerView;
@@ -42,261 +37,236 @@ public class CatalogManagementPage extends AppCompatActivity implements Category
     private CategoryAdapter fieldsAdapter;
     private CategoryAdapter technologiesAdapter;
 
-    private List<Category> fieldsList;
-    private List<Category> technologiesList;
+    // Các list này vẫn được giữ nguyên để cung cấp dữ liệu cho Adapter
+    private List<Category> fieldsList = new ArrayList<>();
+    private List<Category> technologiesList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog_management_page);
-        Log.d(TAG, "--- onCreate ĐÃ ĐƯỢC GỌI! MÀN HÌNH ĐÃ HIỂN THỊ. ---");
+        Log.d(TAG, "--- onCreate ĐÃ ĐƯỢC GỌI! ---");
 
-        // Khởi tạo Firestore
-        db = FirebaseFirestore.getInstance();
+        // THAY ĐỔI: Khởi tạo Repository thay vì Firestore
+        catalogRepository = new CatalogRepository();
 
-        // Ánh xạ Views từ XML
+        // Ánh xạ Views từ XML (giữ nguyên)
         fieldsRecyclerView = findViewById(R.id.recycler_view_field);
         technologiesRecyclerView = findViewById(R.id.recycler_view_technology);
-
-        // Khởi tạo các danh sách
-        fieldsList = new ArrayList<>();
-        technologiesList = new ArrayList<>();
 
         // Thiết lập RecyclerViews
         setupRecyclerViews();
 
-        // Tải dữ liệu từ Firestore
-        loadFields();
-        loadTechnologies();
+        // THAY ĐỔI: Tải dữ liệu thông qua Repository
+        loadData();
 
-        // 1. Ánh xạ và thiết lập sự kiện cho nút "Thêm mới"
+        // Nút "Thêm mới" (giữ nguyên, chỉ thay đổi nội dung hàm nó gọi)
         Button btnAddNewCatalog = findViewById(R.id.add_new_catalog);
-        btnAddNewCatalog.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddOptionsDialog();
-            }
-        });
-
-//        //Xóa các fields trong collection
-//        //db = FirebaseFirestore.getInstance();
-//
-//        // Giả sử bạn có một nút bấm để thực hiện việc này
-//        Button btnDeleteField = findViewById(R.id.btn_delete_fields);
-//        // Cú pháp cũ, hoạt động trên cả Java 7
-//        // Giả sử Button này tồn tại trong file layout của bạn
-//
-//        if(btnDeleteField !=null)
-//
-//        {
-//            // Sử dụng cú pháp cũ cho setOnClickListener
-//            btnDeleteField.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    // Toàn bộ code trong AlertDialog
-//                    new AlertDialog.Builder(CatalogManagementPage.this)
-//                            .setTitle("Xác nhận Xóa")
-//                            .setMessage("Bạn có chắc chắn muốn xóa trường 'technologyId' khỏi TẤT CẢ các công nghệ không? Hành động này không thể hoàn tác.")
-//
-//                            // SỬA Ở ĐÂY: Dùng cú pháp cũ cho setPositiveButton
-//                            .setPositiveButton("Xóa", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    String collection = "technologies";
-//                                    String field = "technologyId";
-//                                    // Gọi hàm tiện ích
-//                                    FirestoreUtils.deleteFieldFromAllDocuments(db, collection, field);
-//                                    Toast.makeText(CatalogManagementPage.this, "Đang xử lý...", Toast.LENGTH_SHORT).show();
-//                                }
-//                            })
-//
-//                            // SỬA Ở ĐÂY: Dùng cú pháp cũ cho setNegativeButton (dù chỉ là null)
-//                            .setNegativeButton("Hủy", null) // Có thể để null hoặc new OnClickListener rỗng
-//
-//                            .show();
-//                }
-//            });
-//        } else
-//
-//        {
-//            Log.e("CatalogManagementPage", "Không tìm thấy Button với ID: btn_delete_fields");
-//        }
+        btnAddNewCatalog.setOnClickListener(v -> showAddOptionsDialog());
     }
 
     private void setupRecyclerViews() {
+        // THAY ĐỔI: Tạo listener riêng cho "Lĩnh vực"
+        CategoryAdapter.OnCategoryClickListener fieldClickListener = new CategoryAdapter.OnCategoryClickListener() {
+            @Override
+            public void onEditClick(Category category) {
+                // Gọi hàm sửa với đúng loại là FIELD
+                showEditDialog(category, CatalogRepository.CatalogType.FIELD);
+            }
+
+            @Override
+            public void onDeleteClick(Category category) {
+                // Gọi hàm xóa với đúng loại là FIELD
+                showDeleteConfirmationDialog(category, CatalogRepository.CatalogType.FIELD);
+            }
+        };
+
+        // THAY ĐỔI: Tạo listener riêng cho "Công nghệ"
+        CategoryAdapter.OnCategoryClickListener techClickListener = new CategoryAdapter.OnCategoryClickListener() {
+            @Override
+            public void onEditClick(Category category) {
+                showEditDialog(category, CatalogRepository.CatalogType.TECHNOLOGY);
+            }
+
+            @Override
+            public void onDeleteClick(Category category) {
+                showDeleteConfirmationDialog(category, CatalogRepository.CatalogType.TECHNOLOGY);
+            }
+        };
+
         // Setup cho RecyclerView "Lĩnh vực" (Fields)
         fieldsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        fieldsAdapter = new CategoryAdapter(fieldsList, this); // Truyền 'this' vì Activity này đã implement listener
+        // THAY ĐỔI: Truyền listener vừa tạo thay vì "this"
+        fieldsAdapter = new CategoryAdapter(fieldsList, fieldClickListener);
         fieldsRecyclerView.setAdapter(fieldsAdapter);
 
         // Setup cho RecyclerView "Công nghệ" (Technologies)
         technologiesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        technologiesAdapter = new CategoryAdapter(technologiesList, this);
+        // THAY ĐỔI: Truyền listener vừa tạo thay vì "this"
+        technologiesAdapter = new CategoryAdapter(technologiesList, techClickListener);
         technologiesRecyclerView.setAdapter(technologiesAdapter);
     }
 
-    private void loadFields() {
-        db.collection("categories")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // Cách đơn giản để chuyển đổi toàn bộ kết quả thành danh sách các đối tượng
-                        List<Category> fetchedList = task.getResult().toObjects(Category.class);
-                        fieldsAdapter.updateData(fetchedList);
-                        Log.d(TAG, "[FIELDS] Yêu cầu thành công. Tìm thấy ");
-                    } else {
-                        Log.w(TAG, "Error getting documents.", task.getException());
-                        Toast.makeText(this, "Lỗi khi tải Lĩnh vực.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void loadTechnologies() {
-        db.collection("technologies")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<Category> fetchedList = task.getResult().toObjects(Category.class);
-                        technologiesAdapter.updateData(fetchedList);
-                        Log.d(TAG, "[TECHNOLOGIES] Yêu cầu thành công. Tìm thấy ");
-                    } else {
-                        Log.w(TAG, "Error getting documents.", task.getException());
-                        Toast.makeText(this, "Lỗi khi tải Công nghệ.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-
-    // 2. Override các phương thức của Interface
-    @Override
-    public void onEditClick(Category category) {
-        // Xử lý khi người dùng nhấn nút sửa
-        Toast.makeText(this, "Sửa: " + category.getName() + " (ID: " + category.getId() + ")", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onDeleteClick(Category category) {
-        // Xử lý khi người dùng nhấn nút xóa
-        Toast.makeText(this, "Xóa: " + category.getName() + " (ID: " + category.getId() + ")", Toast.LENGTH_SHORT).show();
-        // Tại đây, bạn nên hiển thị một dialog xác nhận trước khi xóa
-        // Ví dụ code xóa:
-        /*
-        String collectionPath = ...; // "fields" hoặc "technologies"
-        db.collection(collectionPath).document(category.getId()).delete()
-            .addOnSuccessListener(aVoid -> {
-                Toast.makeText(this, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                // Tải lại danh sách sau khi xóa
-                if (collectionPath.equals("fields")) {
-                    loadFields();
-                } else {
-                    loadTechnologies();
-                }
-            })
-            .addOnFailureListener(e -> Toast.makeText(this, "Xóa thất bại", Toast.LENGTH_SHORT).show());
-        */
-    }
-
-    private void showAddOptionsDialog() {
-        // Mảng chứa các lựa chọn sẽ hiển thị
-        final CharSequence[] options = {"Thêm Lĩnh vực mới", "Thêm Công nghệ mới", "Quay lại"};
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Thêm danh mục mới");
-        builder.setItems(options, new DialogInterface.OnClickListener() {
+    // THAY ĐỔI: Gộp loadFields() và loadTechnologies() thành một hàm
+    private void loadData() {
+        // Tải Lĩnh vực
+        catalogRepository.getAllItems(CatalogRepository.CatalogType.FIELD, new CatalogRepository.CatalogDataListener() {
             @Override
-            public void onClick(DialogInterface dialog, int item) {
-                if (options[item].equals("Thêm Lĩnh vực mới")) {
-                    showAddInputDialog("field", "categories");
-                } else if (options[item].equals("Thêm Công nghệ mới")) {
-                    showAddInputDialog("technology", "technologies");
-                } else if (options[item].equals("Hủy")) {
-                    dialog.dismiss();
-                }
+            public void onDataLoaded(List<Category> items) {
+                fieldsAdapter.updateData(items);
+                Log.d(TAG, "[FIELDS] Tải dữ liệu thành công qua Repository.");
+            }
+            @Override
+            public void onError(Exception e) {
+                Log.w(TAG, "[FIELDS] Lỗi tải dữ liệu.", e);
+                Toast.makeText(CatalogManagementPage.this, "Lỗi tải Lĩnh vực.", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Tải Công nghệ
+        catalogRepository.getAllItems(CatalogRepository.CatalogType.TECHNOLOGY, new CatalogRepository.CatalogDataListener() {
+            @Override
+            public void onDataLoaded(List<Category> items) {
+                technologiesAdapter.updateData(items);
+                Log.d(TAG, "[TECHNOLOGIES] Tải dữ liệu thành công qua Repository.");
+            }
+            @Override
+            public void onError(Exception e) {
+                Log.w(TAG, "[TECHNOLOGIES] Lỗi tải dữ liệu.", e);
+                Toast.makeText(CatalogManagementPage.this, "Lỗi tải Công nghệ.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // THAY ĐỔI: Các phương thức onEditClick và onDeleteClick cũ đã bị xóa vì không còn implement interface
+
+    // THAY ĐỔI: Dialog thêm mới giờ sẽ gọi hàm với Enum thay vì chuỗi
+    private void showAddOptionsDialog() {
+        final CharSequence[] options = {"Thêm Lĩnh vực mới", "Thêm Công nghệ mới", "Hủy"};
+        new AlertDialog.Builder(this)
+                .setTitle("Thêm danh mục mới")
+                .setItems(options, (dialog, item) -> {
+                    if (options[item].equals("Thêm Lĩnh vực mới")) {
+                        showAddInputDialog(CatalogRepository.CatalogType.FIELD);
+                    } else if (options[item].equals("Thêm Công nghệ mới")) {
+                        showAddInputDialog(CatalogRepository.CatalogType.TECHNOLOGY);
+                    } else {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    // THAY ĐỔI: Dialog thêm giờ nhận CatalogType, không còn cần collectionName
+    private void showAddInputDialog(final CatalogRepository.CatalogType type) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(type == CatalogRepository.CatalogType.FIELD ? "Thêm Lĩnh vực mới" : "Thêm Công nghệ mới");
+
+        final EditText input = createInputDialogEditText();
+        builder.setView(createContainerForEditText(input));
+
+        builder.setPositiveButton("Thêm", (dialog, which) -> {
+            String name = input.getText().toString().trim();
+            if (!name.isEmpty()) {
+                // Gọi hàm xử lý logic mới
+                addNewItem(new Category(name), type);
+            } else {
+                Toast.makeText(this, "Tên không được để trống!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
-    private void showAddInputDialog(final String type, final String collectionName) {
+    // MỚI: Thêm hàm hiển thị dialog SỬA
+    private void showEditDialog(final Category categoryToEdit, final CatalogRepository.CatalogType type) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(type == CatalogRepository.CatalogType.FIELD ? "Sửa Lĩnh vực" : "Sửa Công nghệ");
 
-        // Thiết lập tiêu đề cho dialog
-        if (type.equals("field")) {
-            builder.setTitle("Thêm Lĩnh vực mới");
-        } else {
-            builder.setTitle("Thêm Công nghệ mới");
-        }
+        final EditText input = createInputDialogEditText();
+        input.setText(categoryToEdit.getName()); // Hiển thị tên cũ
+        builder.setView(createContainerForEditText(input));
 
-        // Tạo một EditText để người dùng nhập liệu
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            String newName = input.getText().toString().trim();
+            if (!newName.isEmpty() && !newName.equals(categoryToEdit.getName())) {
+                categoryToEdit.setName(newName);
+                updateItem(categoryToEdit, type); // Gọi hàm cập nhật
+            }
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    // MỚI: Thêm hàm hiển thị dialog xác nhận XÓA
+    private void showDeleteConfirmationDialog(final Category categoryToDelete, final CatalogRepository.CatalogType type) {
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận Xóa")
+                .setMessage("Bạn có chắc chắn muốn xóa '" + categoryToDelete.getName() + "' không?")
+                .setPositiveButton("Xóa", (dialog, which) -> deleteItem(categoryToDelete.getId(), type))
+                .setNegativeButton("Hủy", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    // THAY ĐỔI: Xóa hàm `addNewCategoryToFirestore`, thay bằng 3 hàm logic gọi Repository
+
+    // MỚI: Hàm logic để THÊM item, gọi đến Repository
+    private void addNewItem(Category newItem, CatalogRepository.CatalogType type) {
+        catalogRepository.addItem(type, newItem, task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Thêm thành công!", Toast.LENGTH_SHORT).show();
+                loadData(); // Tải lại dữ liệu sau khi thêm
+            } else {
+                Toast.makeText(this, "Thêm thất bại!", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Lỗi khi thêm item qua Repository", task.getException());
+            }
+        });
+    }
+
+    // MỚI: Hàm logic để CẬP NHẬT item, gọi đến Repository
+    private void updateItem(Category itemToUpdate, CatalogRepository.CatalogType type) {
+        catalogRepository.updateItem(type, itemToUpdate, task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+                loadData();
+            } else {
+                Toast.makeText(this, "Cập nhật thất bại!", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Lỗi khi cập nhật item qua Repository", task.getException());
+            }
+        });
+    }
+
+    // MỚI: Hàm logic để XÓA item, gọi đến Repository
+    private void deleteItem(String itemId, CatalogRepository.CatalogType type) {
+        catalogRepository.deleteItem(type, itemId, task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Xóa thành công!", Toast.LENGTH_SHORT).show();
+                loadData();
+            } else {
+                Toast.makeText(this, "Xóa thất bại!", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Lỗi khi xóa item qua Repository", task.getException());
+            }
+        });
+    }
+
+    // Các hàm tiện ích cho UI để tránh lặp code (thêm vào cuối file)
+    private EditText createInputDialogEditText() {
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         input.setHint("Nhập tên tại đây...");
+        return input;
+    }
 
-        // Thêm một layout để có padding cho EditText
+    private LinearLayout createContainerForEditText(EditText editText) {
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(40, 0, 40, 0);
-        input.setLayoutParams(lp);
-        container.addView(input);
-        builder.setView(container);
-
-        // Thiết lập nút "Thêm"
-        builder.setPositiveButton("Thêm", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String name = input.getText().toString().trim();
-                if (name.isEmpty()) {
-                    Toast.makeText(CatalogManagementPage.this, "Tên không được để trống!", Toast.LENGTH_SHORT).show();
-                } else {
-                    addNewCategoryToFirestore(name, collectionName, type);
-                }
-            }
-        });
-
-        // Thiết lập nút "Hủy"
-        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-    }
-
-    /**
-     * Phương thức cuối cùng, thực hiện việc thêm document mới vào Firestore.
-     * @param name Tên của danh mục mới.
-     * @param collectionName Tên collection trên Firestore.
-     * @param type Loại danh mục để biết cần reload RecyclerView nào.
-     */
-    private void addNewCategoryToFirestore(final String name, final String collectionName, final String type) {
-        // Tạo một đối tượng mới
-        Category newCategory = new Category(name);
-        // Để trống ID, Firestore sẽ tự sinh
-        db.collection(collectionName)
-                .add(newCategory) // Sử dụng add() để Firestore tự tạo ID
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Toast.makeText(CatalogManagementPage.this, "Thêm thành công!", Toast.LENGTH_SHORT).show();
-                        // Tải lại danh sách tương ứng để cập nhật giao diện
-                        if (type.equals("field")) {
-                            loadFields();
-                        } else {
-                            loadTechnologies();
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Lỗi khi thêm document", e);
-                        Toast.makeText(CatalogManagementPage.this, "Thêm thất bại!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        lp.setMargins(40, 20, 40, 0);
+        editText.setLayoutParams(lp);
+        container.addView(editText);
+        return container;
     }
 }
