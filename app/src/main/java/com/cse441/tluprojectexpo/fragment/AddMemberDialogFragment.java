@@ -14,7 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.ImageView;
+// import android.widget.ImageView; // NO LONGER NEEDED
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -24,11 +24,12 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout; // IMPORT THIS
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.cse441.tluprojectexpo.R; // Thay thế
-import com.cse441.tluprojectexpo.adapter.MemberSearchAdapter; // Thay thế
-import com.cse441.tluprojectexpo.model.Member; // Thay thế
+import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.adapter.MemberSearchAdapter;
+import com.cse441.tluprojectexpo.model.Member;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,13 +38,13 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
     private static final String TAG = "AddMemberDialog";
     private TextInputEditText etSearchMember;
     private RecyclerView rvMembersList;
-    private ImageView ivCloseDialog;
+    // private ImageView ivCloseDialog; // REMOVE THIS LINE
+    private TextInputLayout tilSearchMember; // ADD THIS LINE
     private ProgressBar pbLoadingMembers;
     private MemberSearchAdapter adapter;
     private List<Member> allMembers = new ArrayList<>();
     private FirebaseFirestore db;
 
-    // Interface để gửi thành viên đã chọn về Fragment cha
     public interface AddMemberDialogListener {
         void onMemberSelected(Member member);
     }
@@ -53,7 +54,6 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
         return new AddMemberDialogFragment();
     }
 
-    // Để Fragment cha có thể lắng nghe
     public void setDialogListener(AddMemberDialogListener listener) {
         this.dialogListener = listener;
     }
@@ -68,13 +68,20 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
 
         etSearchMember = view.findViewById(R.id.et_search_member_dialog);
         rvMembersList = view.findViewById(R.id.rv_members_list_dialog);
-        ivCloseDialog = view.findViewById(R.id.iv_close_dialog_member);
+        // ivCloseDialog = view.findViewById(R.id.iv_close_dialog_member); // REMOVE THIS LINE
+        tilSearchMember = view.findViewById(R.id.til_search_member); // ADD THIS LINE
         pbLoadingMembers = view.findViewById(R.id.pb_loading_members);
 
         setupRecyclerView();
         fetchMembersFromFirestore();
 
-        ivCloseDialog.setOnClickListener(v -> dismiss());
+        // ivCloseDialog.setOnClickListener(v -> dismiss()); // REMOVE THIS LINE
+
+        // Set the click listener for the END ICON of the TextInputLayout
+        if (tilSearchMember != null) { // Good practice to check for null
+            tilSearchMember.setEndIconOnClickListener(v -> dismiss()); // ADD THIS LINE
+        }
+
 
         etSearchMember.addTextChangedListener(new TextWatcher() {
             @Override
@@ -92,6 +99,7 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
         return view;
     }
 
+    // ... (rest of your code: onStart, setupRecyclerView, fetchMembersFromFirestore, onMemberClick)
     @Override
     public void onStart() {
         super.onStart();
@@ -103,9 +111,11 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
 
             // Thiết lập kích thước dialog
             DisplayMetrics displayMetrics = new DisplayMetrics();
-            getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            int dialogWidth = (int)(displayMetrics.widthPixels * 0.90); // 90% chiều rộng màn hình
-            window.setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (getActivity() != null) {
+                getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int dialogWidth = (int)(displayMetrics.widthPixels * 0.90); // 90% chiều rộng màn hình
+                window.setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+            }
         }
     }
 
@@ -114,7 +124,9 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
         rvMembersList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvMembersList.setAdapter(adapter);
         // Thêm đường kẻ giữa các item (tùy chọn)
-        rvMembersList.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        if (getContext() != null) {
+            rvMembersList.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        }
     }
 
     private void fetchMembersFromFirestore() {
@@ -133,11 +145,7 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
-                                // Lấy danh sách roles từ document
                                 List<String> roles = (List<String>) document.get("roles");
-
-                                // Kiểm tra xem "Admin" có trong danh sách roles không
-                                // Hoặc nếu roles là null/không tồn tại thì coi như không phải Admin (tùy logic của bạn)
                                 boolean isAdmin = false;
                                 if (roles != null) {
                                     for (String role : roles) {
@@ -148,11 +156,10 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
                                     }
                                 }
 
-                                // Chỉ thêm vào danh sách nếu không phải là Admin
                                 if (!isAdmin) {
                                     Member member = document.toObject(Member.class);
                                     member.setUserId(document.getId());
-                                    tempMemberList.add(member); // Thêm vào danh sách tạm thời
+                                    tempMemberList.add(member);
                                     Log.d(TAG, "Fetched non-admin member: " + member.toString());
                                 } else {
                                     Log.d(TAG, "Skipped admin user: " + document.getString("fullName"));
@@ -162,11 +169,13 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
                                 Log.e(TAG, "Error processing document: " + document.getId(), e);
                             }
                         }
-                        allMembers.addAll(tempMemberList); // Cập nhật danh sách chính sau khi lọc
+                        allMembers.addAll(tempMemberList);
 
                         if (adapter != null) {
                             adapter.updateData(allMembers);
-                            adapter.filter(etSearchMember.getText().toString());
+                            if (etSearchMember != null) { // Check if etSearchMember is initialized
+                                adapter.filter(etSearchMember.getText().toString());
+                            }
                         } else {
                             Log.e(TAG, "Adapter is null after fetching members.");
                         }
@@ -179,14 +188,14 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
                 });
     }
 
-    // Xử lý khi một thành viên được chọn từ Adapter
     @Override
     public void onMemberClick(Member member) {
         if (dialogListener != null) {
             dialogListener.onMemberSelected(member);
         }
-        // Có thể bạn muốn Toast hoặc làm gì đó ở đây trước khi đóng
-        Toast.makeText(getContext(), "Đã chọn: " + member.getName(), Toast.LENGTH_SHORT).show();
-        dismiss(); // Đóng dialog sau khi chọn
+        if (getContext() != null && member != null) { // Add null check for member
+            Toast.makeText(getContext(), "Đã chọn: " + member.getName(), Toast.LENGTH_SHORT).show();
+        }
+        dismiss();
     }
 }
