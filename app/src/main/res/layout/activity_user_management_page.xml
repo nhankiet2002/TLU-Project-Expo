@@ -57,7 +57,7 @@
 
     <!--    Search User Dashboard-->
     <LinearLayout
-        android:id="@+id/search_user_dashboard"
+        android:id="@+id/search_user_magenment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="10dp"
@@ -91,177 +91,15 @@
     </LinearLayout>
 
     <!--User List-->
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/search_user_dashboard"
+    <androidx.recyclerview.widget.RecyclerView
+        app:layout_constraintTop_toBottomOf="@+id/search_user_magenment"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp">
-
-        <!-- LinearLayout to hold user items -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!--User 1-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:id="@+id/user0"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingVertical="10dp"
-                    android:layout_marginEnd="70dp"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/user_name"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:layout_marginStart="10dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="104dp"
-                        tools:text="Nguyen Van A"
-                        />
-                    <TextView
-                        android:id="@+id/email"
-                        android:textColor="@color/light_gray"
-                        android:textSize="16sp"
-                        android:layout_marginHorizontal="10dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="180dp"
-                        tools:text="nguyenvana@gmail.com"
-                        />
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:paddingVertical="2dp"
-                        android:layout_marginStart="10dp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/role"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="11dp"
-                            android:background="@drawable/s00000040sw1cr12bffffff"
-                            android:padding="7dp"
-                            android:text="@string/admin"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/user_active"
-                            android:textColor="#2E9364"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:background="@drawable/cr12bc9eac6"
-                            android:text="@string/active"
-                            android:padding="7dp"
-                            />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/custom_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:checked="true"
-                    app:trackTint="@null"
-                    app:thumbTint="@null"
-                    android:thumb="@drawable/switch_thumb_selector"
-                    app:track="@drawable/switch_track_selector"
-                     />
-            </LinearLayout>
-
-
-            <!--User 2-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-                <LinearLayout
-                    android:id="@+id/user1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingVertical="10dp"
-                    android:layout_marginEnd="70dp"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/user_name1"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:layout_marginStart="10dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="104dp"
-                        tools:text="Nguyen Van A"
-                        />
-                    <TextView
-                        android:id="@+id/email1"
-                        android:textColor="@color/light_gray"
-                        android:textSize="16sp"
-                        android:layout_marginHorizontal="10dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="180dp"
-                        tools:text="nguyenvana@gmail.com"
-                        />
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:paddingVertical="2dp"
-                        android:layout_marginStart="10dp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/role1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/admin"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:padding="7dp"
-                            android:layout_marginEnd="11dp"
-                            android:background="@drawable/s00000040sw1cr12bffffff"/>
-
-                        <TextView
-                            android:id="@+id/user_active1"
-                            android:textColor="@color/locked"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:background="@drawable/cr12beac6c6"
-                            android:text="@string/locked"
-                            android:padding="7dp"
-                            />
-                    </LinearLayout>
-                </LinearLayout>
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/custom_switch2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:thumbTint="@null"
-                    android:trackTint="@null"
-                    android:layout_marginTop="30dp"
-                    android:thumb="@drawable/switch_thumb_selector"
-                    android:track="@drawable/switch_track_selector"
-                    android:checked="false"
-                    />
-            </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+        android:layout_marginTop="20dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints" />
     <Button
         android:id="@+id/btn_see_more_dashboard"
         android:text="@string/see_more"
