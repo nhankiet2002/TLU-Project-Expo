@@ -1,10 +1,8 @@
 package com.cse441.tluprojectexpo;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -18,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.adapter.CategoryAdapter;
 import com.cse441.tluprojectexpo.model.Category;
-
 import com.cse441.tluprojectexpo.repository.CatalogRepository;
 
 import java.util.ArrayList;

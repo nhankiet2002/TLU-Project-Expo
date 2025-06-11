@@ -76,6 +76,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void updateData(List<Category> newCategories) {
         this.categoryList.clear();
         this.categoryList.addAll(newCategories);
-        notifyDataSetChanged(); // Báo cho RecyclerView biết dữ liệu đã thay đổi để vẽ lại
+        notifyDataSetChanged();
     }
 }
