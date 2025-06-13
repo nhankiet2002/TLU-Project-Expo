@@ -7,6 +7,7 @@ public class Project {
     private String author;
     private String technology;
     private String imageUrl;
+    private long timestamp;
 
     // Constructor rỗng cần thiết cho Firestore
     public Project() {
@@ -19,6 +20,7 @@ public class Project {
         this.author = author;
         this.technology = technology;
         this.imageUrl = imageUrl;
+        this.timestamp = timestamp;
     }
 
     // Getters
@@ -28,6 +30,7 @@ public class Project {
     public String getAuthor() { return author; }
     public String getTechnology() { return technology; }
     public String getImageUrl() { return imageUrl; }
+    public long getTimestamp() { return timestamp;}
 
     // Setters (Quan trọng cho Firestore khi đọc dữ liệu)
     public void setId(String id) { this.id = id; }
@@ -36,4 +39,5 @@ public class Project {
     public void setAuthor(String author) { this.author = author; }
     public void setTechnology(String technology) { this.technology = technology; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 }
