@@ -60,7 +60,6 @@
                 android:textStyle="bold"
                 android:textColor="@color/black"
                 android:layout_marginBottom="8dp"/>
-
             <!-- User Email -->
             <TextView
                 android:id="@+id/tv_user_email"
@@ -88,6 +87,15 @@
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"/>
 
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnLogout"
+                android:layout_gravity="center_horizontal"
+                android:text="Đăng xuất"
+                android:backgroundTint="@android:color/black"
+                />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

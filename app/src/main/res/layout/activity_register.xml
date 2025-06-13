@@ -12,7 +12,7 @@
         android:layout_height="55dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="12dp"
-        android:text="Đăng nhập"
+        android:text="Đăng Ký"
         android:textColor="@android:color/white"
         android:textSize="17sp"
         app:backgroundTint="@color/black"
@@ -223,7 +223,7 @@
         app:layout_constraintTop_toBottomOf="@id/textView7">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edUsername"
+            android:id="@+id/edEmailLogin"
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:inputType="textEmailAddress"
@@ -232,6 +232,17 @@
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <CheckBox
         android:id="@+id/checkBox"
         android:layout_width="match_parent"
