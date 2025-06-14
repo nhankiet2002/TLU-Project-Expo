@@ -33,6 +33,14 @@ android {
 }
 
 dependencies {
+
+    implementation (platform("com.google.firebase:firebase-bom:32.7.4"))
+
+    // Firebase Authentication
+    implementation ("com.google.firebase:firebase-auth")
+
+    // Firebase Firestore
+    implementation ("com.google.firebase:firebase-firestore")
     implementation ("com.google.android.material:material:1.10.0")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation ("com.google.android.flexbox:flexbox:3.0.0")

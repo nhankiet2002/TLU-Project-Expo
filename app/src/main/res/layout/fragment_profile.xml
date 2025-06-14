@@ -1,93 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"
-    android:fitsSystemWindows="true"
-    tools:context=".fragment.ProfileFragment">
+    android:background="#F5F5F5"
+    tools:context=".MainActivity">
 
-    <!-- Top Bar -->
+    <!-- Profile Section -->
     <RelativeLayout
-        android:id="@+id/top_bar"
+        android:id="@+id/profileLayout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="@android:color/white"
+        android:clickable="true"
+        android:focusable="true">
 
-        <TextView
-            android:id="@+id/tv_title"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/avatarImageView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:civ_border_color="#FF000000"
+            app:civ_border_width="0dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"/>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Trang cá nhân"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
+            android:orientation="vertical"
+            android:layout_toEndOf="@id/avatarImageView"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp">
+
+            <TextView
+                android:id="@+id/textViewUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đàm Nhân Kiệt"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"/>
+
+            <TextView
+                android:id="@+id/textViewUserClass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="62N"
+                android:textSize="18sp"
+                android:textColor="@android:color/darker_gray"/>
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_forward"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"/>
     </RelativeLayout>
 
-    <!-- Profile Content -->
-    <ScrollView
+    <View
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="1dp"
+        android:background="#E0E0E0"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+    <!-- Logout Section -->
+    <RelativeLayout
+        android:id="@+id/logoutLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:background="@android:color/white"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/logoutArrowIcon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/chevron_right"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/logoutTextView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:text="Đăng xuất"
+            android:textSize="20sp"
+            android:textColor="@android:color/black"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"/>
 
-            <!-- Profile Image -->
-            <ImageView
-                android:id="@+id/iv_profile_image"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:src="@drawable/ic_person"
-                android:padding="24dp"/>
+        <ImageView
+            android:id="@+id/logoutActionIcon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_log_out"
+            app:tint="@android:color/holo_red_dark"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
 
-            <!-- User Name -->
-            <TextView
-                android:id="@+id/tv_user_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Tên người dùng"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginBottom="8dp"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0"/>
 
-            <!-- User Email -->
-            <TextView
-                android:id="@+id/tv_user_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="email@example.com"
-                android:textSize="16sp"
-                android:textColor="@color/gray"
-                android:layout_marginBottom="24dp"/>
+    <!-- Search Bar -->
+    <EditText
+        android:id="@+id/searchEditText"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/search_bar_background"
+        android:drawableStart="@drawable/search"
+        android:drawablePadding="12dp"
+        android:hint="Tìm kiếm"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="16sp" />
 
-            <!-- Projects Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dự án của tôi"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginBottom="16dp"/>
+    <!-- Project List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/projectsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/list_item_project_actions"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_my_projects"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
-
-        </LinearLayout>
-    </ScrollView>
 </LinearLayout>

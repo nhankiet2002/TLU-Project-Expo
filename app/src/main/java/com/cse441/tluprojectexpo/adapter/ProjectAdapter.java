@@ -9,6 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -20,122 +23,249 @@ import com.cse441.tluprojectexpo.model.Project;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectViewHolder> {
+public class ProjectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
     private List<Project> projectList;
-    // ExecutorService để chạy tác vụ tải ảnh trên luồng nền
-    private final ExecutorService executorService = Executors.newFixedThreadPool(4); // Số luồng có thể điều chỉnh
-    // Handler để cập nhật UI từ luồng nền
+    private List<Project> projectListFull; // For filtering
+    private Context context;
+    private OnProjectActionListener actionListener;
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
+    private static final int VIEW_TYPE_ITEM_DEFAULT = 0; // For HomeFragment
+    private static final int VIEW_TYPE_ITEM_WITH_ACTIONS = 1; // For ProfileFragment
+
+    public interface OnProjectActionListener {
+        void onEditProject(Project project);
+        void onDeleteProject(Project project, int position);
+    }
+
+    // Constructor for HomeFragment (no actions)
     public ProjectAdapter(Context context, List<Project> projectList) {
-        // Context có thể không cần thiết nữa nếu không dùng Glide
+        this.context = context;
         this.projectList = projectList;
+        this.projectListFull = new ArrayList<>(projectList);
+        this.actionListener = null;
+    }
+
+    // Constructor for ProfileFragment (with actions)
+    public ProjectAdapter(Context context, List<Project> projectList, OnProjectActionListener listener) {
+        this.context = context;
+        this.projectList = projectList;
+        this.projectListFull = new ArrayList<>(projectList);
+        this.actionListener = listener;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return actionListener == null ? VIEW_TYPE_ITEM_DEFAULT : VIEW_TYPE_ITEM_WITH_ACTIONS;
     }
 
     @NonNull
     @Override
-    public ProjectViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, parent, false);
-        return new ProjectViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        if (viewType == VIEW_TYPE_ITEM_WITH_ACTIONS) {
+            View view = inflater.inflate(R.layout.list_item_project_actions, parent, false);
+            return new ProjectActionViewHolder(view);
+        } else {
+            // Assuming list_item.xml is for HomeFragment and might have author/technology
+            View view = inflater.inflate(R.layout.list_item, parent, false);
+            return new ProjectDefaultViewHolder(view);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ProjectViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Project project = projectList.get(position);
+        if (project == null) return;
 
-        holder.textViewProjectName.setText(project.getName());
-        holder.textViewDescription.setText(project.getDescription());
-        holder.textViewAuthor.setText(project.getAuthor());
-        holder.textViewTechnology.setText(project.getTechnology());
+        if (holder.getItemViewType() == VIEW_TYPE_ITEM_WITH_ACTIONS) {
+            ProjectActionViewHolder actionViewHolder = (ProjectActionViewHolder) holder;
+            actionViewHolder.textViewProjectName.setText(project.getName());
+            actionViewHolder.textViewDescription.setText(project.getDescription());
+            loadImage(project.getImageUrl(), actionViewHolder.imageViewProject, project.getName());
 
-        String imageUrl = project.getImageUrl();
-        Log.d("ProjectAdapter", "Attempting to load image from URL: " + imageUrl + " for project: " + project.getName());
+            actionViewHolder.buttonEdit.setOnClickListener(v -> {
+                if (actionListener != null) {
+                    actionListener.onEditProject(project);
+                }
+            });
 
-        // Đặt placeholder trước khi tải
-        holder.imageViewProject.setImageResource(R.drawable.ic_image_placeholder);
+            actionViewHolder.buttonDelete.setOnClickListener(v -> {
+                if (actionListener != null) {
+                    actionListener.onDeleteProject(project, holder.getAdapterPosition());
+                }
+            });
+
+        } else { // VIEW_TYPE_ITEM_DEFAULT
+            ProjectDefaultViewHolder defaultViewHolder = (ProjectDefaultViewHolder) holder;
+            defaultViewHolder.textViewProjectName.setText(project.getName());
+            defaultViewHolder.textViewDescription.setText(project.getDescription());
+            // Assuming list_item.xml has these. If not, add null checks or remove.
+            if (defaultViewHolder.textViewAuthor != null) defaultViewHolder.textViewAuthor.setText(project.getAuthor());
+            if (defaultViewHolder.textViewTechnology != null) defaultViewHolder.textViewTechnology.setText(project.getTechnology());
+            loadImage(project.getImageUrl(), defaultViewHolder.imageViewProject, project.getName());
+        }
+    }
+
+    private void loadImage(String imageUrl, ImageView imageView, String projectName) {
+        imageView.setImageResource(R.drawable.ic_image_placeholder); // Default placeholder
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
-            // Sử dụng ExecutorService để tải ảnh trên luồng nền
             executorService.execute(() -> {
                 Bitmap bitmap = null;
+                HttpURLConnection connection = null;
+                InputStream input = null;
                 try {
                     URL url = new URL(imageUrl);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setConnectTimeout(10000); // 10 seconds
+                    connection.setReadTimeout(15000); // 15 seconds
                     connection.setDoInput(true);
                     connection.connect();
-                    InputStream input = connection.getInputStream();
-                    // Cân nhắc giải mã với BitmapFactory.Options để tránh OutOfMemoryError cho ảnh lớn
-                    // Ví dụ: tính toán inSampleSize
+                    input = connection.getInputStream();
                     bitmap = BitmapFactory.decodeStream(input);
-                    input.close();
-                    connection.disconnect();
+                } catch (OutOfMemoryError oom) {
+                    Log.e("ProjectAdapter", "OutOfMemoryError for image: " + imageUrl, oom);
+                    // Consider downsampling or other memory optimization techniques
                 } catch (Exception e) {
                     Log.e("ProjectAdapter", "Error downloading image: " + imageUrl, e);
+                } finally {
+                    if (input != null) try { input.close(); } catch (Exception e) { /* ignore */ }
+                    if (connection != null) connection.disconnect();
                 }
 
-                // Sau khi tải xong (hoặc lỗi), cập nhật ImageView trên luồng chính
                 final Bitmap finalBitmap = bitmap;
                 mainThreadHandler.post(() -> {
-                    if (finalBitmap != null) {
-                        holder.imageViewProject.setImageBitmap(finalBitmap);
-                    } else {
-                        // Nếu lỗi, hiển thị ảnh lỗi
-                        holder.imageViewProject.setImageResource(R.drawable.error);
+                    // Check if the imageView instance is still valid (ViewHolder might have been recycled)
+                    // This check is often implicitly handled by RecyclerView's recycling if an image loading library is used.
+                    // For manual loading, it's good practice.
+                    if (imageView.getTag() == null || imageView.getTag().equals(imageUrl)) { // Basic tag check
+                        if (finalBitmap != null) {
+                            imageView.setImageBitmap(finalBitmap);
+                        } else {
+                            imageView.setImageResource(R.drawable.error); // Error placeholder
+                        }
                     }
                 });
             });
+            imageView.setTag(imageUrl); // Set tag to help with recycled views
         } else {
-            Log.d("ProjectAdapter", "Image URL is empty or null for project: " + project.getName());
-            holder.imageViewProject.setImageResource(R.drawable.error); // Hoặc placeholder
+            Log.d("ProjectAdapter", "Image URL is empty or null for project: " + projectName);
+            imageView.setImageResource(R.drawable.error); // Error placeholder if URL is invalid
         }
     }
+
 
     @Override
     public int getItemCount() {
         return projectList == null ? 0 : projectList.size();
     }
 
-    public void setData(List<Project> newList) {
+    public void updateProjects(List<Project> newProjects) {
         this.projectList.clear();
-        if (newList != null) {
-            this.projectList.addAll(newList);
-        }
+        this.projectList.addAll(newProjects);
+        this.projectListFull = new ArrayList<>(newProjects);
         notifyDataSetChanged();
     }
 
-    // Quan trọng: Dọn dẹp ExecutorService khi Adapter không còn được sử dụng
-    // (ví dụ, trong Fragment/Activity's onDestroy hoặc khi RecyclerView bị detach)
-    // Tuy nhiên, việc này hơi phức tạp vì Adapter không có lifecycle trực tiếp.
-    // Một cách tốt hơn là truyền ExecutorService từ bên ngoài vào.
-    // Hoặc, nếu ExecutorService chỉ dùng cho Adapter này, bạn có thể tạo một phương thức
-    // để shutdown nó, và gọi từ Fragment/Activity khi thích hợp.
+    public void removeProject(int position) {
+        if (position >= 0 && position < projectList.size()) {
+            Project removed = projectList.remove(position);
+            projectListFull.remove(removed); // Ensure consistency with the full list
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, projectList.size()); // To update subsequent item positions
+        }
+    }
+
     public void shutdownExecutor() {
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdown();
         }
     }
 
-
-    static class ProjectViewHolder extends RecyclerView.ViewHolder {
+    // ViewHolder for list_item.xml (HomeFragment)
+    static class ProjectDefaultViewHolder extends RecyclerView.ViewHolder {
         ImageView imageViewProject;
         TextView textViewProjectName;
         TextView textViewDescription;
         TextView textViewAuthor;
         TextView textViewTechnology;
 
-        public ProjectViewHolder(@NonNull View itemView) {
+        public ProjectDefaultViewHolder(@NonNull View itemView) {
             super(itemView);
             imageViewProject = itemView.findViewById(R.id.imageViewProject);
             textViewProjectName = itemView.findViewById(R.id.textViewProjectName);
             textViewDescription = itemView.findViewById(R.id.textViewDescription);
-            textViewAuthor = itemView.findViewById(R.id.textViewAuthor);
-            textViewTechnology = itemView.findViewById(R.id.textViewTechnology);
+            textViewAuthor = itemView.findViewById(R.id.textViewAuthor); // Ensure this ID exists in list_item.xml
+            textViewTechnology = itemView.findViewById(R.id.textViewTechnology); // Ensure this ID exists in list_item.xml
         }
+    }
+
+    // ViewHolder for list_item_project_actions.xml (ProfileFragment)
+    static class ProjectActionViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageViewProject;
+        TextView textViewProjectName;
+        TextView textViewDescription;
+        Button buttonEdit;
+        Button buttonDelete;
+
+        public ProjectActionViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imageViewProject = itemView.findViewById(R.id.imageViewProject);
+            textViewProjectName = itemView.findViewById(R.id.textViewProjectName);
+            textViewDescription = itemView.findViewById(R.id.textViewDescription);
+            buttonEdit = itemView.findViewById(R.id.buttonEdit);
+            buttonDelete = itemView.findViewById(R.id.buttonDelete);
+        }
+    }
+
+    @Override
+    public Filter getFilter() {
+        return projectFilter;
+    }
+
+    private final Filter projectFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<Project> filteredList = new ArrayList<>();
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(projectListFull);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+                for (Project item : projectListFull) {
+                    if (item.getName() != null && item.getName().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(item);
+                    } else if (item.getDescription() != null && item.getDescription().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(item);
+                    }
+                    // Add more fields to search if needed
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            projectList.clear();
+            if (results.values != null) {
+                projectList.addAll((List<Project>) results.values);
+            }
+            notifyDataSetChanged();
+        }
+    };
+
+    // Helper method to trigger filtering
+    public void filter(String query) {
+        getFilter().filter(query);
     }
 }
