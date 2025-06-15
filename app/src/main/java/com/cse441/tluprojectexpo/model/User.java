@@ -1,7 +1,10 @@
 package com.cse441.tluprojectexpo.model;
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.ServerTimestamp;
 
 import java.sql.Timestamp;
+import java.util.Date;
+
 public class User {
 
     @DocumentId
@@ -12,7 +15,9 @@ public class User {
     private String className;
     private String facultyName;
     private String role;
-    private Timestamp createdAt;
+
+    @ServerTimestamp
+    private Date createdAt;
 
     private Boolean status;
 
@@ -30,11 +35,11 @@ public class User {
     }
 
 
-    public Timestamp getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
