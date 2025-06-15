@@ -29,6 +29,13 @@
             android:text="Mở Màn hình Quản lý Danh mục"
             android:layout_marginBottom="12dp"/>
 
+        <Button
+            android:id="@+id/btn_launch_add_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thêm Người Dùng Hàng Loạt"
+            android:layout_marginBottom="12dp"/>
+
         <!-- Thêm các nút khác ở đây để mở các màn hình test khác -->
         <!--
         <Button

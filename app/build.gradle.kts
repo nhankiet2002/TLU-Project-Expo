@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.code.gson:gson:2.9.0")  //Gson của Google là một công cụ giúp bạn chuyển đổi qua lại giữa Đối tượng Java (Java Object) và chuỗi JSON (JSON String
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation ("com.google.android.material:material:1.10.0")
     implementation(libs.appcompat)

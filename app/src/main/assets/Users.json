@@ -6,8 +6,7 @@
     "className": "63CNTT4",
     "facultyName": "Công nghệ thông tin",
     "role": "ADMIN",
-    "status": true,
-    "createdAt": "2024-01-01T09:00:00.000Z"
+    "status": true
   },
   {
     "fullName": "Trần Thị Hài",
@@ -16,8 +15,7 @@
     "className": "63CNTT1",
     "facultyName": "Công nghệ thông tin",
     "role": "LECTURER",
-    "status": true,
-    "createdAt": "2024-02-15T14:20:10.000Z"
+    "status": true
   },
   {
     "fullName": "Lê Văn Hước",
@@ -26,8 +24,7 @@
     "className": "62TMĐT3",
     "facultyName": "Kinh tế",
     "role": "STUDENT",
-    "status": true,
-    "createdAt": "2024-03-20T08:45:00.000Z"
+    "status": true
   },
   {
     "fullName": "Phạm Văn Đồng",
@@ -36,8 +33,7 @@
     "className": "62TMĐT3",
     "facultyName": "Kinh tế",
     "role": "STUDENT",
-    "status": true,
-    "createdAt": "2024-03-20T08:45:00.000Z"
+    "status": true
   },
   {
     "fullName": "Tào Mạnh Dũng",
@@ -46,8 +42,7 @@
     "className": "64TMĐT1",
     "facultyName": "Kinh tế",
     "role": "STUDENT",
-    "status": true,
-    "createdAt": "2024-03-20T08:45:00.000Z"
+    "status": true
   },
   {
     "fullName": "Lê Văn Tài",
@@ -56,8 +51,7 @@
     "className": "62KT3",
     "facultyName": "Kinh tế",
     "role": "STUDENT",
-    "status": false,
-    "createdAt": "2024-03-20T08:45:00.000Z"
+    "status": false
   },
   {
     "fullName": "Mai Chiến Thắng",
@@ -66,8 +60,7 @@
     "className": "64KTPM1",
     "facultyName": "Công nghệ thông tin",
     "role": "STUDENT",
-    "status": true,
-    "createdAt": "2024-03-20T08:45:00.000Z"
+    "status": true
   },
   {
     "fullName": "Mai Văn Long",
@@ -76,7 +69,6 @@
     "className": "65C1",
     "facultyName": "Công trình",
     "role": "STUDENT",
-    "status": true,
-    "createdAt": "2024-03-20T08:45:00.000Z"
+    "status": true
   }
 ]

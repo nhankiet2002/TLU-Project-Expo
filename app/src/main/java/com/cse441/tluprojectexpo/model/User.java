@@ -1,8 +1,8 @@
 package com.cse441.tluprojectexpo.model;
+
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.ServerTimestamp;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 public class User {
@@ -25,7 +25,7 @@ public class User {
 
     }
 
-    public User(String fullName, String email, String passwordHash, String facultyName, String role, Timestamp createdAt) {
+    public User(String fullName, String email, String passwordHash, String facultyName, String role, java.sql.Date createdAt) {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
