@@ -1,12 +1,20 @@
 package com.cse441.tluprojectexpo.model;
+import com.google.firebase.firestore.DocumentId;
+
 import java.sql.Timestamp;
 public class User {
+
+    @DocumentId
+    private String id;
     private String fullName;
     private String email;
     private String passwordHash;
+    private String className;
     private String facultyName;
     private String role;
     private Timestamp createdAt;
+
+    private Boolean status;
 
     public User() {
 
@@ -54,6 +62,14 @@ public class User {
         this.fullName = fullName;
     }
 
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -68,5 +84,17 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public Boolean getStatus() {
+        return status;
     }
 }
