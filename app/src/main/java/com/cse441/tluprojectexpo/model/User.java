@@ -12,6 +12,7 @@ public class User {
     private String fullName;
     private String email;
     private String passwordHash;
+    private String avatarUrl;
     private String className;
     private String facultyName;
     private String role;
@@ -19,19 +20,28 @@ public class User {
     @ServerTimestamp
     private Date createdAt;
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     private Boolean status;
 
     public User() {
 
     }
 
-    public User(String fullName, String email, String passwordHash, String facultyName, String role, java.sql.Date createdAt) {
+    public User(String fullName, String email, String passwordHash, String facultyName, String role, java.sql.Date createdAt, String avatarUrl) {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.facultyName = facultyName;
         this.role = role;
         this.createdAt = createdAt;
+        this.avatarUrl = avatarUrl;
     }
 
 

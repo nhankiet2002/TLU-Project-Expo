@@ -35,7 +35,7 @@ public class DebugMenu extends AppCompatActivity {
             public void onClick(View v) {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 try {
-                    FirestoreUtils.importUsersFromJson(DebugMenu.this, db, "User.json");
+                    FirestoreUtils.importUsersFromJson(DebugMenu.this, db, "Users.json");
                     Toast.makeText(DebugMenu.this, "Thêm dữ liệu thành công", Toast.LENGTH_SHORT).show();
                 } catch (RuntimeException e) {
                     Toast.makeText(DebugMenu.this, e.getMessage(), Toast.LENGTH_SHORT).show();
