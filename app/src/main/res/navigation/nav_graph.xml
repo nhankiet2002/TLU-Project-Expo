@@ -16,17 +16,17 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.cse441.tluprojectexpo.fragment.ProfileFragment"
-        android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" >
+        android:label="Hồ Sơ Người Dùng"
+        tools:layout="@layout/fragment_profile">
+        <argument
+            android:name="userId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
         <action
-            android:id="@+id/action_profileFragment_to_createFragment_for_edit"
+            android:id="@+id/action_profileFragment_to_projectDetailFragment"
             app:destination="@id/createFragment" />
-        <!-- Các actions khác của ProfileFragment nếu có -->
-        <!-- Ví dụ, nếu bạn có action từ Profile về Home:
-        <action
-            android:id="@+id/action_profileFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-        -->
+        <!-- Các action khác nếu có -->
     </fragment>
 
     <fragment

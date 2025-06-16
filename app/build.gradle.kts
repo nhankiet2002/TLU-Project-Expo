@@ -34,7 +34,7 @@ android {
 
 dependencies {
 
-    implementation (platform("com.google.firebase:firebase-bom:32.7.4"))
+    implementation (platform("com.google.firebase:firebase-bom:33.0.0"))
 
     // Firebase Authentication
     implementation ("com.google.firebase:firebase-auth")
@@ -45,6 +45,7 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation ("com.google.android.material:material:1.10.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

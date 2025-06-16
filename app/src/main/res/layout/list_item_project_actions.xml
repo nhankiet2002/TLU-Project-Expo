@@ -34,7 +34,7 @@
             android:layout_marginStart="12dp"   >
 
             <TextView
-                android:id="@+id/textViewProjectName"
+                android:id="@+id/textViewProjectTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="Tên dự án"
@@ -43,7 +43,7 @@
                 android:textColor="@android:color/black" />
 
             <TextView
-                android:id="@+id/textViewDescription"
+                android:id="@+id/textViewProjectDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="Mô tả"

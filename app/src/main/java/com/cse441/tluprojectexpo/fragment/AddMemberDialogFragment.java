@@ -1,6 +1,6 @@
+// AddMemberDialogFragment.java
 package com.cse441.tluprojectexpo.fragment;
 
-// Trong package fragment hoặc dialog của bạn
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-// import android.widget.ImageView; // NO LONGER NEEDED
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -24,40 +23,40 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout; // IMPORT THIS
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.cse441.tluprojectexpo.R;
-import com.cse441.tluprojectexpo.adapter.MemberSearchAdapter;
-import com.cse441.tluprojectexpo.model.Member;
+import com.cse441.tluprojectexpo.adapter.UserSearchAdapter; // THAY ĐỔI
+import com.cse441.tluprojectexpo.model.User; // THAY ĐỔI
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddMemberDialogFragment extends DialogFragment implements MemberSearchAdapter.OnMemberClickListener {
+public class AddMemberDialogFragment extends DialogFragment implements UserSearchAdapter.OnUserClickListener { // THAY ĐỔI
 
     private static final String TAG = "AddMemberDialog";
     private TextInputEditText etSearchMember;
     private RecyclerView rvMembersList;
-    // private ImageView ivCloseDialog; // REMOVE THIS LINE
-    private TextInputLayout tilSearchMember; // ADD THIS LINE
+    private TextInputLayout tilSearchMember;
     private ProgressBar pbLoadingMembers;
-    private MemberSearchAdapter adapter;
-    private List<Member> allMembers = new ArrayList<>();
+    private UserSearchAdapter adapter; // THAY ĐỔI
+    private List<User> allUsers = new ArrayList<>(); // THAY ĐỔI
     private FirebaseFirestore db;
 
-    public interface AddMemberDialogListener {
-        void onMemberSelected(Member member);
+    // Interface để gửi User đã chọn về CreateFragment
+    public interface AddUserDialogListener { // Đổi tên interface
+        void onUserSelected(User user);    // Đổi tên tham số
     }
-    private AddMemberDialogListener dialogListener;
+    private AddUserDialogListener dialogListener; // Đổi tên biến
 
     public static AddMemberDialogFragment newInstance() {
         return new AddMemberDialogFragment();
     }
 
-    public void setDialogListener(AddMemberDialogListener listener) {
+    // Đổi tên phương thức và tham số
+    public void setDialogListener(AddUserDialogListener listener) {
         this.dialogListener = listener;
     }
-
 
     @Nullable
     @Override
@@ -68,133 +67,142 @@ public class AddMemberDialogFragment extends DialogFragment implements MemberSea
 
         etSearchMember = view.findViewById(R.id.et_search_member_dialog);
         rvMembersList = view.findViewById(R.id.rv_members_list_dialog);
-        // ivCloseDialog = view.findViewById(R.id.iv_close_dialog_member); // REMOVE THIS LINE
-        tilSearchMember = view.findViewById(R.id.til_search_member); // ADD THIS LINE
+        tilSearchMember = view.findViewById(R.id.til_search_member);
         pbLoadingMembers = view.findViewById(R.id.pb_loading_members);
 
         setupRecyclerView();
-        fetchMembersFromFirestore();
+        fetchUsersFromFirestore(); // Đổi tên hàm
 
-        // ivCloseDialog.setOnClickListener(v -> dismiss()); // REMOVE THIS LINE
-
-        // Set the click listener for the END ICON of the TextInputLayout
-        if (tilSearchMember != null) { // Good practice to check for null
-            tilSearchMember.setEndIconOnClickListener(v -> dismiss()); // ADD THIS LINE
+        if (tilSearchMember != null) {
+            tilSearchMember.setEndIconOnClickListener(v -> dismiss());
         }
 
-
         etSearchMember.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (adapter != null) {
                     adapter.filter(s.toString());
                 }
             }
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
 
         return view;
     }
 
-    // ... (rest of your code: onStart, setupRecyclerView, fetchMembersFromFirestore, onMemberClick)
     @Override
     public void onStart() {
+        // ... (giữ nguyên code onStart)
         super.onStart();
         Dialog dialog = getDialog();
         if (dialog != null && dialog.getWindow() != null) {
             Window window = dialog.getWindow();
-            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // Để bo góc hoạt động
-            window.setGravity(Gravity.CENTER); // Đảm bảo dialog ở giữa
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.setGravity(Gravity.CENTER);
 
-            // Thiết lập kích thước dialog
             DisplayMetrics displayMetrics = new DisplayMetrics();
             if (getActivity() != null) {
                 getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-                int dialogWidth = (int)(displayMetrics.widthPixels * 0.90); // 90% chiều rộng màn hình
+                int dialogWidth = (int)(displayMetrics.widthPixels * 0.90);
                 window.setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
             }
         }
     }
 
     private void setupRecyclerView() {
-        adapter = new MemberSearchAdapter(getContext(), new ArrayList<>(), this); // Truyền this làm listener
+        adapter = new UserSearchAdapter(getContext(), new ArrayList<>(), this); // THAY ĐỔI
         rvMembersList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvMembersList.setAdapter(adapter);
-        // Thêm đường kẻ giữa các item (tùy chọn)
         if (getContext() != null) {
             rvMembersList.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         }
     }
 
-    private void fetchMembersFromFirestore() {
+    // Đổi tên hàm và logic để fetch Users
+    private void fetchUsersFromFirestore() {
         pbLoadingMembers.setVisibility(View.VISIBLE);
         rvMembersList.setVisibility(View.GONE);
 
-        db.collection("users")
-                .orderBy("fullName") // Vẫn sắp xếp theo tên
+        // Giả sử collection người dùng của bạn tên là "Users" (khớp với model User.java)
+        // và bạn muốn sắp xếp theo "FullName"
+        db.collection("Users")
+                .orderBy("FullName") // Đổi từ "fullName" thành "FullName" nếu model User.java dùng "FullName"
                 .get()
                 .addOnCompleteListener(task -> {
                     pbLoadingMembers.setVisibility(View.GONE);
                     rvMembersList.setVisibility(View.VISIBLE);
                     if (task.isSuccessful() && task.getResult() != null) {
-                        allMembers.clear();
-                        List<Member> tempMemberList = new ArrayList<>(); // Danh sách tạm thời để lọc
+                        allUsers.clear();
+                        List<User> tempUserList = new ArrayList<>();
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             try {
-                                List<String> roles = (List<String>) document.get("roles");
+                                // Lấy thông tin vai trò từ document User
+                                // Giả sử bạn có một trường "UserRoles" (Array of Strings) trong document User
+                                // Hoặc một trường "IsAdmin" (Boolean)
+                                // Ví dụ: Kiểm tra nếu user có role "Admin"
                                 boolean isAdmin = false;
-                                if (roles != null) {
-                                    for (String role : roles) {
-                                        if ("Admin".equalsIgnoreCase(role)) {
-                                            isAdmin = true;
-                                            break;
+                                if (document.contains("UserRoles")) { // Kiểm tra sự tồn tại của trường
+                                    Object rolesObject = document.get("UserRoles");
+                                    if (rolesObject instanceof List) {
+                                        List<?> rolesRaw = (List<?>) rolesObject;
+                                        List<String> roles = new ArrayList<>();
+                                        for (Object roleRaw : rolesRaw) {
+                                            if (roleRaw instanceof String) {
+                                                roles.add((String) roleRaw);
+                                            }
+                                        }
+                                        for (String roleId : roles) {
+                                            // Bạn cần query collection "Roles" để lấy RoleName từ RoleId
+                                            // Hoặc nếu "UserRoles" lưu trực tiếp tên vai trò (vd: "Admin", "User") thì:
+                                            if ("role_admin".equalsIgnoreCase(roleId)) { // Giả sử "role_admin" là ID của Admin
+                                                isAdmin = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
 
+
                                 if (!isAdmin) {
-                                    Member member = document.toObject(Member.class);
-                                    member.setUserId(document.getId());
-                                    tempMemberList.add(member);
-                                    Log.d(TAG, "Fetched non-admin member: " + member.toString());
+                                    User user = document.toObject(User.class);
+                                    // Quan trọng: Gán UserId từ ID của document
+                                    user.setUserId(document.getId()); // THÊM DÒNG NÀY VÀO MODEL User.java
+                                    tempUserList.add(user);
+                                    Log.d(TAG, "Fetched non-admin user: " + user.getFullName());
                                 } else {
-                                    Log.d(TAG, "Skipped admin user: " + document.getString("fullName"));
+                                    Log.d(TAG, "Skipped admin user: " + document.getString("FullName"));
                                 }
 
                             } catch (Exception e) {
-                                Log.e(TAG, "Error processing document: " + document.getId(), e);
+                                Log.e(TAG, "Error processing user document: " + document.getId(), e);
                             }
                         }
-                        allMembers.addAll(tempMemberList);
+                        allUsers.addAll(tempUserList);
 
                         if (adapter != null) {
-                            adapter.updateData(allMembers);
-                            if (etSearchMember != null) { // Check if etSearchMember is initialized
+                            adapter.updateData(allUsers);
+                            if (etSearchMember != null) {
                                 adapter.filter(etSearchMember.getText().toString());
                             }
-                        } else {
-                            Log.e(TAG, "Adapter is null after fetching members.");
                         }
                     } else {
-                        Log.w(TAG, "Lỗi khi tải danh sách thành viên.", task.getException());
+                        Log.w(TAG, "Lỗi khi tải danh sách người dùng.", task.getException());
                         if(getContext() != null) {
-                            Toast.makeText(getContext(), "Lỗi tải danh sách thành viên.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Lỗi tải danh sách người dùng.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 
+    // Đổi tên phương thức và tham số
     @Override
-    public void onMemberClick(Member member) {
+    public void onUserClick(User user) {
         if (dialogListener != null) {
-            dialogListener.onMemberSelected(member);
+            dialogListener.onUserSelected(user); // THAY ĐỔI
         }
-        if (getContext() != null && member != null) { // Add null check for member
-            Toast.makeText(getContext(), "Đã chọn: " + member.getName(), Toast.LENGTH_SHORT).show();
+        if (getContext() != null && user != null) {
+            Toast.makeText(getContext(), "Đã chọn: " + user.getFullName(), Toast.LENGTH_SHORT).show(); // THAY ĐỔI
         }
         dismiss();
     }
