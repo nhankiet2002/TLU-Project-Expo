@@ -1,13 +1,13 @@
+// PATH: com/cse441/tluprojectexpo/admin/CatalogManagementPage.java
+
 package com.cse441.tluprojectexpo.admin;
 
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -21,154 +21,96 @@ import com.cse441.tluprojectexpo.admin.adapter.CategoryAdapter;
 import com.cse441.tluprojectexpo.model.Category;
 import com.cse441.tluprojectexpo.admin.repository.CatalogRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CatalogManagementPage extends AppCompatActivity {
 
     private static final String TAG = "CatalogManagementPage";
 
-    // THAY ĐỔI: Bỏ FirebaseFirestore db, thay bằng CatalogRepository
     private CatalogRepository catalogRepository;
-
     private RecyclerView fieldsRecyclerView;
     private RecyclerView technologiesRecyclerView;
-
-    private CategoryAdapter fieldsAdapter;
-    private CategoryAdapter technologiesAdapter;
-    private ProgressBar progressBar;
-
-    // Các list này vẫn được giữ nguyên để cung cấp dữ liệu cho Adapter
-    private List<Category> fieldsList = new ArrayList<>();
-    private List<Category> technologiesList = new ArrayList<>();
+    // Đã xóa các biến Adapter và List không cần thiết ở cấp lớp
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog_management_page);
-        progressBar = findViewById(R.id.progress_bar_loading);
         Log.d(TAG, "--- onCreate ĐÃ ĐƯỢC GỌI! ---");
 
-        // THAY ĐỔI: Khởi tạo Repository thay vì Firestore
-        catalogRepository = new CatalogRepository();
-
-        // Ánh xạ Views từ XML (giữ nguyên)
+        // Ánh xạ Views
         fieldsRecyclerView = findViewById(R.id.recycler_view_field);
         technologiesRecyclerView = findViewById(R.id.recycler_view_technology);
 
-        // Thiết lập RecyclerViews
+        // Khởi tạo Repository
+        catalogRepository = new CatalogRepository();
+
+        // Thiết lập chỉ LayoutManager cho RecyclerViews
         setupRecyclerViews();
 
-        // THAY ĐỔI: Tải dữ liệu thông qua Repository
+        // Tải dữ liệu (hàm này sẽ tự tạo và gán Adapter)
         loadData();
 
-        // Nút "Thêm mới" (giữ nguyên, chỉ thay đổi nội dung hàm nó gọi)
+        // Nút "Thêm mới"
         Button btnAddNewCatalog = findViewById(R.id.add_new_catalog);
         btnAddNewCatalog.setOnClickListener(v -> showAddOptionsDialog());
     }
 
     private void setupRecyclerViews() {
-        // THAY ĐỔI: Tạo listener riêng cho "Lĩnh vực"
-        CategoryAdapter.OnCategoryClickListener fieldClickListener = new CategoryAdapter.OnCategoryClickListener() {
-            @Override
-            public void onEditClick(Category category) {
-                // Gọi hàm sửa với đúng loại là FIELD
-                showEditDialog(category, CatalogRepository.CatalogType.FIELD);
-            }
-
-            @Override
-            public void onDeleteClick(Category category) {
-                // Gọi hàm xóa với đúng loại là FIELD
-                showDeleteConfirmationDialog(category, CatalogRepository.CatalogType.FIELD);
-            }
-        };
-
-        // THAY ĐỔI: Tạo listener riêng cho "Công nghệ"
-        CategoryAdapter.OnCategoryClickListener techClickListener = new CategoryAdapter.OnCategoryClickListener() {
-            @Override
-            public void onEditClick(Category category) {
-                showEditDialog(category, CatalogRepository.CatalogType.TECHNOLOGY);
-            }
-
-            @Override
-            public void onDeleteClick(Category category) {
-                showDeleteConfirmationDialog(category, CatalogRepository.CatalogType.TECHNOLOGY);
-            }
-        };
-
-        // Setup cho RecyclerView "Lĩnh vực" (Fields)
+        // Chỉ cần setup LayoutManager ở đây
         fieldsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // THAY ĐỔI: Truyền listener vừa tạo thay vì "this"
-        fieldsAdapter = new CategoryAdapter(fieldsList, fieldClickListener);
-        fieldsRecyclerView.setAdapter(fieldsAdapter);
-
-        // Setup cho RecyclerView "Công nghệ" (Technologies)
         technologiesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // THAY ĐỔI: Truyền listener vừa tạo thay vì "this"
-        technologiesAdapter = new CategoryAdapter(technologiesList, techClickListener);
-        technologiesRecyclerView.setAdapter(technologiesAdapter);
     }
 
-    // THAY ĐỔI: Gộp loadFields() và loadTechnologies() thành một hàm
     private void loadData() {
-        if (progressBar != null) {
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        // Tạo một biến đếm để theo dõi các tác vụ đã hoàn thành
-        final int[] tasksCompleted = {0};
-        final int totalTasks = 2; // Chúng ta có 2 tác vụ tải dữ liệu
-
-        // Hàm helper để ẩn ProgressBar khi tất cả các tác vụ đã xong
-        Runnable onTaskFinished = () -> {
-            tasksCompleted[0]++;
-            if (tasksCompleted[0] >= totalTasks) {
-                if (progressBar != null) {
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        };
-
         // Tải Lĩnh vực
         catalogRepository.getAllItems(CatalogRepository.CatalogType.FIELD, new CatalogRepository.CatalogDataListener() {
             @Override
-            public void onDataLoaded(List<Category> items) {
-                fieldsAdapter.updateData(items);
-                Log.d(TAG, "[FIELDS] Tải dữ liệu thành công qua Repository.");
-                // Gọi hàm helper để cập nhật số lượng tác vụ đã hoàn thành
-                onTaskFinished.run();
+            public void onDataLoaded(java.util.List<Category> items) {
+                // Tạo listener cho các sự kiện click
+                CategoryAdapter.OnCategoryClickListener fieldClickListener = new CategoryAdapter.OnCategoryClickListener() {
+                    @Override public void onEditClick(Category category) { showEditDialog(category, CatalogRepository.CatalogType.FIELD); }
+                    @Override public void onDeleteClick(Category category) { showDeleteConfirmationDialog(category, CatalogRepository.CatalogType.FIELD); }
+                };
+
+                // Tạo một Adapter hoàn toàn mới và gán nó cho RecyclerView
+                CategoryAdapter newFieldsAdapter = new CategoryAdapter(items, fieldClickListener);
+                fieldsRecyclerView.setAdapter(newFieldsAdapter);
+
+                Log.d(TAG, "[FIELDS] ĐÃ GÁN ADAPTER MỚI. Số lượng: " + items.size());
             }
+
             @Override
             public void onError(Exception e) {
                 Log.w(TAG, "[FIELDS] Lỗi tải dữ liệu.", e);
                 Toast.makeText(CatalogManagementPage.this, "Lỗi tải Lĩnh vực.", Toast.LENGTH_SHORT).show();
-                // Báo cáo tác vụ đã hoàn thành (dù là lỗi)
-                onTaskFinished.run();
             }
         });
 
         // Tải Công nghệ
         catalogRepository.getAllItems(CatalogRepository.CatalogType.TECHNOLOGY, new CatalogRepository.CatalogDataListener() {
             @Override
-            public void onDataLoaded(List<Category> items) {
-                technologiesAdapter.updateData(items);
-                Log.d(TAG, "[TECHNOLOGIES] Tải dữ liệu thành công qua Repository.");
-                // Báo cáo tác vụ đã hoàn thành
-                onTaskFinished.run();
+            public void onDataLoaded(java.util.List<Category> items) {
+                // Tạo listener cho các sự kiện click
+                CategoryAdapter.OnCategoryClickListener techClickListener = new CategoryAdapter.OnCategoryClickListener() {
+                    @Override public void onEditClick(Category category) { showEditDialog(category, CatalogRepository.CatalogType.TECHNOLOGY); }
+                    @Override public void onDeleteClick(Category category) { showDeleteConfirmationDialog(category, CatalogRepository.CatalogType.TECHNOLOGY); }
+                };
+
+                // Tạo một Adapter hoàn toàn mới và gán nó cho RecyclerView
+                CategoryAdapter newTechAdapter = new CategoryAdapter(items, techClickListener);
+                technologiesRecyclerView.setAdapter(newTechAdapter);
+
+                Log.d(TAG, "[TECHNOLOGIES] ĐÃ GÁN ADAPTER MỚI. Số lượng: " + items.size());
             }
+
             @Override
             public void onError(Exception e) {
                 Log.w(TAG, "[TECHNOLOGIES] Lỗi tải dữ liệu.", e);
                 Toast.makeText(CatalogManagementPage.this, "Lỗi tải Công nghệ.", Toast.LENGTH_SHORT).show();
-                // Báo cáo tác vụ đã hoàn thành
-                onTaskFinished.run();
             }
         });
     }
 
-    // THAY ĐỔI: Các phương thức onEditClick và onDeleteClick cũ đã bị xóa vì không còn implement interface
-
-    // THAY ĐỔI: Dialog thêm mới giờ sẽ gọi hàm với Enum thay vì chuỗi
+    // Các hàm dialog và xử lý logic thêm/sửa/xóa giữ nguyên không thay đổi
     private void showAddOptionsDialog() {
         final CharSequence[] options = {"Thêm Lĩnh vực mới", "Thêm Công nghệ mới", "Hủy"};
         new AlertDialog.Builder(this)
@@ -185,7 +127,6 @@ public class CatalogManagementPage extends AppCompatActivity {
                 .show();
     }
 
-    // THAY ĐỔI: Dialog thêm giờ nhận CatalogType, không còn cần collectionName
     private void showAddInputDialog(final CatalogRepository.CatalogType type) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(type == CatalogRepository.CatalogType.FIELD ? "Thêm Lĩnh vực mới" : "Thêm Công nghệ mới");
@@ -196,7 +137,6 @@ public class CatalogManagementPage extends AppCompatActivity {
         builder.setPositiveButton("Thêm", (dialog, which) -> {
             String name = input.getText().toString().trim();
             if (!name.isEmpty()) {
-                // Gọi hàm xử lý logic mới
                 addNewItem(new Category(name), type);
             } else {
                 Toast.makeText(this, "Tên không được để trống!", Toast.LENGTH_SHORT).show();
@@ -206,27 +146,25 @@ public class CatalogManagementPage extends AppCompatActivity {
         builder.show();
     }
 
-    // MỚI: Thêm hàm hiển thị dialog SỬA
     private void showEditDialog(final Category categoryToEdit, final CatalogRepository.CatalogType type) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(type == CatalogRepository.CatalogType.FIELD ? "Sửa Lĩnh vực" : "Sửa Công nghệ");
 
         final EditText input = createInputDialogEditText();
-        input.setText(categoryToEdit.getName()); // Hiển thị tên cũ
+        input.setText(categoryToEdit.getName());
         builder.setView(createContainerForEditText(input));
 
         builder.setPositiveButton("Lưu", (dialog, which) -> {
             String newName = input.getText().toString().trim();
             if (!newName.isEmpty() && !newName.equals(categoryToEdit.getName())) {
                 categoryToEdit.setName(newName);
-                updateItem(categoryToEdit, type); // Gọi hàm cập nhật
+                updateItem(categoryToEdit, type);
             }
         });
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
-    // MỚI: Thêm hàm hiển thị dialog xác nhận XÓA
     private void showDeleteConfirmationDialog(final Category categoryToDelete, final CatalogRepository.CatalogType type) {
         new AlertDialog.Builder(this)
                 .setTitle("Xác nhận Xóa")
@@ -237,9 +175,6 @@ public class CatalogManagementPage extends AppCompatActivity {
                 .show();
     }
 
-    // THAY ĐỔI: Xóa hàm `addNewCategoryToFirestore`, thay bằng 3 hàm logic gọi Repository
-
-    // MỚI: Hàm logic để THÊM item, gọi đến Repository
     private void addNewItem(Category newItem, CatalogRepository.CatalogType type) {
         catalogRepository.addItem(type, newItem, task -> {
             if (task.isSuccessful()) {
@@ -252,7 +187,6 @@ public class CatalogManagementPage extends AppCompatActivity {
         });
     }
 
-    // MỚI: Hàm logic để CẬP NHẬT item, gọi đến Repository
     private void updateItem(Category itemToUpdate, CatalogRepository.CatalogType type) {
         catalogRepository.updateItem(type, itemToUpdate, task -> {
             if (task.isSuccessful()) {
@@ -265,7 +199,6 @@ public class CatalogManagementPage extends AppCompatActivity {
         });
     }
 
-    // MỚI: Hàm logic để XÓA item, gọi đến Repository
     private void deleteItem(String itemId, CatalogRepository.CatalogType type) {
         catalogRepository.deleteItem(type, itemId, task -> {
             if (task.isSuccessful()) {
@@ -278,7 +211,6 @@ public class CatalogManagementPage extends AppCompatActivity {
         });
     }
 
-    // Các hàm tiện ích cho UI để tránh lặp code (thêm vào cuối file)
     private EditText createInputDialogEditText() {
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
