@@ -1,7 +1,9 @@
 package com.cse441.tluprojectexpo; // Đảm bảo đúng package của bạn
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView; // Import cho Spinner
@@ -70,10 +72,8 @@ public class RegisterActivity extends AppCompatActivity {
         txtLoginFromRegister = findViewById(R.id.txtLoginFromRegister); // "Đã có tài khoản? Đăng nhập"
         progressBar = findViewById(R.id.progressBar); // ProgressBar
     }
-
     private void setupSpinner() {
-        // Danh sách các vai trò (có thể lấy từ Constants nếu bạn định nghĩa)
-        String[] roles = {Constants.ROLE_STUDENT, Constants.ROLE_FACULTY};
+        String[] roles = {Constants.ROLE_STUDENT, Constants.ROLE_FACULTY, Constants.ROLE_ADMIN};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, roles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -98,7 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
         txtLoginFromRegister.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
-            finish(); // Đóng RegisterActivity để quay lại LoginActivity
+            finish();
         });
     }
 
@@ -174,6 +174,7 @@ public class RegisterActivity extends AppCompatActivity {
                             newUser.setUserId(firebaseUser.getUid());
                             newUser.setEmail(email);
                             newUser.setFullName(fullName);
+                            newUser.setAvatarUrl("https://i.pravatar.cc/150?u=" + firebaseUser.getUid());
                             newUser.setRole(selectedRole); // Vai trò người dùng từ Spinner
 
                             // Gán permissions mặc định dựa trên vai trò

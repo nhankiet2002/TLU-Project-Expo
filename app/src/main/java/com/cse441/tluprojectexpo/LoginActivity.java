@@ -2,7 +2,9 @@ package com.cse441.tluprojectexpo; // Đảm bảo đúng package của bạn
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -36,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin; // ID từ XML
     private TextView txtRegister, txtForgotPassword; // ID từ XML
     private ProgressBar progressBar; // ID từ XML
+    private TextView txtGuestMode;
 
     // Firebase Auth instance
     private FirebaseAuth mAuth;
@@ -47,6 +50,17 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login); // Layout của bạn
 
+        txtGuestMode = findViewById(R.id.txtGuestMode); // Ánh xạ ID của TextView "Chế độ khách"
+
+        txtGuestMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setGuestMode(true); // Đặt cờ là người dùng khách
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish(); // Kết thúc LoginActivity
+            }
+        });
         // Xử lý Insets (tùy chọn, nếu bạn dùng EdgeToEdge và muốn UI tràn màn hình)
         // Nếu layout gốc của bạn không có ID riêng, có thể thay thế bằng ID của ScrollView hoặc ConstraintLayout gốc
         // Nếu bạn đã dùng fitsSystemWindows="true" cho ScrollView, bạn có thể bỏ đoạn này
@@ -86,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
         txtForgotPassword.setOnClickListener(v -> {
             // Chuyển sang màn hình quên mật khẩu (sẽ triển khai sau)
             Toast.makeText(LoginActivity.this, "Chức năng quên mật khẩu đang được phát triển.", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class); startActivity(intent);
+            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class); startActivity(intent);
         });
     }
 
@@ -184,5 +198,11 @@ public class LoginActivity extends AppCompatActivity {
 //            startActivity(intent);
 //            finish();
 //         }
+    }
+    private void setGuestMode(boolean isGuest) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isGuestMode", isGuest); // Lưu trạng thái
+        editor.apply(); // Lưu không đồng bộ
     }
 }
