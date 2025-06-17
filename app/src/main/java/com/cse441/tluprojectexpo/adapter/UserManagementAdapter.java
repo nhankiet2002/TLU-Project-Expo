@@ -95,12 +95,12 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
             if (user.isLocked()) {
                 txtIsLocked.setText(R.string.locked);
                 // Thiết lập giao diện cho trạng thái "Locked"
-                txtIsLocked.setTextColor(R.color.locked);
+                txtIsLocked.setTextColor(ContextCompat.getColor(context, R.color.locked));
                 txtIsLocked.setBackgroundResource(R.drawable.cr12beac6c6);
             } else {
                 txtIsLocked.setText(R.string.active);
                 // Thiết lập giao diện cho trạng thái "Active"
-                txtIsLocked.setTextColor(R.color.active);
+                txtIsLocked.setTextColor(ContextCompat.getColor(context, R.color.active));
                 txtIsLocked.setBackgroundResource(R.drawable.cr12bc9eac6);
             }
 
