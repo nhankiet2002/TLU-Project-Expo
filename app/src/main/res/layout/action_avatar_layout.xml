@@ -11,8 +11,8 @@
 
     <TextView
         android:id="@+id/avatar_text"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_gravity="center"
         android:background="@drawable/avatar_background_circle"
         android:gravity="center"

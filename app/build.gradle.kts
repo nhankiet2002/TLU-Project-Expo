@@ -40,15 +40,41 @@ android {
 }
 
 dependencies {
-    implementation("com.google.code.gson:gson:2.9.0")  //Gson của Google là một công cụ giúp bạn chuyển đổi qua lại giữa Đối tượng Java (Java Object) và chuỗi JSON (JSON String
+    // Gson for JSON parsing
+    implementation("com.google.code.gson:gson:2.9.0")
+
+    // Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
-    implementation ("com.google.android.material:material:1.10.0")
+
+    // Firebase modules
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Material Design
+    implementation("com.google.android.material:material:1.10.0")
+
+    // Cloudinary (for image upload)
+    implementation("com.cloudinary:cloudinary-android:2.4.0")
+
+    // Glide (image loading)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // Flexbox (layout)
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+
+    // CircleImageView (rounded images)
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
+    // Other libraries
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.firebase.firestore)
+    implementation(libs.navigation.fragment)
+    implementation(libs.swiperefreshlayout)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("com.google.firebase:firebase-firestore")
 }

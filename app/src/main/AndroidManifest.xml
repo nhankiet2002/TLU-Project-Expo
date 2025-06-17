@@ -3,7 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+<<<<<<< nghia
 
+=======
+    <!-- Dành cho thiết bị chạy Android 12L (API 32) trở xuống -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" /> <!-- Chỉ cần thiết cho API 28 trở xuống nếu bạn lưu tệp -->
+
+
+    <!-- Dành cho thiết bị chạy Android 13 (API 33) trở lên -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <!-- <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> --> <!-- Nếu bạn cần âm thanh -->
+>>>>>>> main
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,7 +27,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TLUProjectExpo"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:name=".MyApplication"
+        >
         <activity
             android:name=".DebugMenu"
             android:exported="false" />
@@ -47,6 +63,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

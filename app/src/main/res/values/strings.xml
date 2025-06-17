@@ -1,4 +1,5 @@
 <resources>
+    <!-- Các string của nhánh nghia -->
     <string name="sys_manager">Quản lý hệ thống</string>
     <string name="user">Người dùng</string>
     <string name="category">Danh mục</string>
@@ -37,8 +38,11 @@
     <string name="member">Thành viên</string>
     <string name="comment">Bình luận</string>
     <string name="delete_project">Xóa dự án</string>
-    <string name="app_name">TLU-Project-Expo</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="delete_field">Xóa field</string>
+
+    <!-- Các string của nhánh main -->
+    <string name="app_name">TLUProjectExpo</string>
+    <string name="no_projects_for_this_user">Người dùng này chưa có dự án nào.</string>
+    <string name="error_loading_projects">Lỗi khi tải danh sách dự án.</string>
 </resources>
