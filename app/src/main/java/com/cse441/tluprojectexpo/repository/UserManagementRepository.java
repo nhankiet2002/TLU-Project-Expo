@@ -60,6 +60,12 @@ public class UserManagementRepository {
             QuerySnapshot userRolesSnapshot = querySnapshots.get(1);
             QuerySnapshot rolesSnapshot = querySnapshots.get(2);
 
+            // --- THÊM CÁC DÒNG LOG NÀY ---
+            Log.d("DEBUG_ROLE", "Số lượng users lấy về: " + usersSnapshot.size());
+            Log.d("DEBUG_ROLE", "Số lượng UserRoles lấy về: " + userRolesSnapshot.size());
+            Log.d("DEBUG_ROLE", "Số lượng roles lấy về: " + rolesSnapshot.size());
+            // ---------------------------------
+
             // Xử lý và ghép nối dữ liệu
             List<User> processedUsers = processAndJoinData(usersSnapshot, userRolesSnapshot, rolesSnapshot);
 
@@ -82,12 +88,18 @@ public class UserManagementRepository {
         for (Role role : rolesSnapshot.toObjects(Role.class)) {
             roleMap.put(role.getRoleId(), role);
         }
+        // --- THÊM DÒNG LOG NÀY ---
+        Log.d("DEBUG_ROLE", "roleMap được tạo với " + roleMap.size() + " phần tử. Keys: " + roleMap.keySet());
+        // ---------------------------------
 
         // Map<userId, List<roleId>>
         Map<String, String> userToRoleIdMap = new HashMap<>();
         for (UserRole userRole : userRolesSnapshot.toObjects(UserRole.class)) {
             userToRoleIdMap.put(userRole.getUserId(), userRole.getRoleId());
         }
+        // --- THÊM DÒNG LOG NÀY ---
+        Log.d("DEBUG_ROLE", "userToRoleIdMap được tạo với " + userToRoleIdMap.size() + " phần tử.");
+        // ---------------------------------
 
         // Ghép nối dữ liệu
         List<User> finalUserList = new ArrayList<>();
@@ -98,6 +110,9 @@ public class UserManagementRepository {
                 Role role = roleMap.get(roleId);
                 if(role != null){
                     user.setRole(role);
+                    // --- THÊM DÒNG LOG NÀY ---
+                    Log.d("DEBUG_ROLE", "ĐÃ GHÉP NỐI: User '" + user.getFullName() + "' với Role '" + role.getRoleName() + "'");
+                    // ---------------------------------
                 }
             }
             finalUserList.add(user);
