@@ -1,115 +1,151 @@
 package com.cse441.tluprojectexpo.model;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
-import com.google.firebase.firestore.ServerTimestamp;
+import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.PropertyName;
+import com.cse441.tluprojectexpo.model.User;
 
-import java.util.Date;
+import java.util.List;
 
 public class User {
 
+    // @DocumentId giúp tự động lấy ID của document (ví dụ: "user_001")
+    // và gán vào trường này khi bạn đọc dữ liệu.
     @DocumentId
-    private String id;
-    private String fullName;
-    private String email;
-    private String passwordHash;
+    private String userId;
+
+    @Exclude
+    private Role role;
+    @PropertyName("AvatarUrl")
     private String avatarUrl;
-    private String className;
-    private String facultyName;
-    private String role;
 
-    @ServerTimestamp
-    private Date createdAt;
+    @PropertyName("Class")
+    private String userClass; // Đổi tên biến vì "class" là từ khóa trong Java
 
+    @PropertyName("CreatedAt")
+    private Timestamp createdAt; // Firestore timestamp tương ứng với com.google.firebase.Timestamp
+
+    @PropertyName("Email")
+    private String email;
+
+    @PropertyName("FullName")
+    private String fullName;
+
+    @PropertyName("IsLocked")
+    private boolean isLocked;
+
+    @PropertyName("PasswordHash")
+    private String passwordHash;
+
+    // --- Constructors ---
+
+    // Constructor rỗng là BẮT BUỘC để Firestore có thể tự động
+    // chuyển đổi DocumentSnapshot thành đối tượng User.
+    public User() {
+    }
+
+    // Constructor đầy đủ để bạn tiện khởi tạo đối tượng trong code.
+    public User(String avatarUrl, String userClass, Timestamp createdAt, String email, String fullName, boolean isLocked, String passwordHash) {
+        this.avatarUrl = avatarUrl;
+        this.userClass = userClass;
+        this.createdAt = createdAt;
+        this.email = email;
+        this.fullName = fullName;
+        this.isLocked = isLocked;
+        this.passwordHash = passwordHash;
+    }
+
+
+    // --- Getters and Setters ---
+    // Getters và Setters cũng là BẮT BUỘC để Firestore hoạt động.
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    @PropertyName("AvatarUrl")
     public String getAvatarUrl() {
         return avatarUrl;
     }
 
+    @PropertyName("AvatarUrl")
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
     }
 
-    private Boolean status;
-
-    public User() {
-
+    @PropertyName("Class")
+    public String getUserClass() {
+        return userClass;
     }
 
-    public User(String fullName, String email, String passwordHash, String facultyName, String role, java.sql.Date createdAt, String avatarUrl) {
-        this.fullName = fullName;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.facultyName = facultyName;
-        this.role = role;
-        this.createdAt = createdAt;
-        this.avatarUrl = avatarUrl;
+    @PropertyName("Class")
+    public void setUserClass(String userClass) {
+        this.userClass = userClass;
     }
 
-
-    public Date getCreatedAt() {
+    @PropertyName("CreatedAt")
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    @PropertyName("CreatedAt")
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
+    @PropertyName("Email")
     public String getEmail() {
         return email;
     }
 
+    @PropertyName("Email")
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getFacultyName() {
-        return facultyName;
-    }
-
-    public void setFacultyName(String facultyName) {
-        this.facultyName = facultyName;
-    }
-
+    @PropertyName("FullName")
     public String getFullName() {
         return fullName;
     }
 
+    @PropertyName("FullName")
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
 
-    public String getClassName() {
-        return className;
+    @PropertyName("IsLocked")
+    public boolean isLocked() {
+        return isLocked;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
+    @PropertyName("IsLocked")
+    public void setLocked(boolean locked) {
+        isLocked = locked;
     }
 
+
+    @PropertyName("PasswordHash")
     public String getPasswordHash() {
         return passwordHash;
     }
 
+    @PropertyName("PasswordHash")
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
 
-    public String getRole() {
+    @Exclude
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    @Exclude
+    public void setRole(Role role) {
         this.role = role;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
-    }
-
-    public Boolean getStatus() {
-        return status;
     }
 }

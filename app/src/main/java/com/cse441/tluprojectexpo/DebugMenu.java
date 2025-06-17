@@ -62,6 +62,14 @@ public class DebugMenu extends AppCompatActivity {
             showDeleteFieldDialog();
         });
 
+        Button openUserManagement = findViewById(R.id.btn_lauch_user_management);
+        openUserManagement.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DebugMenu.this, UserManagementPage.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void showAddFieldDialog() {
@@ -188,5 +196,7 @@ public class DebugMenu extends AppCompatActivity {
         String message = "Đang xử lý xóa field '" + fieldToDelete + "' khỏi collection '" + collectionName + "'...";
         Toast.makeText(DebugMenu.this, message, Toast.LENGTH_LONG).show();
     }
+
+
 }
 

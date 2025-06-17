@@ -16,4 +16,12 @@ public class Role {
     public void setRoleId(String roleId) {
         this.roleId = roleId;
     }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
 }
