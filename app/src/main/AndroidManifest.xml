@@ -21,22 +21,22 @@
             android:name=".ProjectDetail"
             android:exported="false" />
         <activity
-            android:name=".UserDetailManagementPage"
+            android:name=".admin.UserDetailManagementPage"
             android:exported="false" />
         <activity
-            android:name=".FeaturedManagementPage"
+            android:name=".admin.FeaturedManagementPage"
             android:exported="false" />
         <activity
-            android:name=".CensorManagementPage"
+            android:name=".admin.CensorManagementPage"
             android:exported="false" />
         <activity
-            android:name=".CatalogManagementPage"
+            android:name=".admin.CatalogManagementPage"
             android:exported="false" />
         <activity
-            android:name=".Dashboard"
+            android:name=".admin.Dashboard"
             android:exported="false" />
         <activity
-            android:name=".UserManagementPage"
+            android:name=".admin.UserManagementPage"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cse441.tluprojectexpo.admin.CatalogManagementPage;
+import com.cse441.tluprojectexpo.admin.UserManagementPage;
 import com.cse441.tluprojectexpo.model.FirestoreUtils;
 import com.google.firebase.firestore.FirebaseFirestore;
 

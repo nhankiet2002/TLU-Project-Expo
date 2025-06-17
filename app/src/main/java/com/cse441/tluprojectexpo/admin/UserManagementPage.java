@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo;
+package com.cse441.tluprojectexpo.admin;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -10,10 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cse441.tluprojectexpo.adapter.UserManagementAdapter;
+import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.adapter.UserManagementAdapter;
 import com.cse441.tluprojectexpo.model.User;
-import com.cse441.tluprojectexpo.repository.UserManagementRepository;
-import com.cse441.tluprojectexpo.repository.UserManagementRepository;
+import com.cse441.tluprojectexpo.admin.repository.UserManagementRepository;
 
 import java.util.ArrayList;
 import java.util.List;

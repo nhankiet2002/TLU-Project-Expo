@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.repository;
+package com.cse441.tluprojectexpo.admin.repository;
 
 import android.util.Log;
 import androidx.annotation.NonNull;

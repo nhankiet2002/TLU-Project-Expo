@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.adapter;
+package com.cse441.tluprojectexpo.admin.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;

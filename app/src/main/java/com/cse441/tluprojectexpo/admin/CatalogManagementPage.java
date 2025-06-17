@@ -1,11 +1,13 @@
-package com.cse441.tluprojectexpo;
+package com.cse441.tluprojectexpo.admin;
 
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -14,9 +16,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cse441.tluprojectexpo.adapter.CategoryAdapter;
+import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.adapter.CategoryAdapter;
 import com.cse441.tluprojectexpo.model.Category;
-import com.cse441.tluprojectexpo.repository.CatalogRepository;
+import com.cse441.tluprojectexpo.admin.repository.CatalogRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,7 @@ public class CatalogManagementPage extends AppCompatActivity {
 
     private CategoryAdapter fieldsAdapter;
     private CategoryAdapter technologiesAdapter;
+    private ProgressBar progressBar;
 
     // Các list này vẫn được giữ nguyên để cung cấp dữ liệu cho Adapter
     private List<Category> fieldsList = new ArrayList<>();
@@ -42,6 +46,7 @@ public class CatalogManagementPage extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog_management_page);
+        progressBar = findViewById(R.id.progress_bar_loading);
         Log.d(TAG, "--- onCreate ĐÃ ĐƯỢC GỌI! ---");
 
         // THAY ĐỔI: Khởi tạo Repository thay vì Firestore
@@ -106,17 +111,39 @@ public class CatalogManagementPage extends AppCompatActivity {
 
     // THAY ĐỔI: Gộp loadFields() và loadTechnologies() thành một hàm
     private void loadData() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        // Tạo một biến đếm để theo dõi các tác vụ đã hoàn thành
+        final int[] tasksCompleted = {0};
+        final int totalTasks = 2; // Chúng ta có 2 tác vụ tải dữ liệu
+
+        // Hàm helper để ẩn ProgressBar khi tất cả các tác vụ đã xong
+        Runnable onTaskFinished = () -> {
+            tasksCompleted[0]++;
+            if (tasksCompleted[0] >= totalTasks) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        };
+
         // Tải Lĩnh vực
         catalogRepository.getAllItems(CatalogRepository.CatalogType.FIELD, new CatalogRepository.CatalogDataListener() {
             @Override
             public void onDataLoaded(List<Category> items) {
                 fieldsAdapter.updateData(items);
                 Log.d(TAG, "[FIELDS] Tải dữ liệu thành công qua Repository.");
+                // Gọi hàm helper để cập nhật số lượng tác vụ đã hoàn thành
+                onTaskFinished.run();
             }
             @Override
             public void onError(Exception e) {
                 Log.w(TAG, "[FIELDS] Lỗi tải dữ liệu.", e);
                 Toast.makeText(CatalogManagementPage.this, "Lỗi tải Lĩnh vực.", Toast.LENGTH_SHORT).show();
+                // Báo cáo tác vụ đã hoàn thành (dù là lỗi)
+                onTaskFinished.run();
             }
         });
 
@@ -126,11 +153,15 @@ public class CatalogManagementPage extends AppCompatActivity {
             public void onDataLoaded(List<Category> items) {
                 technologiesAdapter.updateData(items);
                 Log.d(TAG, "[TECHNOLOGIES] Tải dữ liệu thành công qua Repository.");
+                // Báo cáo tác vụ đã hoàn thành
+                onTaskFinished.run();
             }
             @Override
             public void onError(Exception e) {
                 Log.w(TAG, "[TECHNOLOGIES] Lỗi tải dữ liệu.", e);
                 Toast.makeText(CatalogManagementPage.this, "Lỗi tải Công nghệ.", Toast.LENGTH_SHORT).show();
+                // Báo cáo tác vụ đã hoàn thành
+                onTaskFinished.run();
             }
         });
     }
