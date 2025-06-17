@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.Project.util.form;
+package com.cse441.tluprojectexpo.Project.responsibility.form;
 
 
 import android.text.TextUtils;
@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.textfield.TextInputLayout; // Cần để set/clear lỗi
 
-public class ProjectFormValidator {
+public class ProjectFormDelegate {
 
     /**
      * Kiểm tra xem tên dự án có hợp lệ không.

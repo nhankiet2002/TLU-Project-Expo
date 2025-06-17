@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.Project.ui;
+package com.cse441.tluprojectexpo.Project.responsibility.ui;
 
 
 import android.content.Context;

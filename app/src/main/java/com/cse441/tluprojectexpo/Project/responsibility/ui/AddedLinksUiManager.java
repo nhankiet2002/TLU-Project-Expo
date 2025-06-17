@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.Project.ui;
+package com.cse441.tluprojectexpo.Project.responsibility.ui;
 
 import android.content.Context;
 import android.text.Editable;
@@ -9,7 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+
+import com.cse441.tluprojectexpo.Project.responsibility.util.UiHelper;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.LinkItem;
 import com.google.android.material.textfield.TextInputEditText;

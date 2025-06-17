@@ -31,17 +31,17 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.Project.fragment.AddMemberDialogFragment;
-import com.cse441.tluprojectexpo.Project.ui.AddedLinksUiManager;
-import com.cse441.tluprojectexpo.Project.ui.MediaGalleryUiManager;
-import com.cse441.tluprojectexpo.Project.ui.SelectedMembersUiManager;
-import com.cse441.tluprojectexpo.Project.ui.UiHelper;
-import com.cse441.tluprojectexpo.Project.util.CloudinaryUploadService;
-import com.cse441.tluprojectexpo.Project.util.FirestoreFetchService;
-import com.cse441.tluprojectexpo.Project.util.ImagePickerDelegate;
-import com.cse441.tluprojectexpo.Project.util.PermissionManager;
-import com.cse441.tluprojectexpo.Project.util.ProjectCreationService;
-import com.cse441.tluprojectexpo.Project.util.form.ProjectFormUiManager;
-import com.cse441.tluprojectexpo.Project.util.form.ProjectFormValidator;
+import com.cse441.tluprojectexpo.Project.responsibility.ui.AddedLinksUiManager;
+import com.cse441.tluprojectexpo.Project.responsibility.ui.MediaGalleryUiManager;
+import com.cse441.tluprojectexpo.Project.responsibility.ui.SelectedMembersUiManager;
+import com.cse441.tluprojectexpo.Project.responsibility.util.UiHelper;
+import com.cse441.tluprojectexpo.Project.responsibility.util.CloudinaryUploadService;
+import com.cse441.tluprojectexpo.Project.responsibility.util.FirestoreFetchService;
+import com.cse441.tluprojectexpo.Project.responsibility.util.ImagePickerDelegate;
+import com.cse441.tluprojectexpo.Project.responsibility.util.PermissionManager;
+import com.cse441.tluprojectexpo.Project.responsibility.util.ProjectCreationService;
+import com.cse441.tluprojectexpo.Project.responsibility.form.ProjectFormUiManager;
+import com.cse441.tluprojectexpo.Project.responsibility.form.ProjectFormDelegate;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.LinkItem;
 import com.cse441.tluprojectexpo.model.User;
@@ -122,7 +122,7 @@ public class CreateFragment extends Fragment implements
     private MediaGalleryUiManager mediaGalleryUiManager;
     // (Tùy chọn) Trình quản lý và xác thực form tĩnh
     private ProjectFormUiManager projectFormUiManager;
-    private ProjectFormValidator projectFormValidator;
+    private ProjectFormDelegate projectFormDelegate;
 
 
     private static final int ACTION_PICK_PROJECT_IMAGE = 1;
@@ -153,7 +153,7 @@ public class CreateFragment extends Fragment implements
         cloudinaryUploadService = new CloudinaryUploadService();
         firestoreFetchService = new FirestoreFetchService();
         projectCreationService = new ProjectCreationService(); // FirestoreHelper được dùng bên trong nó
-        projectFormValidator = new ProjectFormValidator(); // Nếu có
+        projectFormDelegate = new ProjectFormDelegate(); // Nếu có
     }
 
     // --- Callbacks cho ActivityResultLaunchers ---

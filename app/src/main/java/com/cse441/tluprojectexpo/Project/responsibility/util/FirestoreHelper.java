@@ -1,5 +1,5 @@
 // Các hàm tương tác với Firestore.
-package com.cse441.tluprojectexpo.Project.util;
+package com.cse441.tluprojectexpo.Project.responsibility.util;
 
 
 import android.util.Log;

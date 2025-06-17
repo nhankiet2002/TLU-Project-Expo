@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.Project.util.form;
+package com.cse441.tluprojectexpo.Project.responsibility.form;
 
 
 import android.content.Context;
@@ -118,7 +118,7 @@ public class ProjectFormUiManager {
      * @return true nếu tất cả các trường bắt buộc hợp lệ, false nếu ngược lại.
      */
     public boolean validateForm() {
-        boolean isNameValid = ProjectFormValidator.isProjectNameValid(getProjectName(), tilProjectName);
+        boolean isNameValid = ProjectFormDelegate.isProjectNameValid(getProjectName(), tilProjectName);
 
 
         return isNameValid;

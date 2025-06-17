@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.Project.util;
+package com.cse441.tluprojectexpo.Project.responsibility.util;
 
 import android.net.Uri;
 import android.util.Log;
