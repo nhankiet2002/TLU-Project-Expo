@@ -129,4 +129,59 @@ public class FirestoreUtils {
         Log.i(TAG, "Đã lên lịch import " + userList.size() + " users.");
     }
 
+
+    /**
+     * Thêm một field mới với giá trị mặc định vào tất cả các document trong một collection.
+     * Nếu field đã tồn tại trong một document, giá trị của nó sẽ bị ghi đè.
+     *
+     * @param db             Đối tượng FirebaseFirestore.
+     * @param collectionName Tên của collection cần cập nhật.
+     * @param fieldName      Tên của field mới cần thêm.
+     * @param defaultValue   Giá trị mặc định cho field mới. Giá trị này có thể là String,
+     *                       Number, Boolean, Timestamp, Map, v.v...
+     */
+    public static void addFieldToAllDocuments(FirebaseFirestore db, String collectionName,
+                                              String fieldName, Object defaultValue) {
+
+        // Kiểm tra đầu vào
+        if (fieldName == null || fieldName.trim().isEmpty()) {
+            Log.e(TAG, "Tên field không được để trống.");
+            return;
+        }
+
+        CollectionReference collectionRef = db.collection(collectionName);
+
+        // 1. Lấy tất cả các document trong collection
+        collectionRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().isEmpty()) {
+                    Log.d(TAG, "Collection '" + collectionName + "' rỗng hoặc không tồn tại. Không có gì để cập nhật.");
+                    return;
+                }
+
+                // 2. Tạo một WriteBatch để gộp các thao tác ghi
+                WriteBatch batch = db.batch();
+
+                // 3. Lặp qua tất cả các document
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Log.d(TAG, "Lên lịch thêm/cập nhật field '" + fieldName + "' cho document: " + document.getId());
+                    // 4. Thêm thao tác update (sẽ tạo field mới nếu chưa có) vào batch
+                    batch.update(document.getReference(), fieldName, defaultValue); //lệnh thêm ở đây
+                }
+
+                // 5. Thực thi batch để áp dụng tất cả các thay đổi
+                batch.commit().addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Thành công! Đã thêm/cập nhật field '" + fieldName + "' cho collection '" + collectionName + "'.");
+                    // Bạn có thể thêm callback hoặc event bus để thông báo cho UI ở đây
+
+                }).addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi khi thực thi batch update.", e);
+                });
+
+            } else {
+                Log.e(TAG, "Lỗi khi lấy documents từ collection '" + collectionName + "'.", task.getException());
+            }
+        });
+    }
+
 }

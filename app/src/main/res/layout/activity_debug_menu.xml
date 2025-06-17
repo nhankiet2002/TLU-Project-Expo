@@ -35,6 +35,20 @@
             android:layout_height="wrap_content"
             android:text="Thêm Người Dùng Hàng Loạt"
             android:layout_marginBottom="12dp"/>
+        <Button
+            android:id="@+id/btn_add_field_to_collection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thêm mới một trường vào Collection"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Trong res/layout/activity_debug_menu.xml -->
+        <Button
+            android:id="@+id/btn_delete_field_from_collection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xóa Field khỏi Collection"
+            android:layout_marginTop="12dp"/>
 
         <!-- Thêm các nút khác ở đây để mở các màn hình test khác -->
         <!--
