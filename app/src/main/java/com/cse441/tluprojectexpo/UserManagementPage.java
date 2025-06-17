@@ -107,6 +107,7 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
                 Toast.makeText(UserManagementPage.this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
                 // Cập nhật trạng thái trong danh sách local để UI khớp ngay lập tức
                 user.setLocked(newLockState);
+                userAdapter.notifyDataSetChanged();
                 // Không cần gọi notifyDataSetChanged() vì trạng thái của Switch đã tự thay đổi rồi.
             }
 

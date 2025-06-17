@@ -21,7 +21,7 @@ public class User {
     private String avatarUrl;
 
     @PropertyName("Class")
-    private String userClass; // Đổi tên biến vì "class" là từ khóa trong Java
+    private String className; // Đổi tên biến vì "class" là từ khóa trong Java
 
     @PropertyName("CreatedAt")
     private Timestamp createdAt; // Firestore timestamp tương ứng với com.google.firebase.Timestamp
@@ -46,9 +46,9 @@ public class User {
     }
 
     // Constructor đầy đủ để bạn tiện khởi tạo đối tượng trong code.
-    public User(String avatarUrl, String userClass, Timestamp createdAt, String email, String fullName, boolean isLocked, String passwordHash) {
+    public User(String avatarUrl, String className, Timestamp createdAt, String email, String fullName, boolean isLocked, String passwordHash) {
         this.avatarUrl = avatarUrl;
-        this.userClass = userClass;
+        this.className = className;
         this.createdAt = createdAt;
         this.email = email;
         this.fullName = fullName;
@@ -79,13 +79,13 @@ public class User {
     }
 
     @PropertyName("Class")
-    public String getUserClass() {
-        return userClass;
+    public String getClassName() {
+        return className;
     }
 
     @PropertyName("Class")
-    public void setUserClass(String userClass) {
-        this.userClass = userClass;
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     @PropertyName("CreatedAt")

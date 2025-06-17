@@ -75,6 +75,7 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
         @SuppressLint("ResourceAsColor")
         public void bind(final User user) {
             // 1. Binding dữ liệu cơ bản (Giữ nguyên)
+            txtUserName.setText(user.getFullName());
             txtIsLocked.setText(user.getFullName());
             txtEmail.setText(user.getEmail());
 
