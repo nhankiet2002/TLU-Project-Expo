@@ -13,4 +13,9 @@
         <item>Demo URL</item>
         <item>Khác</item>
     </string-array>
+    <string-array name="project_statuses">
+        <item>Đang thực hiện</item>
+        <item>Hoàn thành</item>
+        <item>Tạm dừng</item>
+    </string-array>
 </resources>

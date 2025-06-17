@@ -2,7 +2,6 @@
 package com.cse441.tluprojectexpo.fragment; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
-import com.cse441.tluprojectexpo.adapter.UserProjectsAdapter; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
+import com.cse441.tluprojectexpo.Project.adapter.UserProjectsAdapter; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
 import com.cse441.tluprojectexpo.model.Project; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
 import com.cse441.tluprojectexpo.model.User;    // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
 // import com.cse441.tluprojectexpo.activities.LoginActivity; // Bỏ comment nếu bạn có LoginActivity

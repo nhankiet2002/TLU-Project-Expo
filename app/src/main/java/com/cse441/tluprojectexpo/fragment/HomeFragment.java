@@ -1,5 +1,5 @@
 // HomeFragment.java
-package com.cse441.tluprojectexpo.fragment; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
+package com.cse441.tluprojectexpo.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -15,16 +15,15 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.cse441.tluprojectexpo.R; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
-import com.cse441.tluprojectexpo.adapter.ProjectAdapter; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
-import com.cse441.tluprojectexpo.model.Project;    // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
-import com.cse441.tluprojectexpo.model.User;       // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
+import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.Project.adapter.ProjectAdapter;
+import com.cse441.tluprojectexpo.model.Project;
+import com.cse441.tluprojectexpo.model.User;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;

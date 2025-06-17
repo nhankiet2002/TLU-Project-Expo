@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.adapter;
+package com.cse441.tluprojectexpo.Project.adapter;
 
 // ProjectAdapter.java
 
@@ -113,7 +113,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
                 Glide.with(itemView.getContext())
                         .load(project.getThumbnailUrl())
                         .placeholder(R.drawable.ic_placeholder_image) // Ảnh placeholder
-                        .error(R.drawable.error) // Ảnh khi lỗi
+                        .error(R.drawable.ic_image_error) // Ảnh khi lỗi
                         .into(imageViewProject);
             } else {
                 // Nếu không có ThumbnailUrl, hiển thị ảnh mặc định

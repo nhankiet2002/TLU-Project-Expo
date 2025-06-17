@@ -1,5 +1,5 @@
 // AddMemberDialogFragment.java
-package com.cse441.tluprojectexpo.fragment;
+package com.cse441.tluprojectexpo.Project.fragment;
 
 import android.app.Dialog;
 import android.graphics.Color;
@@ -27,7 +27,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.cse441.tluprojectexpo.R;
-import com.cse441.tluprojectexpo.adapter.UserSearchAdapter; // THAY ĐỔI
+import com.cse441.tluprojectexpo.Project.adapter.UserSearchAdapter; // THAY ĐỔI
 import com.cse441.tluprojectexpo.model.User; // THAY ĐỔI
 import java.util.ArrayList;
 import java.util.List;
