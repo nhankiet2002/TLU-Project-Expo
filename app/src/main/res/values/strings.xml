@@ -1,5 +1,8 @@
 <resources>
-    <string name="app_name">TLU-Project-Expo</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name">TLUProjectExpo</string>
+    <!-- Các string khác của bạn -->
+
+    <string name="no_projects_for_this_user">Người dùng này chưa có dự án nào.</string>
+    <string name="error_loading_projects">Lỗi khi tải danh sách dự án.</string>
+    <!-- Bạn có thể thêm các string khác ở đây nếu cần -->
 </resources>

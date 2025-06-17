@@ -23,6 +23,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TLUProjectExpo"
         tools:targetApi="31"
+        android:name=".MyApplication"
         >
         <activity
             android:name=".MainActivity"
@@ -33,6 +34,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
