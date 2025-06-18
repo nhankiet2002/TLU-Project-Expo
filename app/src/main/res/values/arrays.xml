@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="member_roles">
+        <item>Trưởng nhóm</item>
+        <item>Thành viên</item>
+        <item>Cố vấn</item>
+    </string-array>
+
+    <string-array name="link_platforms">
+        <item>GitHub</item>
+        <item>YouTube</item>
+        <item>Drive</item>
+        <item>Demo URL</item>
+        <item>Khác</item>
+    </string-array>
+    <string-array name="project_statuses">
+        <item>Đang thực hiện</item>
+        <item>Hoàn thành</item>
+        <item>Tạm dừng</item>
+    </string-array>
+    <string-array name="user_roles">
+        <item>Chọn vai trò</item> <item>Sinh Viên</item>
+        <item>Admin</item>
+    </string-array>
+</resources>

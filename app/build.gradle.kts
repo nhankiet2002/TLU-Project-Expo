@@ -33,13 +33,6 @@ android {
 }
 
 dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:32.7.3"))
-
-    // Firebase libraries (KHÔNG cần chỉ định version)
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage")
-    implementation("com.google.firebase:firebase-database")
     implementation ("com.google.android.material:material:1.10.0")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
@@ -50,8 +43,9 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.swiperefreshlayout)
-
-    implementation(libs.firebase.database)
+    implementation("com.google.firebase:firebase-auth:22.3.1")
+    implementation("com.google.firebase:firebase-firestore:24.10.3")
+    implementation("com.google.firebase:firebase-storage:20.3.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

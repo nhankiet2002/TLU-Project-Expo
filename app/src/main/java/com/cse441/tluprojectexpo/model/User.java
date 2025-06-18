@@ -1,144 +1,72 @@
-// app/src/main/java/com/cse441/tluprojectexpo/model/User.java
-package com.cse441.tluprojectexpo.model;
+// User.java
+package com.cse441.tluprojectexpo.model; // THAY ĐỔI PACKAGE
 
-import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.Exclude; // Dùng @Exclude nếu không muốn userId được ghi lại vào Firestore từ model này
 import com.google.firebase.firestore.PropertyName;
 
 import java.util.Date;
-import java.util.List;
 
 public class User {
-    private String userId; // UID từ Firebase Authentication
-    private String email;
-    private String fullName;
-    private String role; // Ví dụ: "student", "faculty", "admin"
-    private String className; // Thêm trường lớp học nếu cần
-    private String avatarUrl; // URL ảnh đại diện (tùy chọn)
-    private List<String> permissions; // Danh sách các quyền của người dùng
-    private Date createdAt;
-    private Date lastLogin;
-    private Boolean isEmailVerified;
+    @Exclude // Không ghi trường này vào Firestore khi dùng user.toObject() rồi ghi lại
+    private String userId; // Thêm trường này
 
-    // Constructor rỗng cần thiết cho Firebase Firestore
-    public User() {
-        // Mặc định cho Firestore
-    }
+    private String FullName;
+    @PropertyName("Class")
+    private String UserClass; // Đã có từ trước
+    private String AvatarUrl;  // Đã có từ trước
+    // private List<String> UserRoles; // Thêm trường này nếu bạn lưu trực tiếp ID vai trò trong User
+    // Hoặc bạn query UserRoles collection riêng
+    private String Email; // Thêm trường Email
+    // @ServerTimestamp // Bỏ chú thích nếu bạn muốn Firebase tự động điền timestamp khi ghi vào DB
+    private Date CreatedAt; // Thêm trường CreatedAt
+    private Boolean IsLocked; // Thêm trường IsLocked (mặc định false)
+    private String PasswordHash; // Thêm trường PasswordHash
 
-    // Constructor với các tham số cơ bản (có thể mở rộng nếu cần)
-    public User(String userId, String email, String fullName, String role, String className) {
-        this.userId = userId;
-        this.email = email;
-        this.fullName = fullName;
-        this.role = role;
-        this.className = className;
-        this.createdAt = new Date(); // Gán thời gian tạo khi khởi tạo đối tượng
-        this.isEmailVerified = false; // Mặc định là chưa xác thực
-    }
+    // Constructors, Getters, Setters
+    public User() {}
 
-    // --- Getters ---
-    public String getUserId() {
-        return userId;
-    }
+    @Exclude
+    public String getUserId() { return userId; }
+    @Exclude
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public String getEmail() {
-        return email;
-    }
+    @PropertyName("FullName")
+    public String getFullName() { return FullName; }
+    @PropertyName("FullName")
+    public void setFullName(String fullName) { FullName = fullName; }
 
-    // Sử dụng @PropertyName nếu tên trường trong class khác với tên trường trong Firestore
-    @PropertyName("fullName") // Ánh xạ đến trường "fullName" trong Firestore
-    public String getFullName() {
-        return fullName;
-    }
+    @PropertyName("Class")
+    public String getUserClass() { return UserClass; }
+    @PropertyName("Class")
+    public void setUserClass(String userClass) { UserClass = userClass; }
 
-    public String getRole() {
-        return role;
-    }
+    @PropertyName("AvatarUrl")
+    public String getAvatarUrl() { return AvatarUrl; }
+    @PropertyName("AvatarUrl")
+    public void setAvatarUrl(String avatarUrl) { AvatarUrl = avatarUrl; }
 
-    @PropertyName("className")
-    public String getClassName() {
-        return className;
-    }
 
-    @PropertyName("avatarUrl")
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
+    @PropertyName("Email")
+    public String getEmail() { return Email; }
+    @PropertyName("Email")
+    public void setEmail(String email) { Email = email; }
 
-    public List<String> getPermissions() {
-        return permissions;
-    }
+    @PropertyName("CreatedAt")
+    public Date getCreatedAt() { return CreatedAt; }
+    @PropertyName("CreatedAt")
+    public void setCreatedAt(Date createdAt) { CreatedAt = createdAt; }
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
+    @PropertyName("IsLocked")
+    public Boolean getIsLocked() { return IsLocked; }
+    @PropertyName("IsLocked")
+    public void setIsLocked(Boolean isLocked) { IsLocked = isLocked; }
 
-    public Date getLastLogin() {
-        return lastLogin;
-    }
-
-    @PropertyName("isEmailVerified")
-    public Boolean getIsEmailVerified() {
-        return isEmailVerified;
-    }
-
-    // --- Setters ---
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @PropertyName("fullName")
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    @PropertyName("className")
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    @PropertyName("avatarUrl")
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-    }
-
-    public void setPermissions(List<String> permissions) {
-        this.permissions = permissions;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setLastLogin(Date lastLogin) {
-        this.lastLogin = lastLogin;
-    }
-
-    @PropertyName("isEmailVerified")
-    public void setIsEmailVerified(Boolean emailVerified) {
-        isEmailVerified = emailVerified;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "userId='" + userId + '\'' +
-                ", email='" + email + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", role='" + role + '\'' +
-                ", className='" + className + '\'' +
-                ", avatarUrl='" + avatarUrl + '\'' +
-                ", permissions=" + permissions +
-                ", createdAt=" + createdAt +
-                ", lastLogin=" + lastLogin +
-                ", isEmailVerified=" + isEmailVerified +
-                '}';
-    }
+    @PropertyName("PasswordHash")
+    public String getPasswordHash() { return PasswordHash; }
+    @PropertyName("PasswordHash")
+    public void setPasswordHash(String passwordHash) { PasswordHash = passwordHash; }
+    // @PropertyName("UserRoles")
+    // public List<String> getUserRoles() { return UserRoles; }
+    // @PropertyName("UserRoles")
+    // public void setUserRoles(List<String> userRoles) { UserRoles = userRoles; }
 }
