@@ -1,0 +1,84 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical">
+
+    <!-- KHỐI THÔNG TIN BÊN TRÁI -->
+    <!-- Sử dụng layout_weight="1" và layout_width="0dp"
+         để nó chiếm hết không gian còn lại một cách linh hoạt -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginEnd="16dp">
+
+        <!-- Bỏ chiều rộng cố định, dùng wrap_content -->
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:text="Nguyen Van A" />
+
+        <!-- Bỏ chiều rộng cố định, dùng wrap_content -->
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/light_gray"
+            android:textSize="14sp"
+            android:layout_marginTop="2dp"
+            tools:text="nguyenvana@gmail.com" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/role"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/s00000040sw1cr12bffffff"
+                android:padding="7dp"
+                android:textColor="#000000"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="Admin" />
+
+            <TextView
+                android:id="@+id/is_locked"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/cr12bc9eac6"
+                android:padding="7dp"
+                android:textColor="#2E9364"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="Hoạt động" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- SWITCH BÊN PHẢI -->
+    <!-- Bỏ layout_marginTop để nó tự căn giữa theo gravity của LinearLayout gốc -->
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/lock_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        app:trackTint="@null"
+        app:thumbTint="@null"
+        android:thumb="@drawable/switch_thumb_selector"
+        app:track="@drawable/switch_track_selector" />
+
+</LinearLayout>

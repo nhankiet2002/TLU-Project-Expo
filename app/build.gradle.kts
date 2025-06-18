@@ -30,33 +30,51 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    sourceSets {
+        getByName("main") {
+            assets {
+                srcDirs("src\\main\\assets", "src\\main\\assets")
+            }
+        }
+    }
 }
 
 dependencies {
+    // Gson for JSON parsing
+    implementation("com.google.code.gson:gson:2.9.0")
 
-    implementation (platform("com.google.firebase:firebase-bom:33.0.0"))
+    // Firebase BoM (Bill of Materials)
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
 
-    // Firebase Authentication
-    implementation ("com.google.firebase:firebase-auth")
+    // Firebase modules
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
 
-    // Firebase Firestore
-    implementation ("com.google.firebase:firebase-firestore")
-    implementation ("com.google.android.material:material:1.10.0")
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
-    implementation ("com.google.android.flexbox:flexbox:3.0.0")
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation ("com.google.android.material:material:1.10.0")
-    // Cloudinary
-    implementation ("com.cloudinary:cloudinary-android:2.4.0")
+    // Material Design
+    implementation("com.google.android.material:material:1.10.0")
+
+    // Cloudinary (for image upload)
+    implementation("com.cloudinary:cloudinary-android:2.4.0")
+
+    // Glide (image loading)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // Flexbox (layout)
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+
+    // CircleImageView (rounded images)
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
+    // Other libraries (from libs.versions.toml)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.swiperefreshlayout)
-    implementation("com.google.firebase:firebase-auth:22.3.1")
-    implementation("com.google.firebase:firebase-firestore:24.10.3")
-    implementation("com.google.firebase:firebase-storage:20.3.0")
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -12,7 +12,20 @@
           "package_name": "com.cse441.tluprojectexpo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "20110998428-kgssq8uidguv9vecri4jjf1e6hec7l5s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cse441.tluprojectexpo",
+            "certificate_hash": "b9fdf9184789f7428337f769d83d6a358964a0b0"
+          }
+        },
+        {
+          "client_id": "20110998428-8n4ikhtpdf8q12oa4mskjbj7tu32pcru.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBMcOOguKSdV9b8jZciBz1kOu61DUqp5GQ"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "20110998428-8n4ikhtpdf8q12oa4mskjbj7tu32pcru.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
