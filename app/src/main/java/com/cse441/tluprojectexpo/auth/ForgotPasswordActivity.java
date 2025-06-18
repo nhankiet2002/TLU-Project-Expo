@@ -1,11 +1,10 @@
-package com.cse441.tluprojectexpo;
+package com.cse441.tluprojectexpo.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button; // Hoặc MaterialButton
-import android.widget.EditText; // Hoặc TextInputEditText
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,19 +12,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cse441.tluprojectexpo.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-
-import com.cse441.tluprojectexpo.utils.InputValidationUtils; // Đảm bảo bạn có lớp này
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
-    private EditText edEmailForgot; // Tương ứng với id edEmail trong forgot_password.xml
-    private Button btnSentCode; // Tương ứng với id btnSentCode trong forgot_password.xml
-    private TextView txtLogin; // Tương ứng với id txtLogin trong forgot_password.xml
-
-    private ProgressBar progressBar; // Tương ứng với id progressBar trong forgot_password.xml
+    private TextInputEditText edEmail;
+    private Button btnSentCode;
+    private TextView txtLogin;
+    private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
 
@@ -36,42 +34,35 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // Ánh xạ các thành phần UI
-        edEmailForgot = findViewById(R.id.edEmail); // ID của EditText trong forgot_password.xml
-        btnSentCode = findViewById(R.id.btnSentCode); // ID của Button trong forgot_password.xml
-        txtLogin = findViewById(R.id.txtLogin); // ID của TextView "Đăng nhập"
-        progressBar = findViewById(R.id.progessBar1); // ID của ProgressBar
+        edEmail = findViewById(R.id.edEmail);
+        btnSentCode = findViewById(R.id.btnSentCode);
+        txtLogin = findViewById(R.id.txtLogin);
+        progressBar = findViewById(R.id.progessBar1); // Đảm bảo ID này khớp với XML
 
         btnSentCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendPasswordResetEmail();
+                resetPassword();
             }
         });
 
         txtLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Quay về màn hình LoginActivity
-                startActivity(new Intent(ForgotPasswordActivity.this, LoginActivity.class));
-                finish();
+                // Quay lại màn hình đăng nhập
+                Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish(); // Đóng Activity hiện tại
             }
         });
-
     }
 
-    private void sendPasswordResetEmail() {
-        String email = edEmailForgot.getText().toString().trim();
+    private void resetPassword() {
+        String email = edEmail.getText().toString().trim();
 
         if (TextUtils.isEmpty(email)) {
-            edEmailForgot.setError("Vui lòng nhập địa chỉ email");
-            edEmailForgot.requestFocus();
-            return;
-        }
-
-        if (!InputValidationUtils.isValidEmail(email)) { // Sử dụng hàm kiểm tra email của bạn
-            edEmailForgot.setError("Email không hợp lệ");
-            edEmailForgot.requestFocus();
+            edEmail.setError("Vui lòng nhập địa chỉ email của bạn.");
+            edEmail.requestFocus();
             return;
         }
 
@@ -83,15 +74,15 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         hideProgressBar();
                         if (task.isSuccessful()) {
-                            Toast.makeText(ForgotPasswordActivity.this, "Vui lòng kiểm tra email của bạn để đặt lại mật khẩu.", Toast.LENGTH_LONG).show();
-                            // Chuyển sang màn hình CheckEmailActivity
+                            Toast.makeText(ForgotPasswordActivity.this, "Đã gửi hướng dẫn đặt lại mật khẩu đến email của bạn.", Toast.LENGTH_LONG).show();
+                            // Chuyển sang màn hình CheckEmailActivity và truyền email qua
                             Intent intent = new Intent(ForgotPasswordActivity.this, CheckEmailActivity.class);
-                            intent.putExtra("email", email); // Truyền email sang màn hình CheckEmail
+                            intent.putExtra("user_email", email); // Truyền email qua CheckEmailActivity
                             startActivity(intent);
                             finish(); // Đóng ForgotPasswordActivity
                         } else {
-                            String errorMessage = task.getException() != null ? task.getException().getMessage() : "Đã xảy ra lỗi.";
-                            Toast.makeText(ForgotPasswordActivity.this, "Gửi email thất bại: " + errorMessage, Toast.LENGTH_LONG).show();
+                            String errorMessage = task.getException() != null ? task.getException().getMessage() : "Lỗi không xác định.";
+                            Toast.makeText(ForgotPasswordActivity.this, "Không thể gửi email đặt lại mật khẩu: " + errorMessage, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -102,15 +93,16 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             progressBar.setVisibility(View.VISIBLE);
         }
         btnSentCode.setEnabled(false);
-        edEmailForgot.setEnabled(false);
+        edEmail.setEnabled(false);
         txtLogin.setEnabled(false);
     }
+
     private void hideProgressBar() {
         if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
         }
         btnSentCode.setEnabled(true);
-        edEmailForgot.setEnabled(true);
+        edEmail.setEnabled(true);
         txtLogin.setEnabled(true);
     }
 }
