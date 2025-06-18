@@ -1,6 +1,7 @@
 package com.cse441.tluprojectexpo.auth;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,14 +15,20 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cse441.tluprojectexpo.MainActivity;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.User;
-import com.cse441.tluprojectexpo.utils.GuestModeHandler; // Import lớp tiện ích
+import com.cse441.tluprojectexpo.utils.GuestModeHandler;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.nio.charset.StandardCharsets; // Import này cho SHA-256
+import java.security.MessageDigest;     // Import này cho SHA-256
+import java.security.NoSuchAlgorithmException; // Import này cho SHA-256
+import android.util.Base64;              // Import này cho Base64
 
 import java.util.Date;
 import java.util.HashMap;
@@ -36,7 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
     private MaterialButton btnRegister;
     private CheckBox checkBoxAgreeTerms;
     private TextView txtLoginFromRegister;
-    private TextView txtGuestMode; // Khai báo TextView cho chế độ khách
+    private TextView txtGuestMode;
     private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
@@ -44,7 +51,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
 
-    // Constants cho SharedPreferences (giống trong GuestModeHandler)
     private static final String PREF_NAME = "MyPrefs";
     private static final String KEY_IS_GUEST_MODE = "isGuestMode";
 
@@ -60,12 +66,12 @@ public class RegisterActivity extends AppCompatActivity {
         edFullName = findViewById(R.id.edFullName);
         edEmailRegister = findViewById(R.id.edEmailRegister);
         edPasswordRegister = findViewById(R.id.edPasswordRegister);
-        edVerifyPW = findViewById(R.id.edVarifyPW);
+        edVerifyPW = findViewById(R.id.edVarifyPW); // ĐÃ SỬA TỪ edVarifyPW SANG edVerifyPW
         spinnerRole = findViewById(R.id.spinner);
         btnRegister = findViewById(R.id.btnRegister);
         checkBoxAgreeTerms = findViewById(R.id.checkBox);
         txtLoginFromRegister = findViewById(R.id.txtLoginFromRegister);
-        txtGuestMode = findViewById(R.id.txtGuestMode); // Ánh xạ TextView từ activity_register.xml
+        txtGuestMode = findViewById(R.id.txtGuestMode);
         progressBar = findViewById(R.id.progressBar);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -82,11 +88,10 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
         });
 
-        // Xử lý sự kiện cho TextView "Chế độ khách" (txtGuestMode) trên màn hình RegisterActivity
-        if (txtGuestMode != null) { // Đảm bảo View này tồn tại trong layout
+        if (txtGuestMode != null) {
             txtGuestMode.setOnClickListener(v -> {
                 GuestModeHandler.enterGuestMode(RegisterActivity.this, mAuth);
-                finish(); // Đóng RegisterActivity sau khi chuyển hướng
+                finish();
             });
         }
     }
@@ -97,6 +102,9 @@ public class RegisterActivity extends AppCompatActivity {
         String password = edPasswordRegister.getText().toString().trim();
         String verifyPassword = edVerifyPW.getText().toString().trim();
         String selectedRole = spinnerRole.getSelectedItem().toString();
+
+        Log.d(TAG, "Dữ liệu đăng ký: FullName='" + fullName + "', Email='" + email + "', Role='" + selectedRole + "'");
+
 
         if (TextUtils.isEmpty(fullName) || TextUtils.isEmpty(email) ||
                 TextUtils.isEmpty(password) || TextUtils.isEmpty(verifyPassword)) {
@@ -123,8 +131,9 @@ public class RegisterActivity extends AppCompatActivity {
 
         showProgressBar();
 
+        // Kiểm tra xem email đã tồn tại chưa trước khi đăng ký
         db.collection("Users")
-                .whereEqualTo("Email", email)
+                .whereEqualTo("Email", email) // Nếu bạn lưu email trong Firestore document
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -137,7 +146,9 @@ public class RegisterActivity extends AppCompatActivity {
                                         if (authTask.isSuccessful()) {
                                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
                                             if (firebaseUser != null) {
-                                                saveUserToFirestore(firebaseUser.getUid(), fullName, email, selectedRole);
+                                                // Hash mật khẩu trước khi lưu vào Firestore
+                                                String hashedPassword = hashPassword(password);
+                                                saveUserToFirestore(firebaseUser.getUid(), fullName, email, selectedRole, hashedPassword);
                                             }
                                         } else {
                                             hideProgressBar();
@@ -154,12 +165,17 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
-    private void saveUserToFirestore(String uid, String fullName, String email, String role) {
+    // Cập nhật signature để nhận hashedPassword
+    private void saveUserToFirestore(String uid, String fullName, String email, String role, String hashedPassword) {
         User user = new User();
         user.setUserId(uid);
         user.setFullName(fullName);
-        user.setUserClass(role);
-        user.setAvatarUrl("");
+        user.setUserClass(""); // Giữ nguyên role cho UserClass
+        user.setEmail(email); // ĐẶT EMAIL TỪ THAM SỐ
+        user.setCreatedAt(new Date()); // ĐẶT THỜI GIAN TẠO
+        user.setIsLocked(false); // ĐẶT TRẠNG THÁI KHÔNG KHÓA MẶC ĐỊNH
+        user.setPasswordHash(hashedPassword); // ĐẶT HASHED PASSWORD
+        user.setAvatarUrl("https://i.pravatar.cc/150?u=" + email); // DÙNG EMAIL TỪ THAM SỐ CHO AVATAR URL
 
         db.collection("Users").document(uid).set(user)
                 .addOnCompleteListener(userSaveTask -> {
@@ -174,7 +190,6 @@ public class RegisterActivity extends AppCompatActivity {
                                     hideProgressBar();
                                     if (roleSaveTask.isSuccessful()) {
                                         Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_LONG).show();
-                                        // Sau khi đăng ký thành công, xóa trạng thái khách (nếu có)
                                         GuestModeHandler.setGuestModePreference(RegisterActivity.this, false);
                                         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -192,6 +207,20 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(RegisterActivity.this, "Lỗi khi lưu thông tin người dùng.", Toast.LENGTH_LONG).show();
                     }
                 });
+    }
+
+    // Phương thức băm mật khẩu bằng SHA-256 và Base64
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            // Chuyển byte array sang chuỗi Base64
+            return Base64.encodeToString(hash, Base64.NO_WRAP); // NO_WRAP để không thêm ký tự xuống dòng
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "Lỗi thuật toán băm SHA-256: " + e.getMessage());
+            // Xử lý lỗi, ví dụ: trả về null hoặc một chuỗi lỗi
+            return null;
+        }
     }
 
     private boolean isValidEmail(String email) {
