@@ -117,7 +117,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <CheckBox
-            android:id="@+id/cbxRemember"
+            android:id="@+id/cbRememberMe"
             android:layout_width="165dp"
             android:layout_height="54dp"
             android:layout_marginStart="4dp"
@@ -148,7 +148,7 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cbxRemember" />
+            app:layout_constraintTop_toBottomOf="@id/cbRememberMe" />
 
         <!-- Chế độ khách -->
         <TextView
