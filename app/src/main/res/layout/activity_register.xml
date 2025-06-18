@@ -100,8 +100,8 @@
 
     <TextView
         android:id="@+id/txtTitleRegister"
-        android:layout_width="277dp"
-        android:layout_height="52dp"
+        android:layout_width="276dp"
+        android:layout_height="54dp"
         android:layout_marginTop="16dp"
         android:text="Tạo tài khoản"
         android:textSize="30dp"
@@ -115,20 +115,19 @@
         android:id="@+id/txtLoginFromRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="Đăng nhập"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/textView4"
-        app:layout_constraintTop_toBottomOf="@+id/txtGuessMode"
-        app:layout_constraintVertical_bias="0.533" />
+        app:layout_constraintTop_toBottomOf="@+id/txtGuessMode" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
+        android:layout_marginStart="116dp"
         android:layout_marginTop="8dp"
         android:text="Đã có tài khoản?"
         app:layout_constraintStart_toStartOf="parent"
@@ -262,7 +261,7 @@
         android:text="Chế độ khách"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.404"
+        app:layout_constraintHorizontal_bias="0.459"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnRegister" />
 </androidx.constraintlayout.widget.ConstraintLayout>
