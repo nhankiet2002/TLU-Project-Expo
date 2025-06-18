@@ -1,27 +1,31 @@
-package com.cse441.tluprojectexpo;
+package com.cse441.tluprojectexpo.auth;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView; // Import TextView
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cse441.tluprojectexpo.MainActivity;
+import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.auth.LoginActivity;
 import com.cse441.tluprojectexpo.auth.RegisterActivity;
+import com.cse441.tluprojectexpo.utils.GuestModeHandler; // Import lớp tiện ích
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class OpenActivity extends AppCompatActivity {
 
     private Button btnLogIn, btnSignUp;
+    private TextView txtGuestMode; // Khai báo TextView cho chế độ khách
     private FirebaseAuth mAuth;
 
     private static final String PREF_NAME = "MyPrefs";
     private static final String KEY_REMEMBER_LOGIN = "remember_login";
-    private static final String KEY_IS_GUEST_MODE = "isGuestMode"; // Khai báo KEY_IS_GUEST_MODE
+    private static final String KEY_IS_GUEST_MODE = "isGuestMode";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,7 @@ public class OpenActivity extends AppCompatActivity {
 
         btnLogIn = findViewById(R.id.btnLogIn);
         btnSignUp = findViewById(R.id.btnSignUp);
+        txtGuestMode = findViewById(R.id.txtGuestMode); // Ánh xạ TextView từ activity_open.xml
 
         btnLogIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,6 +53,14 @@ public class OpenActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        // Xử lý sự kiện cho txtGuestMode trên màn hình OpenActivity
+        if (txtGuestMode != null) { // Đảm bảo View này tồn tại trong layout
+            txtGuestMode.setOnClickListener(v -> {
+                GuestModeHandler.enterGuestMode(OpenActivity.this, mAuth);
+                finish(); // Đóng OpenActivity sau khi chuyển hướng
+            });
+        }
     }
 
     @Override
@@ -56,11 +69,10 @@ public class OpenActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
         boolean rememberMe = prefs.getBoolean(KEY_REMEMBER_LOGIN, false);
-        boolean isGuestMode = prefs.getBoolean(KEY_IS_GUEST_MODE, false); // Đọc trạng thái khách
+        boolean isGuestMode = prefs.getBoolean(KEY_IS_GUEST_MODE, false);
 
         // Ưu tiên kiểm tra chế độ khách
         if (isGuestMode) {
-            // Nếu đang ở chế độ khách, vào MainActivity luôn
             Intent intent = new Intent(OpenActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
