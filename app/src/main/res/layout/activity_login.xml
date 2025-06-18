@@ -2,154 +2,182 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:padding="24dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:ignore="ExtraText">
+        android:layout_height="wrap_content">
 
-        android:contentDescription="Logo"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Đăng Nhập -->
         <ImageView
             android:id="@+id/imageLogo"
-            android:layout_width="281dp"
-            android:layout_height="249dp"
+            android:layout_width="337dp"
+            android:layout_height="151dp"
             android:layout_marginTop="16dp"
+            android:contentDescription="Logo"
             android:src="@drawable/logo_tlu"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Email -->
 
         <TextView
             android:id="@+id/txtLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="17dp"
             android:text="ĐĂNG NHẬP"
             android:textColor="#000000"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.096"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageLogo" />
+            app:layout_constraintTop_toBottomOf="@id/imageLogo" />
 
-        <EditText
-            android:id="@+id/editEmail"
-            android:layout_width="316dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="24dp"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:padding="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
+        <TextView
+            android:id="@+id/lblEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Email"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/layoutEmail"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txtLogin" />
-
-        <!-- Mật khẩu -->
-
-        <!-- Nhớ tài khoản + Quên mật khẩu -->
+            app:layout_constraintTop_toBottomOf="@+id/txtLogin" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/ed_password_login"
-            android:layout_width="321dp"
-            android:layout_height="71dp"
-            android:layout_gravity="center"
-            android:hint="Password"
-            android:textColorHint="#80808080"
+            android:id="@+id/layoutEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Email"
+            android:orientation="vertical"
+            android:textColorHint="#808080"
             app:boxBackgroundMode="outline"
             app:boxCornerRadiusBottomEnd="10dp"
             app:boxCornerRadiusBottomStart="10dp"
+            app:boxCornerRadiusTopEnd="8dp"
 
-            app:boxCornerRadiusTopEnd="10dp"
             app:boxCornerRadiusTopStart="10dp"
-
-            app:endIconMode="password_toggle"
-            app:helperTextEnabled="true"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editEmail">
+            app:layout_constraintTop_toBottomOf="@id/lblEmail">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/txtPassword"
+                android:id="@+id/edFullName"
                 android:layout_width="match_parent"
-                android:layout_height="57dp"
-                android:inputType="textPassword"
+                android:layout_height="48dp"
+                android:inputType="textEmailAddress"
+                android:padding="12dp"
                 android:textColor="@color/black"
-                android:textSize="18sp"></com.google.android.material.textfield.TextInputEditText>
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
+        <TextView
+            android:id="@+id/lblPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="20dp"
+            android:text="Mật khẩu"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutEmail"
+            tools:ignore="UnknownId" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Mật khẩu"
+            android:textColorHint="#808080"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="10dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="10dp"
+            app:boxCornerRadiusTopStart="10dp"
+            app:endIconMode="password_toggle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lblPassword">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edPasswordLogin"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:inputType="textPassword"
+                android:padding="12dp"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <CheckBox
-            android:id="@+id/cbxRemember"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:id="@+id/cbRememberMe"
+            android:layout_width="165dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="8dp"
             android:text="Nhớ tài khoản"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ed_password_login" />
+            app:layout_constraintTop_toBottomOf="@id/layoutPassword" />
 
-        <!-- Button Đăng Nhập -->
         <TextView
             android:id="@+id/txtForgotPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginTop="28dp"
             android:text="Quên Mật Khẩu?"
             android:textColor="#000000"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/cbxRemember" />
-
-        <!-- Chế độ khách + Đăng ký -->
+            app:layout_constraintTop_toBottomOf="@id/layoutPassword" />
 
         <Button
             android:id="@+id/btnLogin"
-            android:layout_width="316dp"
-            android:layout_height="46dp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
             android:layout_marginTop="24dp"
             android:backgroundTint="#000000"
             android:text="Đăng Nhập"
+            android:textAllCaps="false"
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.616"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cbxRemember" />
+            app:layout_constraintTop_toBottomOf="@id/cbRememberMe" />
 
+        <!-- Chế độ khách -->
         <TextView
             android:id="@+id/txtGuestMode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
+            android:layout_marginTop="32dp"
             android:text="Chế độ Khách?"
-            android:textAlignment="center"
             android:textColor="#000000"
             android:textSize="14sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.17"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnLogin" />
 
+        <!-- Đăng ký -->
+
+        <!-- Progress Bar -->
         <TextView
-            android:id="@+id/txtHadAccountFromRegister"
+            android:id="@+id/txtRegisterLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="44dp"
             android:layout_marginTop="8dp"
             android:text="Chưa có tài khoản?"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.45"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/txtGuestMode" />
 
@@ -158,22 +186,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Đăng kí"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            android:textColor="@color/black"
-            app:layout_constraintStart_toEndOf="@+id/txtHadAccountFromRegister"
+            android:text="Đăng ký"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/txtRegisterLine"
             app:layout_constraintTop_toBottomOf="@+id/txtGuestMode" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyle"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="162dp"
-            tools:layout_editor_absoluteY="293dp" />
-
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtRegister" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

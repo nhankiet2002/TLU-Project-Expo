@@ -43,12 +43,13 @@ dependencies {
     // Gson for JSON parsing
     implementation("com.google.code.gson:gson:2.9.0")
 
-    // Firebase BoM
+    // Firebase BoM (Bill of Materials)
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
 
     // Firebase modules
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
 
     // Material Design
     implementation("com.google.android.material:material:1.10.0")
@@ -65,15 +66,15 @@ dependencies {
     // CircleImageView (rounded images)
     implementation("de.hdodenhof:circleimageview:3.1.0")
 
-    // Other libraries
+    // Other libraries (from libs.versions.toml)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.firebase.firestore)
     implementation(libs.navigation.fragment)
     implementation(libs.swiperefreshlayout)
 
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
