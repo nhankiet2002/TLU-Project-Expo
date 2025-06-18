@@ -14,6 +14,7 @@ public class User {
     private String AvatarUrl;  // Đã có từ trước
     // private List<String> UserRoles; // Thêm trường này nếu bạn lưu trực tiếp ID vai trò trong User
     // Hoặc bạn query UserRoles collection riêng
+    private String email;
 
     // Constructors, Getters, Setters
     public User() {}
@@ -38,6 +39,14 @@ public class User {
     @PropertyName("AvatarUrl")
     public void setAvatarUrl(String avatarUrl) { AvatarUrl = avatarUrl; }
 
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
     // @PropertyName("UserRoles")
     // public List<String> getUserRoles() { return UserRoles; }
     // @PropertyName("UserRoles")
