@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +11,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
-import android.widget.TextView; // Đảm bảo đã import TextView
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.cse441.tluprojectexpo.MainActivity;
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.utils.GuestModeHandler; // Import lớp tiện ích
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -38,14 +38,14 @@ public class LoginActivity extends AppCompatActivity {
 
     private TextInputEditText edEmailLogin, edPasswordLogin;
     private Button btnLogin;
-    private TextView txtForgotPassword, txtRegister, txtGuestMode; // Khai báo txtGuestMode
+    private TextView txtForgotPassword, txtRegister, txtGuestMode;
     private ProgressBar progressBar;
     private CheckBox cbRememberMe;
 
     private static final String PREF_NAME = "MyPrefs";
     private static final String KEY_REMEMBER_LOGIN = "remember_login";
     private static final String KEY_LAST_EMAIL = "last_email";
-    private static final String KEY_IS_GUEST_MODE = "isGuestMode"; // Khai báo KEY_IS_GUEST_MODE
+    private static final String KEY_IS_GUEST_MODE = "isGuestMode";
 
     private FirebaseAuth mAuth;
 
@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        edEmailLogin = findViewById(R.id.edEmailLogin);
+        edEmailLogin = findViewById(R.id.edFullName);
         edPasswordLogin = findViewById(R.id.edPasswordLogin);
         btnLogin = findViewById(R.id.btnLogin);
         txtForgotPassword = findViewById(R.id.txtForgotPassword);
@@ -90,14 +90,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Xử lý click cho chế độ khách
-        txtGuestMode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                enterGuestMode();
-            }
-        });
-
+        // Xử lý click cho chế độ khách - Gọi từ GuestModeHandler
+        if (txtGuestMode != null) {
+            txtGuestMode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GuestModeHandler.enterGuestMode(LoginActivity.this, mAuth);
+                    finish(); // Đóng LoginActivity sau khi chuyển hướng
+                }
+            });
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -129,23 +131,6 @@ public class LoginActivity extends AppCompatActivity {
         }
         editor.apply();
     }
-
-    // Phương thức mới để vào chế độ khách
-    private void enterGuestMode() {
-        // Đảm bảo không còn tài khoản Firebase Auth nào đang được đăng nhập
-        if (mAuth.getCurrentUser() != null) {
-            mAuth.signOut(); // Đăng xuất nếu có người dùng đang đăng nhập
-            Log.d(TAG, "Đã đăng xuất người dùng hiện tại để vào chế độ khách.");
-        }
-
-        // Lưu trạng thái là chế độ khách vào SharedPreferences
-        setGuestMode(true);
-        saveRememberMeState("", false); // Tắt chức năng "nhớ tài khoản" khi vào chế độ khách
-
-        Toast.makeText(LoginActivity.this, "Đang vào chế độ khách...", Toast.LENGTH_SHORT).show();
-        navigateToMainActivity(); // Chuyển thẳng vào MainActivity
-    }
-
 
     private void attemptLogin() {
         String email = edEmailLogin.getText().toString().trim();
@@ -180,7 +165,8 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
                                 saveRememberMeState(email, cbRememberMe.isChecked());
-                                setGuestMode(false); // Đảm bảo thoát chế độ khách khi đăng nhập thành công
+                                // Đảm bảo thoát chế độ khách khi đăng nhập thành công
+                                GuestModeHandler.setGuestModePreference(LoginActivity.this, false);
 
                                 if (user.isEmailVerified()) {
                                     Log.d(TAG, "Đăng nhập thành công: Email đã xác minh.");
@@ -229,7 +215,7 @@ public class LoginActivity extends AppCompatActivity {
         txtRegister.setEnabled(false);
         txtForgotPassword.setEnabled(false);
         cbRememberMe.setEnabled(false);
-        txtGuestMode.setEnabled(false); // Vô hiệu hóa chế độ khách
+        if (txtGuestMode != null) txtGuestMode.setEnabled(false); // Vô hiệu hóa chế độ khách
     }
 
     private void hideProgressBar() {
@@ -242,14 +228,6 @@ public class LoginActivity extends AppCompatActivity {
         txtRegister.setEnabled(true);
         txtForgotPassword.setEnabled(true);
         cbRememberMe.setEnabled(true);
-        txtGuestMode.setEnabled(true); // Kích hoạt lại chế độ khách
-    }
-
-    // Điều chỉnh hàm setGuestMode để dùng KEY_IS_GUEST_MODE
-    private void setGuestMode(boolean isGuest) {
-        SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE); // Sử dụng PREF_NAME
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(KEY_IS_GUEST_MODE, isGuest); // Lưu trạng thái khách
-        editor.apply();
+        if (txtGuestMode != null) txtGuestMode.setEnabled(true); // Kích hoạt lại chế độ khách
     }
 }
