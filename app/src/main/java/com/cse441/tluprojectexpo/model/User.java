@@ -6,13 +6,13 @@ import com.google.firebase.firestore.PropertyName;
 
 public class User {
     @Exclude // Không ghi trường này vào Firestore khi dùng user.toObject() rồi ghi lại
-    private String userId; // Thêm trường này
+    private String userId;
 
     private String FullName;
     @PropertyName("Class")
     private String UserClass; // Đã có từ trước
     private String AvatarUrl;  // Đã có từ trước
-    // private List<String> UserRoles; // Thêm trường này nếu bạn lưu trực tiếp ID vai trò trong User
+    // private List<String> UserRoles;
     // Hoặc bạn query UserRoles collection riêng
 
     // Constructors, Getters, Setters

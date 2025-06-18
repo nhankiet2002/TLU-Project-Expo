@@ -8,8 +8,6 @@
 
     <string-array name="link_platforms">
         <item>GitHub</item>
-        <item>YouTube</item>
-        <item>Drive</item>
         <item>Demo URL</item>
         <item>Khác</item>
     </string-array>

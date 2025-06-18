@@ -1,5 +1,5 @@
 // CreateFragment.java
-package com.cse441.tluprojectexpo.fragment; // THAY ĐỔI PACKAGE CHO ĐÚNG
+package com.cse441.tluprojectexpo.fragment;
 
 
 import android.app.Activity;
