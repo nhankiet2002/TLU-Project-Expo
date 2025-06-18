@@ -121,7 +121,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/textView4"
-        app:layout_constraintTop_toBottomOf="@+id/txtGuessMode"
+        app:layout_constraintTop_toBottomOf="@+id/txtGuestMode"
         app:layout_constraintVertical_bias="0.533" />
 
     <TextView
@@ -132,7 +132,7 @@
         android:layout_marginTop="8dp"
         android:text="Đã có tài khoản?"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtGuessMode" />
+        app:layout_constraintTop_toBottomOf="@+id/txtGuestMode" />
 
     <TextView
         android:id="@+id/textView"
@@ -223,7 +223,7 @@
         app:layout_constraintTop_toBottomOf="@id/textView7">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edEmailLogin"
+            android:id="@+id/edFullName"
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:inputType="textEmailAddress"
@@ -255,7 +255,7 @@
         app:layout_constraintTop_toBottomOf="@+id/spinner" />
 
     <TextView
-        android:id="@+id/txtGuessMode"
+        android:id="@+id/txtGuestMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
