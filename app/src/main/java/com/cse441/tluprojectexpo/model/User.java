@@ -4,6 +4,8 @@ package com.cse441.tluprojectexpo.model; // THAY ĐỔI PACKAGE
 import com.google.firebase.firestore.Exclude; // Dùng @Exclude nếu không muốn userId được ghi lại vào Firestore từ model này
 import com.google.firebase.firestore.PropertyName;
 
+import java.util.Date;
+
 public class User {
     @Exclude // Không ghi trường này vào Firestore khi dùng user.toObject() rồi ghi lại
     private String userId; // Thêm trường này
@@ -14,6 +16,11 @@ public class User {
     private String AvatarUrl;  // Đã có từ trước
     // private List<String> UserRoles; // Thêm trường này nếu bạn lưu trực tiếp ID vai trò trong User
     // Hoặc bạn query UserRoles collection riêng
+    private String Email; // Thêm trường Email
+    // @ServerTimestamp // Bỏ chú thích nếu bạn muốn Firebase tự động điền timestamp khi ghi vào DB
+    private Date CreatedAt; // Thêm trường CreatedAt
+    private Boolean IsLocked; // Thêm trường IsLocked (mặc định false)
+    private String PasswordHash; // Thêm trường PasswordHash
 
     // Constructors, Getters, Setters
     public User() {}
@@ -38,6 +45,26 @@ public class User {
     @PropertyName("AvatarUrl")
     public void setAvatarUrl(String avatarUrl) { AvatarUrl = avatarUrl; }
 
+
+    @PropertyName("Email")
+    public String getEmail() { return Email; }
+    @PropertyName("Email")
+    public void setEmail(String email) { Email = email; }
+
+    @PropertyName("CreatedAt")
+    public Date getCreatedAt() { return CreatedAt; }
+    @PropertyName("CreatedAt")
+    public void setCreatedAt(Date createdAt) { CreatedAt = createdAt; }
+
+    @PropertyName("IsLocked")
+    public Boolean getIsLocked() { return IsLocked; }
+    @PropertyName("IsLocked")
+    public void setIsLocked(Boolean isLocked) { IsLocked = isLocked; }
+
+    @PropertyName("PasswordHash")
+    public String getPasswordHash() { return PasswordHash; }
+    @PropertyName("PasswordHash")
+    public void setPasswordHash(String passwordHash) { PasswordHash = passwordHash; }
     // @PropertyName("UserRoles")
     // public List<String> getUserRoles() { return UserRoles; }
     // @PropertyName("UserRoles")

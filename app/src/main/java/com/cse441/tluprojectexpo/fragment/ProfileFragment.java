@@ -1,8 +1,12 @@
 // ProfileFragment.java
-package com.cse441.tluprojectexpo.fragment; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
+package com.cse441.tluprojectexpo.fragment;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager; // Vẫn cần import này nếu bạn muốn dùng PreferenceManager cho các trường hợp khác
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -22,11 +26,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.cse441.tluprojectexpo.R; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
-import com.cse441.tluprojectexpo.Project.adapter.UserProjectsAdapter; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
-import com.cse441.tluprojectexpo.model.Project; // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
-import com.cse441.tluprojectexpo.model.User;    // THAY ĐỔI CHO ĐÚNG PACKAGE CỦA BẠN
-// import com.cse441.tluprojectexpo.activities.LoginActivity; // Bỏ comment nếu bạn có LoginActivity
+import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.Project.adapter.UserProjectsAdapter;
+import com.cse441.tluprojectexpo.model.Project;
+import com.cse441.tluprojectexpo.model.User;
+import com.cse441.tluprojectexpo.auth.LoginActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +41,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -58,6 +63,12 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     private FirebaseUser firebaseCurrentUser;
     private String currentUserId;
 
+    // Constants cho SharedPreferences (giống LoginActivity và OpenActivity)
+    private static final String PREF_NAME = "MyPrefs";
+    private static final String KEY_REMEMBER_LOGIN = "remember_login";
+    private static final String KEY_LAST_EMAIL = "last_email"; // Để xóa nếu có
+    private static final String KEY_IS_GUEST_MODE = "isGuestMode"; // Khai báo KEY_IS_GUEST_MODE
+
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -73,8 +84,6 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
             currentUserId = firebaseCurrentUser.getUid();
         } else {
             Log.e(TAG, "User not authenticated when ProfileFragment created. This should be handled by parent activity.");
-            // Consider navigating away or disabling UI if this state is reached unexpectedly.
-            // For now, it will proceed, and onCreateView will handle UI based on null currentUserId.
         }
     }
 
@@ -95,7 +104,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         userProjectList = new ArrayList<>();
         if (getContext() != null) {
             userProjectsAdapter = new UserProjectsAdapter(getContext(), userProjectList, this);
-            if (projectsRecyclerView != null) { // Thêm kiểm tra null cho projectsRecyclerView
+            if (projectsRecyclerView != null) {
                 projectsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                 projectsRecyclerView.setAdapter(userProjectsAdapter);
             } else {
@@ -107,17 +116,57 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
         setupListeners();
 
-        if (currentUserId != null) {
+        // Kiểm tra trạng thái khách hoặc người dùng đăng nhập để hiển thị UI phù hợp
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        boolean isGuestMode = prefs.getBoolean(KEY_IS_GUEST_MODE, false);
+
+        if (isGuestMode) {
+            Log.d(TAG, "Entering ProfileFragment in Guest Mode.");
+            showGuestModeUI();
+        } else if (currentUserId != null) {
+            Log.d(TAG, "Entering ProfileFragment in Authenticated Mode.");
             loadUserProfile();
-            loadUserProjects(null); // Load ban đầu không có search query
+            loadUserProjects(null);
         } else {
-            // Xử lý UI nếu người dùng không được xác thực (dù giả định là luôn đăng nhập)
-            Log.w(TAG, "currentUserId is null in onCreateView, showing not logged in UI.");
+            Log.w(TAG, "currentUserId is null and not in Guest Mode, showing not logged in UI.");
             showNotLoggedInUI();
         }
 
         return view;
     }
+
+    // Phương thức mới để hiển thị UI cho chế độ khách
+    private void showGuestModeUI() {
+        if (profileLayout != null) profileLayout.setVisibility(View.GONE); // Ẩn phần thông tin profile
+        if (searchEditText != null) searchEditText.setVisibility(View.GONE); // Ẩn tìm kiếm dự án
+        if (projectsRecyclerView != null) projectsRecyclerView.setVisibility(View.GONE); // Ẩn danh sách dự án
+        if (progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
+
+        if (avatarImageView != null) {
+            // Có thể dùng ảnh mặc định cho khách hoặc ảnh trống
+            avatarImageView.setImageResource(R.drawable.default_avatar); // Hoặc một icon khách
+        }
+        if (textViewUserName != null) textViewUserName.setText("Khách");
+        if (textViewUserClass != null) textViewUserClass.setText("Chế độ khách"); // Hoặc một text phù hợp
+
+        // Nút đăng xuất nên đổi thành "Đăng nhập/Thoát chế độ khách"
+        // Để đơn giản, hiện tại vẫn giữ nút logout, nhưng có thể điều chỉnh text/onclick
+        if (logoutLayout != null) {
+            // Bạn có thể tìm Button bên trong logoutLayout và đổi text, ví dụ:
+            // Button logoutButton = logoutLayout.findViewById(R.id.btnLogout);
+            // if (logoutButton != null) logoutButton.setText("Đăng nhập");
+            logoutLayout.setVisibility(View.VISIBLE); // Đảm bảo nút logout (hoặc đổi tên) hiển thị
+        }
+
+        if (userProjectList != null && userProjectsAdapter != null) {
+            userProjectList.clear();
+            userProjectsAdapter.notifyDataSetChanged();
+        }
+        if (getContext() != null) {
+            Toast.makeText(getContext(), "Bạn đang ở chế độ khách. Một số chức năng có thể bị hạn chế.", Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     private void showNotLoggedInUI() {
         if (profileLayout != null) profileLayout.setVisibility(View.GONE);
@@ -127,7 +176,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         if (progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
 
         if (avatarImageView != null) avatarImageView.setImageResource(R.mipmap.ic_launcher_round); // Ảnh mặc định
-        if (textViewUserName != null) textViewUserName.setText("Khách");
+        if (textViewUserName != null) textViewUserName.setText("Chưa đăng nhập");
         if (textViewUserClass != null) textViewUserClass.setText("Vui lòng đăng nhập");
 
         if (userProjectList != null && userProjectsAdapter != null) {
@@ -143,7 +192,15 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     private void setupListeners() {
         if (profileLayout != null) {
             profileLayout.setOnClickListener(v -> {
-                if (currentUserId == null) { // Kiểm tra lại đề phòng
+                // Kiểm tra nếu đang ở chế độ khách thì không cho vào sửa profile
+                SharedPreferences prefs = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+                boolean isGuestMode = prefs.getBoolean(KEY_IS_GUEST_MODE, false);
+                if (isGuestMode) {
+                    if (getContext() != null) Toast.makeText(getContext(), "Bạn đang ở chế độ khách, không thể sửa thông tin cá nhân.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (currentUserId == null) {
                     if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -154,35 +211,35 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
         if (logoutLayout != null) {
             logoutLayout.setOnClickListener(v -> {
-                if (currentUserId == null) { // Kiểm tra lại đề phòng
-                    if (getContext() != null) Toast.makeText(getContext(), "Bạn chưa đăng nhập.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 if (getContext() != null) {
                     new AlertDialog.Builder(getContext())
-                            .setTitle("Đăng xuất")
-                            .setMessage("Bạn có chắc chắn muốn đăng xuất?")
-                            .setPositiveButton("Đăng xuất", (dialog, which) -> {
-                                mAuth.signOut();
-                                Toast.makeText(getContext(), "Đã đăng xuất.", Toast.LENGTH_SHORT).show();
-                                firebaseCurrentUser = null; // Cập nhật trạng thái
-                                currentUserId = null;
-                                showNotLoggedInUI(); // Hiển thị UI cho trạng thái chưa đăng nhập
+                            .setTitle("Thoát") // Đổi title thành "Thoát"
+                            .setMessage("Bạn có chắc chắn muốn thoát chế độ khách hoặc đăng xuất không?") // Đổi message
+                            .setPositiveButton("Thoát", (dialog, which) -> {
+                                // Xóa trạng thái isGuestMode và remember_login
+                                SharedPreferences sharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putBoolean(KEY_IS_GUEST_MODE, false); // Đặt trạng thái không phải khách
+                                editor.putBoolean(KEY_REMEMBER_LOGIN, false); // Đặt không nhớ tài khoản
+                                editor.remove(KEY_LAST_EMAIL); // Xóa email cuối cùng đã lưu
+                                editor.apply();
 
-                                // Quan trọng: Điều hướng người dùng ra khỏi Fragment này
-                                // Ví dụ: nếu bạn có LoginActivity
-                                // Intent intent = new Intent(getActivity(), LoginActivity.class);
-                                // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                // startActivity(intent);
-                                // if (getActivity() != null) getActivity().finish();
-
-                                // Hoặc nếu đây là 1 tab trong ViewPager, Activity có thể chuyển về tab Home
-                                // Hoặc pop back stack nếu Fragment này được thêm vào back stack
-                                if (getActivity() != null && getActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                                    // getActivity().getSupportFragmentManager().popBackStack();
-                                } else {
-                                    Log.w(TAG, "User logged out. App needs to navigate away from ProfileFragment or handle UI change.");
+                                // Đăng xuất khỏi Firebase Auth nếu đang có phiên đăng nhập
+                                if (mAuth.getCurrentUser() != null) {
+                                    mAuth.signOut();
+                                    Log.d(TAG, "Đã đăng xuất người dùng Firebase.");
                                 }
+
+                                Toast.makeText(getContext(), "Đã thoát.", Toast.LENGTH_SHORT).show();
+                                firebaseCurrentUser = null;
+                                currentUserId = null;
+                                // Không showNotLoggedInUI() nữa vì chúng ta sẽ chuyển Activity
+
+                                // Điều hướng về LoginActivity
+                                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                if (getActivity() != null) getActivity().finish();
                             })
                             .setNegativeButton("Hủy", null)
                             .show();
@@ -197,8 +254,15 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (currentUserId != null) {
+                    // Chỉ cho phép tìm kiếm nếu không phải chế độ khách và có user
+                    SharedPreferences prefs = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+                    boolean isGuestMode = prefs.getBoolean(KEY_IS_GUEST_MODE, false);
+                    if (currentUserId != null && !isGuestMode) {
                         loadUserProjects(s.toString().trim());
+                    } else if (isGuestMode) {
+                        // Nếu là khách, không cho phép tìm kiếm và có thể thông báo
+                        if (getContext() != null) Toast.makeText(getContext(), "Chức năng tìm kiếm không khả dụng ở chế độ khách.", Toast.LENGTH_SHORT).show();
+                        searchEditText.setText(""); // Xóa nội dung nhập
                     }
                 }
 
@@ -222,24 +286,44 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                     if(progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
 
                     if (documentSnapshot.exists()) {
-                        User user = documentSnapshot.toObject(User.class);
-                        if (user != null && avatarImageView != null && textViewUserName != null && textViewUserClass != null) {
-                            textViewUserName.setText(user.getFullName());
-                            textViewUserClass.setText(user.getUserClass()); // Đảm bảo model User có getUserClass()
-                            if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
-                                Glide.with(this) // 'this' là Fragment, an toàn khi Fragment còn attached
-                                        .load(user.getAvatarUrl())
-                                        .placeholder(R.mipmap.ic_launcher_round)
-                                        .error(R.mipmap.ic_launcher_round)
+                        // User user = documentSnapshot.toObject(User.class); // Bạn không dùng User.class để map
+                        Map<String, Object> userData = documentSnapshot.getData(); // Đọc dưới dạng Map
+
+                        if (userData != null && avatarImageView != null && textViewUserName != null && textViewUserClass != null) {
+                            // Lấy dữ liệu từ Map
+                            String userName = (String) userData.get("FullName");
+                            String userClass = (String) userData.get("Class"); // Lấy trường "Class"
+                            String avatarUrl = (String) userData.get("AvatarUrl");
+
+                            textViewUserName.setText(userName != null && !userName.isEmpty() ? userName : "Người dùng");
+                            textViewUserClass.setText(userClass != null && !userClass.isEmpty() ? userClass : "N/A"); // Hiển thị "Class"
+
+                            if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                                Glide.with(this)
+                                        .load(avatarUrl)
+                                        .placeholder(R.drawable.default_avatar) // Đảm bảo bạn có default_avatar.xml
+                                        .error(R.drawable.default_avatar)
                                         .into(avatarImageView);
                             } else {
-                                avatarImageView.setImageResource(R.mipmap.ic_launcher_round);
+                                // Nếu không có avatarUrl, dùng ảnh mặc định và email từ Auth để tạo URL tạm thời
+                                String emailFromAuth = firebaseCurrentUser != null ? firebaseCurrentUser.getEmail() : "default";
+                                Glide.with(this)
+                                        .load("https://i.pravatar.cc/150?u=" + emailFromAuth)
+                                        .placeholder(R.drawable.default_avatar)
+                                        .error(R.drawable.default_avatar)
+                                        .into(avatarImageView);
                             }
+                        } else {
+                            Log.d(TAG, "User data is null or UI components are null after fetching.");
+                            if(textViewUserName != null) textViewUserName.setText("Thông tin trống");
+                            if(textViewUserClass != null) textViewUserClass.setText("N/A");
+                            if (avatarImageView != null) avatarImageView.setImageResource(R.drawable.default_avatar);
                         }
                     } else {
                         Log.d(TAG, "User document does not exist for ID: " + currentUserId);
                         if(textViewUserName != null) textViewUserName.setText("Không tìm thấy người dùng");
                         if(textViewUserClass != null) textViewUserClass.setText("N/A");
+                        if (avatarImageView != null) avatarImageView.setImageResource(R.drawable.default_avatar);
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -247,13 +331,22 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                     if(progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
                     Log.e(TAG, "Error loading user profile", e);
                     Toast.makeText(getContext(), "Lỗi tải thông tin cá nhân.", Toast.LENGTH_SHORT).show();
+                    // Fallback to default UI in case of error
+                    if(textViewUserName != null) textViewUserName.setText("Lỗi tải");
+                    if(textViewUserClass != null) textViewUserClass.setText("N/A");
+                    if (avatarImageView != null) avatarImageView.setImageResource(R.drawable.default_avatar);
                 });
     }
 
     private void loadUserProjects(String searchQuery) {
-        if (currentUserId == null || !isAdded() || getContext() == null) {
-            Log.w(TAG, "Cannot load user projects: currentUserId is null or fragment not ready.");
+        // Trong chế độ khách, không tải dự án
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        boolean isGuestMode = prefs.getBoolean(KEY_IS_GUEST_MODE, false);
+        if (isGuestMode || currentUserId == null || !isAdded() || getContext() == null) {
+            Log.w(TAG, "Cannot load user projects: In Guest Mode or user not authenticated or fragment not ready.");
             if (progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
+            userProjectList.clear(); // Xóa dữ liệu cũ
+            if (userProjectsAdapter != null) userProjectsAdapter.notifyDataSetChanged();
             return;
         }
         if(progressBarProfile != null) progressBarProfile.setVisibility(View.VISIBLE);
@@ -262,13 +355,11 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         Query query;
 
         if (searchQuery != null && !searchQuery.isEmpty()) {
-            // Query này yêu cầu index: CreatorUserId (ASC), Title (ASC)
             query = projectsRef.whereEqualTo("CreatorUserId", currentUserId)
                     .orderBy("Title")
                     .whereGreaterThanOrEqualTo("Title", searchQuery)
                     .whereLessThanOrEqualTo("Title", searchQuery + "\uf8ff");
         } else {
-            // Query này yêu cầu index: CreatorUserId (ASC), CreatedAt (DESC)
             query = projectsRef.whereEqualTo("CreatorUserId", currentUserId)
                     .orderBy("CreatedAt", Query.Direction.DESCENDING);
         }
@@ -310,6 +401,13 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
     @Override
     public void onEditClick(Project project) {
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        boolean isGuestMode = prefs.getBoolean(KEY_IS_GUEST_MODE, false);
+        if (isGuestMode) {
+            if (getContext() != null) Toast.makeText(getContext(), "Chức năng chỉnh sửa không khả dụng ở chế độ khách.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (currentUserId == null) {
             if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
             return;
@@ -320,6 +418,13 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
     @Override
     public void onDeleteClick(final Project project) {
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        boolean isGuestMode = prefs.getBoolean(KEY_IS_GUEST_MODE, false);
+        if (isGuestMode) {
+            if (getContext() != null) Toast.makeText(getContext(), "Chức năng xóa không khả dụng ở chế độ khách.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (currentUserId == null) {
             if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
             return;
@@ -351,9 +456,6 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                     if(progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
                     Toast.makeText(getContext(), "Đã xóa dự án: " + project.getTitle(), Toast.LENGTH_SHORT).show();
                     userProjectsAdapter.removeProject(project);
-                    // QUAN TRỌNG: Cần xóa các dữ liệu liên quan ở các collection khác
-                    // (ProjectMembers, ProjectCategories, Comments, Votes)
-                    // Cách tốt nhất là dùng Firebase Cloud Functions.
                 })
                 .addOnFailureListener(e -> {
                     if (!isAdded() || getContext() == null) return;
@@ -365,7 +467,9 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
     @Override
     public void onItemClick(Project project) {
-        if (currentUserId == null) {
+        // Tùy chọn: Quyết định xem chế độ khách có được xem chi tiết dự án không
+        // Hiện tại, tôi sẽ cho phép xem, nhưng bạn có thể thêm kiểm tra như onDeleteClick nếu muốn hạn chế
+        if (currentUserId == null) { // Vẫn kiểm tra currentUserId để phân biệt người dùng thật với khách (nếu cần phân biệt)
             if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -380,26 +484,31 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         firebaseCurrentUser = mAuth.getCurrentUser();
         if (firebaseCurrentUser != null) {
             currentUserId = firebaseCurrentUser.getUid();
-            // Tải lại dữ liệu vì có thể có thay đổi từ nơi khác hoặc cần làm mới
-            // (ví dụ: sau khi sửa profile hoặc project từ activity khác)
+        } else {
+            currentUserId = null;
+        }
+
+        // Kiểm tra lại chế độ khách khi Fragment hoạt động lại
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        boolean isGuestMode = prefs.getBoolean(KEY_IS_GUEST_MODE, false);
+
+        if (isGuestMode) {
+            showGuestModeUI(); // Hiển thị UI khách
+        } else if (currentUserId != null) {
             loadUserProfile();
             if (searchEditText != null) {
                 loadUserProjects(searchEditText.getText().toString().trim());
             } else {
-                loadUserProjects(null); // Hoặc không làm gì nếu searchEditText null
+                loadUserProjects(null);
             }
         } else {
-            // Người dùng đã đăng xuất hoặc phiên hết hạn trong khi fragment đang paused
-            currentUserId = null;
-            Log.w(TAG, "User became unauthenticated while ProfileFragment was paused. Showing not logged in UI.");
-            showNotLoggedInUI();
+            showNotLoggedInUI(); // Hiển thị UI chưa đăng nhập
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Giải phóng các tham chiếu view để giúp garbage collector
         avatarImageView = null;
         textViewUserName = null;
         textViewUserClass = null;
@@ -407,10 +516,10 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         logoutLayout = null;
         searchEditText = null;
         if (projectsRecyclerView != null) {
-            projectsRecyclerView.setAdapter(null); // Quan trọng để giải phóng adapter
+            projectsRecyclerView.setAdapter(null);
         }
         projectsRecyclerView = null;
-        userProjectsAdapter = null; // Adapter sẽ được giải phóng khi RecyclerView không còn tham chiếu
+        userProjectsAdapter = null;
         userProjectList = null;
         progressBarProfile = null;
     }
