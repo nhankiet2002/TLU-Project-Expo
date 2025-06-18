@@ -1,52 +1,52 @@
-package com.cse441.tluprojectexpo; // Đảm bảo đúng package của bạn
+package com.cse441.tluprojectexpo.auth;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView; // Import cho Spinner
-import android.widget.ArrayAdapter; // Import cho ArrayAdapter
-import android.widget.CheckBox; // Import cho CheckBox
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
-import android.widget.Spinner; // Import cho Spinner
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cse441.tluprojectexpo.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+import android.util.Base64;
+
 import java.util.Date;
-import java.util.List;
-
-import com.cse441.tluprojectexpo.utils.Constants;
-
-import com.cse441.tluprojectexpo.model.User;
-
-import com.cse441.tluprojectexpo.utils.InputValidationUtils;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern; // Import cho Regex
 
 public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
 
-    private TextInputEditText edFullName, edEmailRegister, edPasswordRegister, edVarifyPW; // Đổi tên biến cho khớp
-    private Spinner spinnerRole; // Spinner cho Vai trò người dùng
-    private CheckBox checkBoxAgreeTerms; // CheckBox đồng ý điều khoản
+    private TextInputEditText edFullName, edEmailRegister, edPasswordRegister, edVerifyPW;
+    private Spinner spinnerRole;
+    private CheckBox checkBoxAgreeTerms;
     private MaterialButton btnRegister;
-    private TextView txtLoginFromRegister; // Nút "Đã có tài khoản? Đăng nhập"
-    private ProgressBar progressBar; // ProgressBar của bạn
+    private TextView txtLoginFromRegister;
+    private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private String selectedRole = Constants.ROLE_STUDENT; // Mặc định là Student
+
+    private String selectedRoleDisplayName = ""; // Tên hiển thị vai trò từ Spinner
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,45 +56,40 @@ public class RegisterActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        initViews();
-        setupSpinner();
-        setListeners();
-    }
-
-    private void initViews() {
-        edFullName = findViewById(R.id.edEmailLogin); // Đây là "Tên người dùng" trong layout của bạn
+        edFullName = findViewById(R.id.edEmailLogin);
         edEmailRegister = findViewById(R.id.edEmailRegister);
         edPasswordRegister = findViewById(R.id.edPasswordRegister);
-        edVarifyPW = findViewById(R.id.edVarifyPW); // Xác nhận mật khẩu
-        spinnerRole = findViewById(R.id.spinner); // Spinner
-        checkBoxAgreeTerms = findViewById(R.id.checkBox); // CheckBox
+        edVerifyPW = findViewById(R.id.edVarifyPW);
+        spinnerRole = findViewById(R.id.spinner);
+        checkBoxAgreeTerms = findViewById(R.id.checkBox);
         btnRegister = findViewById(R.id.btnRegister);
-        txtLoginFromRegister = findViewById(R.id.txtLoginFromRegister); // "Đã có tài khoản? Đăng nhập"
-        progressBar = findViewById(R.id.progressBar); // ProgressBar
-    }
-    private void setupSpinner() {
-        String[] roles = {Constants.ROLE_STUDENT, Constants.ROLE_FACULTY, Constants.ROLE_ADMIN};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, roles);
+        txtLoginFromRegister = findViewById(R.id.txtLoginFromRegister);
+        progressBar = findViewById(R.id.progressBar);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.user_roles,
+                android.R.layout.simple_spinner_item
+        );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerRole.setAdapter(adapter);
 
         spinnerRole.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedRole = parent.getItemAtPosition(position).toString();
-                Log.d(TAG, "Selected role: " + selectedRole);
+                selectedRoleDisplayName = parent.getItemAtPosition(position).toString();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                selectedRole = Constants.ROLE_STUDENT;
+                selectedRoleDisplayName = "";
             }
         });
-    }
 
-    private void setListeners() {
-        btnRegister.setOnClickListener(v -> registerUser());
+        btnRegister.setOnClickListener(v -> {
+            registerUser();
+        });
+
         txtLoginFromRegister.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -103,128 +98,236 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerUser() {
+        showProgressBar();
+
         String fullName = edFullName.getText().toString().trim();
         String email = edEmailRegister.getText().toString().trim();
         String password = edPasswordRegister.getText().toString().trim();
-        String confirmPassword = edVarifyPW.getText().toString().trim();
+        String verifyPassword = edVerifyPW.getText().toString().trim();
 
-        // Validate inputs
-        if (!InputValidationUtils.isNotEmpty(fullName)) {
-            edFullName.setError("Tên người dùng không được để trống!");
+        // --- Kiểm tra Validation cơ bản ---
+        if (TextUtils.isEmpty(fullName)) {
+            edFullName.setError("Vui lòng nhập họ tên đầy đủ.");
             edFullName.requestFocus();
+            hideProgressBar();
             return;
         }
-        if (!InputValidationUtils.isValidEmail(email)) {
-            edEmailRegister.setError("Email không hợp lệ!");
+        if (TextUtils.isEmpty(email)) {
+            edEmailRegister.setError("Vui lòng nhập Email.");
             edEmailRegister.requestFocus();
+            hideProgressBar();
             return;
         }
-        if (!InputValidationUtils.isValidPassword(password)) { // Kiểm tra độ dài >= 6 ký tự
-            edPasswordRegister.setError("Mật khẩu phải có ít nhất 6 ký tự!");
+        if (TextUtils.isEmpty(password)) {
+            edPasswordRegister.setError("Vui lòng nhập Mật khẩu.");
             edPasswordRegister.requestFocus();
+            hideProgressBar();
             return;
         }
-        if (!password.equals(confirmPassword)) {
-            edVarifyPW.setError("Mật khẩu xác nhận không khớp!");
-            edVarifyPW.requestFocus();
+        if (TextUtils.isEmpty(verifyPassword)) {
+            edVerifyPW.setError("Vui lòng nhập lại Mật khẩu xác nhận.");
+            edVerifyPW.requestFocus();
+            hideProgressBar();
             return;
         }
+        if (!password.equals(verifyPassword)) {
+            edVerifyPW.setError("Mật khẩu xác nhận không khớp.");
+            edVerifyPW.requestFocus();
+            hideProgressBar();
+            return;
+        }
+
+        // --- KIỂM TRA ĐỘ PHỨC TẠP CỦA MẬT KHẨU ---
+        if (password.length() < 6) {
+            edPasswordRegister.setError("Mật khẩu phải có ít nhất 6 ký tự.");
+            edPasswordRegister.requestFocus();
+            hideProgressBar();
+            return;
+        }
+        // Kiểm tra ít nhất một chữ cái viết hoa
+        Pattern upperCasePattern = Pattern.compile(".*[A-Z].*");
+        if (!upperCasePattern.matcher(password).matches()) {
+            edPasswordRegister.setError("Mật khẩu phải có ít nhất một chữ cái viết hoa.");
+            edPasswordRegister.requestFocus();
+            hideProgressBar();
+            return;
+        }
+        // Kiểm tra ít nhất một chữ cái viết thường
+        Pattern lowerCasePattern = Pattern.compile(".*[a-z].*");
+        if (!lowerCasePattern.matcher(password).matches()) {
+            edPasswordRegister.setError("Mật khẩu phải có ít nhất một chữ cái viết thường.");
+            edPasswordRegister.requestFocus();
+            hideProgressBar();
+            return;
+        }
+        // Kiểm tra ít nhất một chữ số
+        Pattern digitPattern = Pattern.compile(".*\\d.*");
+        if (!digitPattern.matcher(password).matches()) {
+            edPasswordRegister.setError("Mật khẩu phải có ít nhất một chữ số.");
+            edPasswordRegister.requestFocus();
+            hideProgressBar();
+            return;
+        }
+        // Kiểm tra ít nhất một ký tự đặc biệt (ví dụ: !@#$%^&+=_.-)
+        // Bạn có thể tùy chỉnh tập hợp ký tự đặc biệt này
+        Pattern specialCharPattern = Pattern.compile(".*[!@#$%^&+=_.-].*");
+        if (!specialCharPattern.matcher(password).matches()) {
+            edPasswordRegister.setError("Mật khẩu phải có ít nhất một ký tự đặc biệt (ví dụ: !@#$%^&+=_.-).");
+            edPasswordRegister.requestFocus();
+            hideProgressBar();
+            return;
+        }
+        // --- KẾT THÚC KIỂM TRA ĐỘ PHỨC TẠM ---
+
         if (!checkBoxAgreeTerms.isChecked()) {
-            Toast.makeText(this, "Bạn phải chấp nhận các điều khoản để đăng ký.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Bạn phải đồng ý với các điều khoản và chính sách bảo mật.", Toast.LENGTH_SHORT).show();
+            hideProgressBar();
+            return;
+        }
+        if (TextUtils.isEmpty(selectedRoleDisplayName) || selectedRoleDisplayName.equals("Chọn vai trò")) {
+            Toast.makeText(this, "Vui lòng chọn vai trò của bạn.", Toast.LENGTH_SHORT).show();
+            hideProgressBar();
             return;
         }
 
-        showProgressBar();
+        // --- Băm mật khẩu người dùng nhập vào để lưu vào Firestore và kiểm tra trùng lặp ---
+        String hashedPassword = generateSHA256Hash(password);
+        if (hashedPassword == null) {
+            Toast.makeText(RegisterActivity.this, "Lỗi khi xử lý mật khẩu. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+            hideProgressBar();
+            return;
+        }
 
-        // Tạo tài khoản Firebase Authentication
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
+        checkDuplicateHashedPasswordAndRegister(fullName, email, password, hashedPassword, selectedRoleDisplayName);
+    }
+
+    // Phương thức để tạo hàm băm SHA-256 từ một chuỗi
+    private String generateSHA256Hash(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            // Chuyển đổi mảng byte sang chuỗi Base64 để lưu trữ
+            return Base64.encodeToString(hash, Base64.DEFAULT).trim();
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "SHA-256 algorithm not found.", e);
+            return null;
+        }
+    }
+
+    // Phương thức kiểm tra trùng lặp mật khẩu đã băm trong Firestore
+    private void checkDuplicateHashedPasswordAndRegister(String fullName, String email, String plainPassword, String hashedPassword, String roleDisplayName) {
+        db.collection("Users")
+                .whereEqualTo("PasswordHash", hashedPassword)
+                .get()
+                .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                        if (firebaseUser != null) {
-                            Log.d(TAG, "Tạo tài khoản Firebase Auth thành công: " + firebaseUser.getUid());
-
-                            // Cập nhật tên hiển thị trong Firebase Authentication (displayName)
-                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(fullName)
-                                    .build();
-                            firebaseUser.updateProfile(profileUpdates)
-                                    .addOnCompleteListener(profileTask -> {
-                                        if (profileTask.isSuccessful()) {
-                                            Log.d(TAG, "Cập nhật display name thành công.");
-                                        } else {
-                                            Log.w(TAG, "Lỗi khi cập nhật display name.", profileTask.getException());
-                                        }
-                                    });
-
-                            // Gửi email xác thực (tùy chọn nhưng rất nên có)
-                            firebaseUser.sendEmailVerification()
-                                    .addOnCompleteListener(emailVerificationTask -> {
-                                        if (emailVerificationTask.isSuccessful()) {
-                                            Log.d(TAG, "Email xác thực đã được gửi.");
-                                            Toast.makeText(this, "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.", Toast.LENGTH_LONG).show();
-                                        } else {
-                                            Log.e(TAG, "Lỗi khi gửi email xác thực.", emailVerificationTask.getException());
-                                            Toast.makeText(this, "Đăng ký thành công nhưng không gửi được email xác thực. Vui lòng kiểm tra lại email.", Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-
-                            // Tạo đối tượng User để lưu vào Firestore (sử dụng User model bạn đã tạo)
-                            User newUser = new User();
-                            newUser.setUserId(firebaseUser.getUid());
-                            newUser.setEmail(email);
-                            newUser.setFullName(fullName);
-                            newUser.setAvatarUrl("https://i.pravatar.cc/150?u=" + firebaseUser.getUid());
-                            newUser.setRole(selectedRole); // Vai trò người dùng từ Spinner
-
-                            // Gán permissions mặc định dựa trên vai trò
-                            List<String> permissions = new ArrayList<>();
-                            if (Constants.ROLE_STUDENT.equals(selectedRole)) {
-                                permissions.add(Constants.PERMISSION_CREATE_PROJECT);
-                                permissions.add(Constants.PERMISSION_VIEW_OWN_PROJECTS);
-                                permissions.add(Constants.PERMISSION_COMMENT);
-                                permissions.add(Constants.PERMISSION_VOTE);
-                                permissions.add(Constants.PERMISSION_DELETE_OWN_PROJECT);
-                                permissions.add(Constants.PERMISSION_EDIT_OWN_PROJECT);
-                                permissions.add(Constants.PERMISSION_VIEW_ALL_PROJECTS);
-                            } else if (Constants.ROLE_FACULTY.equals(selectedRole)) {
-                                // Gán quyền cho Faculty
-                                permissions.add(Constants.PERMISSION_VIEW_ALL_PROJECTS);
-                                permissions.add(Constants.PERMISSION_COMMENT);
-                                permissions.add(Constants.PERMISSION_APPROVE_CONTENT); // Ví dụ quyền bảo trợ
-                            }
-                            newUser.setPermissions(permissions);
-                            newUser.setCreatedAt(new Date());
-                            newUser.setIsEmailVerified(false); // Ban đầu chưa xác thực
-
-                            // Lưu thông tin người dùng vào Firestore
-                            db.collection(Constants.COLLECTION_USERS)
-                                    .document(firebaseUser.getUid()) // Dùng UID làm document ID
-                                    .set(newUser)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d(TAG, "Thông tin người dùng đã được lưu vào Firestore.");
-                                        hideProgressBar();
-                                        // Chuyển sang màn hình đăng ký thành công của bạn
-                                        Intent successIntent = new Intent(RegisterActivity.this, RegisterSuccessfulActivity.class);
-                                        startActivity(successIntent);
-                                        finish(); // Đóng RegisterActivity
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e(TAG, "Lỗi khi lưu thông tin người dùng vào Firestore.", e);
-                                        Toast.makeText(this, "Lỗi khi lưu thông tin người dùng: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                        // Nếu lưu Firestore thất bại, bạn có thể cân nhắc xóa tài khoản Auth vừa tạo
-                                        firebaseUser.delete().addOnCompleteListener(deleteTask -> {
-                                            if (deleteTask.isSuccessful()) {
-                                                Log.d(TAG, "Tài khoản Auth đã được xóa do lỗi Firestore.");
-                                            }
-                                        });
-                                        hideProgressBar();
-                                    });
+                        if (!task.getResult().isEmpty()) {
+                            hideProgressBar();
+                            Toast.makeText(RegisterActivity.this, "Mật khẩu này đã được sử dụng bởi một tài khoản khác.", Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "Mật khẩu đã băm trùng lặp được tìm thấy trong trường PasswordHash của Firestore.");
+                        } else {
+                            performFirebaseAuthRegistration(fullName, email, plainPassword, hashedPassword, roleDisplayName);
                         }
                     } else {
                         hideProgressBar();
-                        Log.w(TAG, "Đăng ký thất bại.", task.getException());
-                        Toast.makeText(this, "Đăng ký thất bại: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "Lỗi khi kiểm tra trùng lặp mật khẩu trong Firestore.", task.getException());
+                        Toast.makeText(RegisterActivity.this, "Lỗi hệ thống khi kiểm tra mật khẩu. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    // Phương thức thực hiện đăng ký với Firebase Authentication
+    private void performFirebaseAuthRegistration(String fullName, String email, String plainPassword, String hashedPassword, String roleDisplayName) {
+        mAuth.createUserWithEmailAndPassword(email, plainPassword) // Vẫn truyền mật khẩu plaintext cho Firebase Auth
+                .addOnCompleteListener(this, authTask -> {
+                    if (authTask.isSuccessful()) {
+                        Log.d(TAG, "createUserWithEmail:success");
+                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                        if (firebaseUser != null) {
+                            firebaseUser.sendEmailVerification()
+                                    .addOnCompleteListener(emailTask -> {
+                                        if (emailTask.isSuccessful()) {
+                                            Log.d(TAG, "Email xác minh đã được gửi.");
+                                            saveUserAndRoleToFirestore(firebaseUser.getUid(), email, fullName, hashedPassword, roleDisplayName);
+                                        } else {
+                                            Log.e(TAG, "Gửi email xác minh thất bại.", emailTask.getException());
+                                            Toast.makeText(RegisterActivity.this, "Đăng ký thành công nhưng không gửi được email xác minh.", Toast.LENGTH_LONG).show();
+                                            hideProgressBar();
+                                        }
+                                    });
+
+                        }
+                    } else {
+                        Log.w(TAG, "createUserWithEmail:failure", authTask.getException());
+                        hideProgressBar();
+                        String errorMessage = "Đăng ký thất bại.";
+                        if (authTask.getException() != null) {
+                            errorMessage += " Lỗi: " + authTask.getException().getMessage();
+                        }
+                        Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    // Phương thức để chuyển đổi tên hiển thị vai trò sang RoleId
+    private String getRoleIdFromDisplayName(String displayName) {
+        switch (displayName) {
+            case "Admin":
+                return "role_admin";
+            case "Sinh viên":
+                return "role_user";
+            default:
+                return "role_user"; // Mặc định là sinh viên
+        }
+    }
+
+    // Phương thức để lưu thông tin người dùng vào collection 'Users' và vai trò vào collection 'UserRoles'
+    private void saveUserAndRoleToFirestore(String uid, String email, String fullName, String hashedPassword, String roleDisplayName) {
+        // --- 1. Lưu thông tin cơ bản vào collection 'Users' ---
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("Email", email);
+        userMap.put("FullName", fullName);
+        userMap.put("PasswordHash", hashedPassword); // Lưu mật khẩu đã băm vào đây
+        userMap.put("Class", ""); // Để trống nếu không có giá trị cụ thể lúc đăng ký
+        userMap.put("AvatarUrl", "https://i.pravatar.cc/150?u=" + email);
+        userMap.put("CreatedAt", new Date());
+        userMap.put("isLocked", false);
+
+        db.collection("Users").document(uid)
+                .set(userMap)
+                .addOnCompleteListener(userSaveTask -> {
+                    if (userSaveTask.isSuccessful()) {
+                        Log.d(TAG, "Thông tin người dùng đã được lưu vào Firestore (Users).");
+
+                        // --- 2. Lưu vai trò vào collection 'UserRoles' ---
+                        String roleId = getRoleIdFromDisplayName(roleDisplayName);
+
+                        Map<String, Object> userRoleMap = new HashMap<>();
+                        userRoleMap.put("RoleId", roleId);
+                        userRoleMap.put("UserId", uid);
+
+                        db.collection("UserRoles")
+                                .add(userRoleMap)
+                                .addOnCompleteListener(roleSaveTask -> {
+                                    hideProgressBar();
+                                    if (roleSaveTask.isSuccessful()) {
+                                        Log.d(TAG, "Vai trò người dùng đã được lưu vào Firestore (UserRoles). Document ID: " + roleSaveTask.getResult().getId());
+                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công! Vui lòng kiểm tra email để xác minh.", Toast.LENGTH_LONG).show();
+
+                                        Intent intent = new Intent(RegisterActivity.this, CheckEmailActivity.class);
+                                        intent.putExtra("email", email);
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        Log.e(TAG, "Lưu vai trò người dùng vào Firestore (UserRoles) thất bại.", roleSaveTask.getException());
+                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công nhưng lỗi khi lưu vai trò.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                    } else {
+                        hideProgressBar();
+                        Log.e(TAG, "Lưu thông tin người dùng vào Firestore (Users) thất bại.", userSaveTask.getException());
+                        Toast.makeText(RegisterActivity.this, "Lỗi khi lưu thông tin người dùng.", Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -237,7 +340,7 @@ public class RegisterActivity extends AppCompatActivity {
         edFullName.setEnabled(false);
         edEmailRegister.setEnabled(false);
         edPasswordRegister.setEnabled(false);
-        edVarifyPW.setEnabled(false);
+        edVerifyPW.setEnabled(false);
         spinnerRole.setEnabled(false);
         checkBoxAgreeTerms.setEnabled(false);
         txtLoginFromRegister.setEnabled(false);
@@ -251,7 +354,7 @@ public class RegisterActivity extends AppCompatActivity {
         edFullName.setEnabled(true);
         edEmailRegister.setEnabled(true);
         edPasswordRegister.setEnabled(true);
-        edVarifyPW.setEnabled(true);
+        edVerifyPW.setEnabled(true);
         spinnerRole.setEnabled(true);
         checkBoxAgreeTerms.setEnabled(true);
         txtLoginFromRegister.setEnabled(true);
