@@ -138,8 +138,42 @@ public class UserManagementRepository {
                 .addOnFailureListener(listener::onFailure);
     }
 
-    // Bạn có thể thêm các phương thức khác ở đây, ví dụ:
-    // public void deleteUser(String userId, OnTaskCompleteListener listener) { ... }
-    // public void addUser(User user, OnTaskCompleteListener listener) { ... }
-    // public void updateUser(User user, OnTaskCompleteListener listener) { ... }
+    public void updateUserRoleAndStatus(String userId, Role newRole, boolean isLocked, @NonNull OnTaskCompleteListener listener) {
+        if (userId == null || userId.isEmpty()) {
+            listener.onFailure(new IllegalArgumentException("User ID không được rỗng."));
+            return;
+        }
+        if (newRole == null || newRole.getRoleId() == null || newRole.getRoleId().isEmpty()) {
+            listener.onFailure(new IllegalArgumentException("Role hoặc Role ID không hợp lệ."));
+            return;
+        }
+
+        // --- Task 1: Cập nhật trường 'IsLocked' trong collection "Users" ---
+        Task<Void> updateUserStatusTask = db.collection(USERS_COLLECTION).document(userId)
+                .update("IsLocked", isLocked);
+
+        // --- Task 2: Cập nhật Role ID trong collection "UserRoles" ---
+        // Tìm document trong UserRoles có userId tương ứng để cập nhật roleId
+        Task<Void> updateUserRoleTask = db.collection(USER_ROLES_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .get()
+                .onSuccessTask(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        // Nếu tìm thấy, cập nhật document đầu tiên
+                        String userRoleDocId = querySnapshot.getDocuments().get(0).getId();
+                        return db.collection(USER_ROLES_COLLECTION).document(userRoleDocId)
+                                .update("role", newRole.getRoleId());
+                    } else {
+                        // Nếu không tìm thấy, nghĩa là user này chưa có role. Ta tạo mới.
+                        UserRole newUserRole = new UserRole(userId, newRole.getRoleId());
+                        // .add() sẽ trả về một Task<DocumentReference>, ta cần chuyển nó về Task<Void>
+                        return db.collection(USER_ROLES_COLLECTION).add(newUserRole).continueWith(task -> null);
+                    }
+                });
+
+        // Gộp 2 task lại và chờ cả hai hoàn thành
+        Tasks.whenAll(updateUserStatusTask, updateUserRoleTask)
+                .addOnSuccessListener(aVoid -> listener.onSuccess())
+                .addOnFailureListener(listener::onFailure);
+    }
 }

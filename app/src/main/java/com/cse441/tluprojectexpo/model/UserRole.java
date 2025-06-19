@@ -9,6 +9,11 @@ public class UserRole {
 
     public UserRole() {}
 
+    public UserRole(String userId, String roleId) {
+        this.userId = userId;
+        this.roleId = roleId;
+    }
+
     // Getters and Setters
     @PropertyName("UserId")
     public String getUserId() { return userId; }
