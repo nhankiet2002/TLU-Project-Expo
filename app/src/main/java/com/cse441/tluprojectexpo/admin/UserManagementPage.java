@@ -3,6 +3,8 @@ package com.cse441.tluprojectexpo.admin;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar; // Thêm import cho ProgressBar
 import android.widget.Toast;
 
@@ -12,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.UserManagementAdapter;
+import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.model.User;
 import com.cse441.tluprojectexpo.admin.repository.UserManagementRepository;
 
@@ -29,6 +32,7 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
     private UserManagementAdapter userAdapter;
     private List<User> userList;
     private UserManagementRepository userRepository;
+    private ImageButton btnBackToDashboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +59,9 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
         // Bước 3: Bắt đầu tải dữ liệu
         Log.d(TAG, "onCreate: Bắt đầu tải dữ liệu người dùng.");
         loadUsers();
+
+        btnBackToDashboard = (ImageButton) findViewById(R.id.back_to_dashboard);
+        btnBackToDashboard.setOnClickListener(v -> NavigationUtil.navigateToDashboard(this));
     }
 
     /**

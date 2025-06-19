@@ -13,8 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.cse441.tluprojectexpo.admin.CatalogManagementPage;
-import com.cse441.tluprojectexpo.admin.UserManagementPage;
+import com.cse441.tluprojectexpo.admin.Dashboard;
 import com.cse441.tluprojectexpo.model.FirestoreUtils;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -25,12 +24,12 @@ public class DebugMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug_menu);
 
-        Button btnLaunchCatalog = findViewById(R.id.btn_launch_catalog_management);
-        btnLaunchCatalog.setOnClickListener(new View.OnClickListener() {
+        Button btnDashboard = findViewById(R.id.btn_dashboard);
+        btnDashboard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Tạo Intent để mở CatalogManagementPage
-                Intent intent = new Intent(DebugMenu.this, CatalogManagementPage.class);
+                Intent intent = new Intent(DebugMenu.this, Dashboard.class);
                 startActivity(intent);
             }
         });
@@ -64,14 +63,6 @@ public class DebugMenu extends AppCompatActivity {
             showDeleteFieldDialog();
         });
 
-        Button openUserManagement = findViewById(R.id.btn_lauch_user_management);
-        openUserManagement.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(DebugMenu.this, UserManagementPage.class);
-                startActivity(intent);
-            }
-        });
     }
 
     private void showAddFieldDialog() {

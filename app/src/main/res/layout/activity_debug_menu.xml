@@ -23,10 +23,10 @@
             android:layout_marginBottom="24dp"/>
 
         <Button
-            android:id="@+id/btn_launch_catalog_management"
+            android:id="@+id/btn_dashboard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Mở Màn hình Quản lý Danh mục"
+            android:text="Dashboard Page"
             android:layout_marginBottom="12dp"/>
 
         <Button
@@ -47,23 +47,7 @@
             android:id="@+id/btn_delete_field_from_collection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Xóa Field khỏi Collection"
-            android:layout_marginTop="12dp"/>
-        <Button
-            android:id="@+id/btn_lauch_user_management"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mở Màn Hnh Quản Lý Người Dùng"
-            android:layout_marginTop="12dp"/>
-
-        <!-- Thêm các nút khác ở đây để mở các màn hình test khác -->
-        <!--
-        <Button
-            android:id="@+id/btn_launch_user_profile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mở Màn hình Hồ sơ người dùng"/>
-        -->
+            android:text="Xóa Field khỏi Collection" />
 
     </LinearLayout>
 </ScrollView>
