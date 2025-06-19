@@ -15,8 +15,8 @@ import java.util.List;
 public class CatalogRepository {
 
     public enum CatalogType {
-        FIELD("categories"),
-        TECHNOLOGY("technologies");
+        FIELD("Categories"),
+        TECHNOLOGY("Technologies");
 
         private final String collectionName;
 
@@ -46,7 +46,7 @@ public class CatalogRepository {
      * Lấy tất cả các item từ một collection được chỉ định bởi CatalogType.
      */
     public void getAllItems(CatalogType type, CatalogDataListener listener) {
-        getCollection(type).orderBy("name").get().addOnCompleteListener(task -> {
+        getCollection(type).orderBy("Name").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Category> itemList = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {

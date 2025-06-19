@@ -1,9 +1,9 @@
 package com.cse441.tluprojectexpo.auth;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.cse441.tluprojectexpo.MainActivity;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.User;
 import com.cse441.tluprojectexpo.utils.GuestModeHandler;
@@ -25,11 +24,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.nio.charset.StandardCharsets; // Import này cho SHA-256
-import java.security.MessageDigest;     // Import này cho SHA-256
-import java.security.NoSuchAlgorithmException; // Import này cho SHA-256
-import android.util.Base64;              // Import này cho Base64
-
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -170,10 +167,9 @@ public class RegisterActivity extends AppCompatActivity {
         User user = new User();
         user.setUserId(uid);
         user.setFullName(fullName);
-        user.setUserClass(""); // Giữ nguyên role cho UserClass
-        user.setEmail(email); // ĐẶT EMAIL TỪ THAM SỐ
-        user.setCreatedAt(new Date()); // ĐẶT THỜI GIAN TẠO
-        user.setIsLocked(false); // ĐẶT TRẠNG THÁI KHÔNG KHÓA MẶC ĐỊNH
+        user.setClassName(""); // Giữ nguyên role cho UserClass
+        user.setEmail(email); // ĐẶT EMAIL TỪ THAM S
+        user.setLocked(false); // ĐẶT TRẠNG THÁI KHÔNG KHÓA MẶC ĐỊNH
         user.setPasswordHash(hashedPassword); // ĐẶT HASHED PASSWORD
         user.setAvatarUrl("https://i.pravatar.cc/150?u=" + email); // DÙNG EMAIL TỪ THAM SỐ CHO AVATAR URL
 

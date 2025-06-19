@@ -405,7 +405,7 @@ public class CreateFragment extends Fragment implements
                         User fallbackUser = new User(); fallbackUser.setUserId(currentUserId);
                         fallbackUser.setFullName(fbCurrentUser.getDisplayName() != null && !fbCurrentUser.getDisplayName().isEmpty() ? fbCurrentUser.getDisplayName() : (fbCurrentUser.getEmail() != null ? fbCurrentUser.getEmail().split("@")[0] : "User"));
                         fallbackUser.setAvatarUrl(fbCurrentUser.getPhotoUrl() != null ? fbCurrentUser.getPhotoUrl().toString() : null);
-                        fallbackUser.setUserClass("N/A");
+                        fallbackUser.setClassName("N/A");
                         userRolesInProject.put(currentUserId, "Trưởng nhóm"); selectedProjectUsers.add(0, fallbackUser);
                         if (selectedMembersUiManager != null) selectedMembersUiManager.updateUI();
                     }
@@ -418,7 +418,7 @@ public class CreateFragment extends Fragment implements
                         User fallbackUser = new User(); fallbackUser.setUserId(currentUserId);
                         fallbackUser.setFullName(fbCurrentUser.getDisplayName() != null && !fbCurrentUser.getDisplayName().isEmpty() ? fbCurrentUser.getDisplayName() : (fbCurrentUser.getEmail() != null ? fbCurrentUser.getEmail().split("@")[0] : "User"));
                         fallbackUser.setAvatarUrl(fbCurrentUser.getPhotoUrl() != null ? fbCurrentUser.getPhotoUrl().toString() : null);
-                        fallbackUser.setUserClass("N/A");
+                        fallbackUser.setClassName("N/A");
                         userRolesInProject.put(currentUserId, "Trưởng nhóm"); selectedProjectUsers.add(0, fallbackUser);
                         if (selectedMembersUiManager != null) selectedMembersUiManager.updateUI();
                     }

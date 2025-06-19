@@ -93,7 +93,7 @@ public class FirestoreUtils {
         // Không cần model trung gian nữa!
         try (InputStream is = context.getAssets().open(assetFileName);
              InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-            users = gson.fromJson(reader, User[].class);
+            users = new User[]{gson.fromJson(reader, User.class)};
         } catch (IOException e) {
             Log.e(TAG, "Lỗi khi đọc file JSON từ assets: " + assetFileName, e);
             return;
