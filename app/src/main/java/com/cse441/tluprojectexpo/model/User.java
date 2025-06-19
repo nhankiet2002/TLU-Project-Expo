@@ -1,16 +1,12 @@
 
 package com.cse441.tluprojectexpo.model;
 
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
-
 public class User {
 
-    // @DocumentId giúp tự động lấy ID của document (ví dụ: "user_001")
-    // và gán vào trường này khi bạn đọc dữ liệu.
     @DocumentId
     private String userId;
 
@@ -20,10 +16,7 @@ public class User {
     private String avatarUrl;
 
     @PropertyName("Class")
-    private String className; // Đổi tên biến vì "class" là từ khóa trong Java
-
-    @PropertyName("CreatedAt")
-    private Timestamp createdAt; // Firestore timestamp tương ứng với com.google.firebase.Timestamp
+    private String className;
 
     @PropertyName("Email")
     private String email;
@@ -40,19 +33,15 @@ public class User {
     public User() {
     }
 
-    public User(String avatarUrl, String className, Timestamp createdAt, String email, String fullName, boolean isLocked, String passwordHash) {
+    public User(String avatarUrl, String className, String email, String fullName, boolean isLocked, String passwordHash) {
         this.avatarUrl = avatarUrl;
         this.className = className;
-        this.createdAt = createdAt;
         this.email = email;
         this.fullName = fullName;
         this.isLocked = isLocked;
         this.passwordHash = passwordHash;
     }
 
-
-    // --- Getters and Setters ---
-    // Getters và Setters cũng là BẮT BUỘC để Firestore hoạt động.
 
     public String getUserId() {
         return userId;
