@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Bước 1: Cho Activity implements interface từ Adapter
-public class UserManagementPage extends AppCompatActivity implements UserManagementAdapter.OnUserSwitchListener {
+public class UserManagementPage extends AppCompatActivity implements UserManagementAdapter.OnUserSwitchListener, UserManagementAdapter.OnUserClickListener {
 
     private static final String TAG = "UserManagementPage";
 
@@ -49,7 +49,7 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
         // 2.2. Khởi tạo các đối tượng logic và dữ liệu
         userRepository = new UserManagementRepository();
         userList = new ArrayList<>();
-        userAdapter = new UserManagementAdapter(this, userList, this); // 'this' vì Activity implement listener
+        userAdapter = new UserManagementAdapter(this, userList, this, this); // 'this' vì Activity implement listener
 
         // 2.3. Thiết lập cho RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -126,5 +126,10 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
                 loadUsers();
             }
         });
+    }
+
+    @Override
+    public void onUserItemClicked(User user) {
+        NavigationUtil.navigateWithObject(this, UserDetailManagementPage.class, "USER_DETAIL", user);
     }
 }
