@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.swiperefreshlayout)
+    implementation(libs.firebase.common)
 
     // Testing
     testImplementation(libs.junit)
