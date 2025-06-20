@@ -15,6 +15,7 @@
     <!-- Dành cho Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
     <!-- <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> Nếu dùng âm thanh -->
 
     <application
@@ -74,7 +75,8 @@
 
         <!-- Main App Activity -->
         <activity android:name=".MainActivity" />
-
+        <activity android:name=".auth.SettingProfileActivity" />
+        <activity android:name=".auth.SaveProfileSuccessfulActivity" />
     </application>
 
 </manifest>
