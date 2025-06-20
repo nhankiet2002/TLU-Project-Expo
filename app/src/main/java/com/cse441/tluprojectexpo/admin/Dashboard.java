@@ -5,6 +5,7 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cse441.tluprojectexpo.MainActivity;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.auth.LoginActivity;
@@ -32,7 +33,7 @@ public class Dashboard extends AppCompatActivity {
         btnCensor.setOnClickListener(v -> NavigationUtil.navigateTo(this, CensorManagementPage.class));
         btnFeatured.setOnClickListener(v -> NavigationUtil.navigateTo(this, FeaturedManagementPage.class));
         btnCategory.setOnClickListener(v -> NavigationUtil.navigateTo(this, CatalogManagementPage.class));
-        btnBackHome.setOnClickListener(v -> NavigationUtil.navigateTo(this, HomeFragment.class));
+        btnBackHome.setOnClickListener(v -> NavigationUtil.navigateTo(this, MainActivity.class));
         //btnGoAdminProfile.setOnClickListener(v -> NavigationUtil.navigateTo(this, AdminProfilePage.class));
     }
 }

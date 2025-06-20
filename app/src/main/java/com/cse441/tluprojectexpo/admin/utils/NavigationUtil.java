@@ -1,5 +1,6 @@
 package com.cse441.tluprojectexpo.admin.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
@@ -23,5 +24,13 @@ public class NavigationUtil {
         Intent intent = new Intent(context, destinationActivity);
         intent.putExtra(key, object);
         context.startActivity(intent);
+    }
+
+    public static void navigateWithObjectForResult(Activity activity, Class<?> destinationActivity, String key, Serializable object, int requestCode) {
+        Intent intent = new Intent(activity, destinationActivity);
+        if (key != null && object != null) {
+            intent.putExtra(key, object);
+        }
+        activity.startActivityForResult(intent, requestCode);
     }
 }

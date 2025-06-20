@@ -1,5 +1,7 @@
 package com.cse441.tluprojectexpo.admin;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -7,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +27,7 @@ import java.util.List;
 public class UserManagementPage extends AppCompatActivity implements UserManagementAdapter.OnUserSwitchListener, UserManagementAdapter.OnUserClickListener {
 
     private static final String TAG = "UserManagementPage";
+    private static final int UPDATE_USER_REQUEST_CODE = 101;
 
     // Khai báo các thành phần UI và logic
     private RecyclerView recyclerView;
@@ -130,6 +134,23 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
 
     @Override
     public void onUserItemClicked(User user) {
-        NavigationUtil.navigateWithObject(this, UserDetailManagementPage.class, "USER_DETAIL", user);
+        NavigationUtil.navigateWithObjectForResult(
+                this,
+                UserDetailManagementPage.class,
+                "USER_DETAIL",
+                user,
+                UPDATE_USER_REQUEST_CODE
+        );
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UPDATE_USER_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                // Làm mới danh sách
+                loadUsers();
+            }
+        }
     }
 }

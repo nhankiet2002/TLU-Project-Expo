@@ -148,6 +148,12 @@ public class UserManagementRepository {
             return;
         }
 
+        // THÊM LOG
+        Log.d("REPO_UPDATE", "Bắt đầu cập nhật cho UserID: " + userId);
+        Log.d("REPO_UPDATE", "Trạng thái mới (isLocked): " + isLocked);
+        Log.d("REPO_UPDATE", "RoleID mới: " + newRole.getRoleId());
+
+
         // --- Task 1: Cập nhật trường 'IsLocked' trong collection "Users" ---
         Task<Void> updateUserStatusTask = db.collection(USERS_COLLECTION).document(userId)
                 .update("IsLocked", isLocked);
@@ -155,16 +161,22 @@ public class UserManagementRepository {
         // --- Task 2: Cập nhật Role ID trong collection "UserRoles" ---
         // Tìm document trong UserRoles có userId tương ứng để cập nhật roleId
         Task<Void> updateUserRoleTask = db.collection(USER_ROLES_COLLECTION)
-                .whereEqualTo("userId", userId)
+                .whereEqualTo("UserId", userId)
                 .get()
                 .onSuccessTask(querySnapshot -> {
+
+                    // Thêm log để kiểm tra số lượng document tìm thấy
+                    Log.d("REPO_UPDATE", "Truy vấn UserRoles cho UserId " + userId + " tìm thấy " + querySnapshot.size() + " document.");
+
                     if (!querySnapshot.isEmpty()) {
                         // Nếu tìm thấy, cập nhật document đầu tiên
                         String userRoleDocId = querySnapshot.getDocuments().get(0).getId();
+                        Log.d("REPO_UPDATE", "Đã tìm thấy UserRole. Sẽ cập nhật document ID: " + userRoleDocId);
                         return db.collection(USER_ROLES_COLLECTION).document(userRoleDocId)
-                                .update("role", newRole.getRoleId());
+                                .update("RoleId", newRole.getRoleId());
                     } else {
                         // Nếu không tìm thấy, nghĩa là user này chưa có role. Ta tạo mới.
+                        Log.d("REPO_UPDATE", "Không tìm thấy UserRole. Sẽ tạo document mới.");
                         UserRole newUserRole = new UserRole(userId, newRole.getRoleId());
                         // .add() sẽ trả về một Task<DocumentReference>, ta cần chuyển nó về Task<Void>
                         return db.collection(USER_ROLES_COLLECTION).add(newUserRole).continueWith(task -> null);
@@ -173,7 +185,14 @@ public class UserManagementRepository {
 
         // Gộp 2 task lại và chờ cả hai hoàn thành
         Tasks.whenAll(updateUserStatusTask, updateUserRoleTask)
-                .addOnSuccessListener(aVoid -> listener.onSuccess())
-                .addOnFailureListener(listener::onFailure);
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("REPO_UPDATE", "Tasks.whenAll thành công!");
+                    listener.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    // THÊM LOG
+                    Log.e("REPO_UPDATE", "Tasks.whenAll thất bại!", e);
+                    listener.onFailure(e);
+                });
     }
 }
