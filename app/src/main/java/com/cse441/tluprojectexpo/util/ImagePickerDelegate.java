@@ -1,5 +1,5 @@
 // Xử lý việc mở trình chọn ảnh/media.
-package com.cse441.tluprojectexpo.Project.responsibility.util;
+package com.cse441.tluprojectexpo.util;
 
 
 import android.content.Intent;

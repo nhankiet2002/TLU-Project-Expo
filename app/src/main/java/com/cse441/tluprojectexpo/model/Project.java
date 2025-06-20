@@ -4,107 +4,76 @@ import com.google.firebase.Timestamp;          // Dùng để làm việc với 
 import com.google.firebase.firestore.PropertyName; // Dùng để ánh xạ tên trường trong Java với tên trường trong Firestore nếu chúng khác nhau
 import com.google.firebase.firestore.Exclude;      // Dùng để loại trừ một trường không được mapping với Firestore
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Project {
+public class Project implements Serializable {
 
     // --- CÁC TRƯỜNG LƯU TRỮ TRỰC TIẾP TRONG DOCUMENT 'Projects' TRÊN FIRESTORE ---
-    // Các trường này sẽ được Firestore tự động đọc/ghi khi bạn thao tác với đối tượng Project.
-    @Exclude // Trường này không được đọc/ghi trực tiếp từ/vào Firestore như một field của document.
-    // Nó sẽ được gán giá trị ID của document sau khi đọc dữ liệu.
-    private String projectId; // ID của document Project trong Firestore.
+    @Exclude
+    private String projectId;
 
-    @PropertyName("Title") // Ánh xạ với trường "Title" trong Firestore.
-    // Dùng khi tên biến Java (Title) có thể gây nhầm lẫn hoặc bạn muốn chắc chắn.
-    private String Title; // Tiêu đề của dự án.
+    @PropertyName("Title")
+    private String Title;
 
     @PropertyName("Description")
-    private String Description; // Mô tả chi tiết về dự án.
+    private String Description;
 
     @PropertyName("ThumbnailUrl")
-    private String ThumbnailUrl; // URL của ảnh thumbnail chính, hiển thị đại diện cho dự án.
-    // Đây là ảnh bìa chính.
+    private String ThumbnailUrl;
 
-    // Danh sách các media (ảnh, video) khác liên quan đến dự án.
-    // Firestore sẽ lưu trữ đây là một mảng các đối tượng (map).
     @PropertyName("MediaGalleryUrls")
-    private List<MediaItem> MediaGalleryUrls; // Mỗi MediaItem sẽ có 'url' và 'type'.
+    private List<MediaItem> MediaGalleryUrls;
 
     @PropertyName("ProjectUrl")
-    private String ProjectUrl; // URL tới mã nguồn của dự án (ví dụ: link GitHub, GitLab).
-    // Có thể là null nếu không có.
+    private String ProjectUrl;
 
     @PropertyName("DemoUrl")
-    private String DemoUrl; // URL tới bản demo trực tuyến của dự án (nếu có).
-    // Có thể là null nếu không có.
+    private String DemoUrl;
 
     @PropertyName("Status")
-    private String Status; // Trạng thái hiện tại của dự án (ví dụ: "Hoàn thành", "Đang thực hiện", "Tạm dừng").
+    private String Status;
 
     @PropertyName("CourseId")
-    private String CourseId; // ID của khóa học hoặc môn học mà dự án này thuộc về (nếu có).
-    // Có thể là null.
+    private String CourseId;
 
     @PropertyName("CreatorUserId")
-    private String CreatorUserId; // ID của người dùng (User) đã tạo ra dự án này.
-    // Dùng để liên kết với collection 'Users'.
+    private String CreatorUserId;
 
     @PropertyName("CreatedAt")
-    private Timestamp CreatedAt; // Thời điểm dự án được tạo (lưu dưới dạng Timestamp của Firestore).
+    private Timestamp CreatedAt;
 
     @PropertyName("UpdatedAt")
-    private Timestamp UpdatedAt; // Thời điểm thông tin dự án được cập nhật lần cuối (Timestamp).
+    private Timestamp UpdatedAt;
 
     @PropertyName("IsApproved")
-    private boolean IsApproved; // Trạng thái phê duyệt của dự án (true nếu đã được duyệt, false nếu chưa).
+    private boolean IsApproved;
 
     @PropertyName("VoteCount")
-    private int VoteCount; // Tổng số lượt bình chọn (upvote) mà dự án nhận được.
+    private int VoteCount;
 
-
-    // --- CÁC TRƯỜNG THÔNG TIN BỔ SUNG (KHÔNG LƯU TRỰC TIẾP TRONG DOCUMENT 'Projects') ---
-    // Các trường này KHÔNG được Firestore tự động map khi bạn đọc một document từ collection 'Projects'.
-    // Thay vào đó, bạn sẽ cần viết logic riêng để truy vấn các collection khác (Users, Technologies, Categories, ProjectMembers)
-    // và gán giá trị cho các trường này sau khi đã có đối tượng Project chính.
-    // Chúng được đánh dấu @Exclude để Firestore bỏ qua khi ghi/đọc.
-
+    // --- CÁC TRƯỜNG THÔNG TIN BỔ SUNG (KHÔNG LƯU TRỰC TIẾP) ---
     @Exclude
-    private String creatorFullName; // Họ tên đầy đủ của người tạo dự án.
-    // Sẽ được lấy từ collection 'Users' dựa trên 'CreatorUserId'.
-
+    private String creatorFullName;
     @Exclude
-    private List<String> technologyNames; // Danh sách tên các công nghệ được sử dụng trong dự án.
-    // Sẽ được tổng hợp từ 'ProjectTechnologies' và 'Technologies'.
+    private List<String> technologyNames;
     @Exclude
-    private List<String> categoryNames;   // Danh sách tên các danh mục mà dự án thuộc về.
-    // Sẽ được tổng hợp từ 'ProjectCategories' và 'Categories'.
+    private List<String> categoryNames;
     @Exclude
-    private List<UserShortInfo> projectMembersInfo; // Danh sách thông tin rút gọn của các thành viên tham gia dự án.
-    // Sẽ được tổng hợp từ 'ProjectMembers' và 'Users'.
+    private List<UserShortInfo> projectMembersInfo;
 
-
-    // Constructor mặc định (không tham số) là BẮT BUỘC để Firestore có thể deserialize
-    // (chuyển đổi từ dữ liệu Firestore sang đối tượng Java).
     public Project() {
-        // Khởi tạo các List để tránh NullPointerException nếu Firestore trả về null cho các trường này
-        // hoặc nếu chúng không được thiết lập sau khi đối tượng được tạo.
         this.MediaGalleryUrls = new ArrayList<>();
         this.technologyNames = new ArrayList<>();
         this.categoryNames = new ArrayList<>();
         this.projectMembersInfo = new ArrayList<>();
     }
 
-    // --- GETTERS AND SETTERS ---
-    // Firestore sử dụng các public getters và setters này để đọc và ghi dữ liệu vào các trường.
-    // Tên của getter/setter phải tuân theo convention của Java (ví dụ: getTitle(), setTitle())
-    // hoặc khớp với tên đã khai báo trong @PropertyName.
-
-    // Getter và Setter cho projectId
+    // --- GETTERS AND SETTERS CHO PROJECT ---
     public String getProjectId() { return projectId; }
     public void setProjectId(String projectId) { this.projectId = projectId; }
 
-    // Các getter/setter cho các trường được ánh xạ với Firestore
     public String getTitle() { return Title; }
     public void setTitle(String title) { this.Title = title; }
 
@@ -138,18 +107,12 @@ public class Project {
     public Timestamp getUpdatedAt() { return UpdatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.UpdatedAt = updatedAt; }
 
-    // Đối với kiểu boolean, getter có thể là is<PropertyName> hoặc get<PropertyName>.
-    // Firestore hỗ trợ cả hai. isApproved() là cách viết phổ biến.
     public boolean isApproved() { return IsApproved; }
-    // Setter cho boolean.
     public void setApproved(boolean approved) { this.IsApproved = approved; }
-
 
     public int getVoteCount() { return VoteCount; }
     public void setVoteCount(int voteCount) { this.VoteCount = voteCount; }
 
-
-    // Getters and Setters cho các trường thông tin bổ sung (không cần @PropertyName vì chúng @Exclude)
     public String getCreatorFullName() { return creatorFullName; }
     public void setCreatorFullName(String creatorFullName) { this.creatorFullName = creatorFullName; }
 
@@ -163,61 +126,153 @@ public class Project {
     public void setProjectMembersInfo(List<UserShortInfo> projectMembersInfo) { this.projectMembersInfo = projectMembersInfo; }
 
 
-    // --- INNER CLASS CHO MediaItem ---
-    // Class này đại diện cho một mục media (ảnh hoặc video) trong danh sách MediaGalleryUrls.
-    // Nó phải là public static class nếu bạn muốn Firestore có thể deserialize nó khi nó là một phần của Project.
-    // Hoặc bạn có thể tạo MediaItem.java riêng.
+    // --- INNER STATIC CLASS CHO MediaItem ---
     public static class MediaItem {
         @PropertyName("url")
-        private String url; // URL của file media (ảnh hoặc video).
-
+        private String url;
         @PropertyName("type")
-        private String type; // Loại media, ví dụ: "image", "video".
+        private String type;
 
-        // Constructor mặc định cần thiết cho Firestore.
         public MediaItem() {}
-
         public MediaItem(String url, String type) {
             this.url = url;
             this.type = type;
         }
-
         public String getUrl() { return url; }
         public void setUrl(String url) { this.url = url; }
-
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
     }
 
-    // --- INNER CLASS (VÍ DỤ) CHO UserShortInfo ---
-    // Class này dùng để chứa thông tin rút gọn của thành viên dự án.
-    // Bạn có thể tùy chỉnh các trường cần thiết.
+    // --- INNER STATIC CLASS CHO UserShortInfo ---
     public static class UserShortInfo {
         private String userId;
         private String fullName;
         private String avatarUrl;
-        private String roleInProject; // Vai trò trong dự án (ví dụ: "nhóm trưởng", "thành viên")
+        private String roleInProject;
 
         public UserShortInfo() {}
-
         public UserShortInfo(String userId, String fullName, String avatarUrl, String roleInProject) {
             this.userId = userId;
             this.fullName = fullName;
             this.avatarUrl = avatarUrl;
             this.roleInProject = roleInProject;
         }
-
-        // Getters and Setters
         public String getUserId() { return userId; }
         public void setUserId(String userId) { this.userId = userId; }
-
         public String getFullName() { return fullName; }
         public void setFullName(String fullName) { this.fullName = fullName; }
-
         public String getAvatarUrl() { return avatarUrl; }
         public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
-
         public String getRoleInProject() { return roleInProject; }
         public void setRoleInProject(String roleInProject) { this.roleInProject = roleInProject; }
+    }
+
+    // --- INNER STATIC CLASS CHO Comment ---
+    // Model này được thiết kế để phù hợp với cấu trúc dữ liệu comment trên Firestore
+    // ví dụ: "comment_014": { "ProjectId": "project_001", "AuthorUserId": "user_002",
+    //                        "Content": "...", "CreatedAt": "2023-08-04T15:00:00Z",
+    //                        "ParentCommentId": "comment_013" }
+    public static class Comment {
+        @Exclude // ID của document comment, sẽ được gán sau khi đọc
+        private String commentId;
+
+        @PropertyName("ProjectId")
+        private String projectId;
+
+        @PropertyName("AuthorUserId") // Ánh xạ với AuthorUserId trong Firestore
+        private String userId; // Tên biến trong Java là userId
+
+        @PropertyName("Content") // Ánh xạ với Content trong Firestore
+        private String text; // Tên biến trong Java là text
+
+        @PropertyName("CreatedAt") // Ánh xạ với CreatedAt trong Firestore
+        private Timestamp timestamp; // QUAN TRỌNG: Firestore nên lưu trường này dưới dạng Timestamp.
+        // Nếu Firestore lưu là String (ví dụ: "2023-08-04T15:00:00Z"),
+        // bạn cần đổi kiểu ở đây thành String và tự parse,
+        // hoặc đảm bảo dữ liệu được lưu đúng kiểu Timestamp khi ghi vào Firestore.
+        // Với ví dụ JSON bạn đưa, nó là String. Nếu dữ liệu thực sự là String,
+        // bạn nên đổi `Timestamp timestamp;` thành `String createdAtString;`
+        // và có thể thêm getter để parse nó thành Date/Timestamp nếu cần.
+        // Tạm thời, tôi giả định bạn sẽ lưu nó dạng Timestamp trong Firestore.
+
+        @PropertyName("ParentCommentId") // Ánh xạ với ParentCommentId trong Firestore
+        private String parentCommentId;  // Có thể là null nếu không phải comment trả lời
+
+        // Các trường này sẽ được load riêng sau khi có userId (AuthorUserId)
+        @Exclude
+        private String userName;
+        @Exclude
+        private String userAvatarUrl;
+
+        // Firestore cần constructor rỗng
+        public Comment() {}
+
+        // Constructor để tạo comment mới (khi post)
+        // Lưu ý: userName và userAvatarUrl không nhất thiết phải có trong constructor này
+        // nếu chúng chỉ dùng để hiển thị và được lấy sau.
+        // Tuy nhiên, nếu bạn muốn truyền chúng khi tạo comment mới (ví dụ, để hiển thị ngay lập tức
+        // mà không cần truy vấn lại user), thì có thể giữ chúng.
+        public Comment(String projectId, String userId, String text, Timestamp timestamp, String parentCommentId) {
+            this.projectId = projectId;
+            this.userId = userId;
+            this.text = text;
+            this.timestamp = timestamp;
+            this.parentCommentId = parentCommentId;
+            // userName và userAvatarUrl sẽ được set riêng
+        }
+
+        // Constructor đầy đủ hơn nếu bạn muốn truyền cả thông tin user khi tạo
+        public Comment(String projectId, String userId, String userName, String userAvatarUrl, String text, Timestamp timestamp, String parentCommentId) {
+            this.projectId = projectId;
+            this.userId = userId;
+            this.userName = userName;
+            this.userAvatarUrl = userAvatarUrl;
+            this.text = text;
+            this.timestamp = timestamp;
+            this.parentCommentId = parentCommentId;
+        }
+
+
+        // Getters and Setters
+        @Exclude
+        public String getCommentId() { return commentId; }
+        @Exclude
+        public void setCommentId(String commentId) { this.commentId = commentId; }
+
+        @PropertyName("ProjectId")
+        public String getProjectId() { return projectId; }
+        @PropertyName("ProjectId")
+        public void setProjectId(String projectId) { this.projectId = projectId; }
+
+        @PropertyName("AuthorUserId")
+        public String getUserId() { return userId; }
+        @PropertyName("AuthorUserId")
+        public void setUserId(String userId) { this.userId = userId; }
+
+        @PropertyName("Content")
+        public String getText() { return text; }
+        @PropertyName("Content")
+        public void setText(String text) { this.text = text; }
+
+        @PropertyName("CreatedAt")
+        public Timestamp getTimestamp() { return timestamp; }
+        @PropertyName("CreatedAt")
+        public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
+
+        @PropertyName("ParentCommentId")
+        public String getParentCommentId() { return parentCommentId; }
+        @PropertyName("ParentCommentId")
+        public void setParentCommentId(String parentCommentId) { this.parentCommentId = parentCommentId; }
+
+        @Exclude
+        public String getUserName() { return userName; }
+        @Exclude
+        public void setUserName(String userName) { this.userName = userName; }
+
+        @Exclude
+        public String getUserAvatarUrl() { return userAvatarUrl; }
+        @Exclude
+        public void setUserAvatarUrl(String userAvatarUrl) { this.userAvatarUrl = userAvatarUrl; }
     }
 }

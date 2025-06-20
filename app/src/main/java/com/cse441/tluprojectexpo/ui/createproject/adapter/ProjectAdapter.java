@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.Project.adapter;
+package com.cse441.tluprojectexpo.ui.createproject.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -36,7 +36,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     @Override
     public ProjectViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Sử dụng context của parent để inflate layout, đây là cách làm tốt hơn
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_project, parent, false);
         return new ProjectViewHolder(view);
     }
 

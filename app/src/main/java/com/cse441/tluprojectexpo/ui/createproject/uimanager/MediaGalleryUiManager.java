@@ -1,14 +1,12 @@
-package com.cse441.tluprojectexpo.Project.responsibility.ui;
+package com.cse441.tluprojectexpo.ui.createproject.uimanager;
 
 
 import android.content.Context;
 import android.net.Uri;
-import android.view.LayoutInflater; // Không cần nếu không inflate item phức tạp
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout; // Hoặc FlexboxLayout
 import android.widget.TextView;
-import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
 import com.google.android.flexbox.FlexboxLayout; // Sử dụng FlexboxLayout

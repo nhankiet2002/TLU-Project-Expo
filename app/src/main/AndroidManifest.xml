@@ -34,7 +34,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".ui.Detail.ProjectDetailActivity"
+            android:exported="false">
+        </activity>
     </application>
 
 </manifest>

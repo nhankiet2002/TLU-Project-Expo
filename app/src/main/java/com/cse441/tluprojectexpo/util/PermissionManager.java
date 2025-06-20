@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.Project.responsibility.util;
+package com.cse441.tluprojectexpo.util;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
