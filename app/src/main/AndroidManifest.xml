@@ -72,7 +72,9 @@
         <activity android:name=".auth.ForgotPasswordActivity" />
 
         <!-- Main App Activity -->
-        <activity android:name=".MainActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
 
     </application>
 
