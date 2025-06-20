@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <color name="light_gray">#BDBDBD</color>
+    <color name="active">#2E9364</color>
+    <color name="active_background">#C9EAC6</color>
+    <color name="locked">#C92B2B</color>
+    <color name="locked_background">#EAC6C6</color>
+    <color name="switch_track_green_on">#0abe6a</color>
+    <color name="switch_thumb_white_on">#FFFFFF</color>
+    <color name="switch_track_gray_off">#e6e0e9</color>
+    <color name="switch_thumb_dark_gray_off">#79747e</color>
+    <color name="featured">#FF9800</color>
+    <color name="progress">#3b82f6</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="gray">#757575</color>
@@ -10,5 +22,6 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="default_avatar_background_color">#FF5722</color>
     <color name="xoa">#E3E3E3</color>
 </resources>

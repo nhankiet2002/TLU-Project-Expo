@@ -19,6 +19,7 @@
         <item>Tạm dừng</item>
     </string-array>
     <string-array name="user_roles">
-        <item>Chọn vai trò</item> <item>Người dùng</item>
+        <item>Chọn vai trò</item> <item>User</item>
+        <item>Admin</item>
     </string-array>
 </resources>

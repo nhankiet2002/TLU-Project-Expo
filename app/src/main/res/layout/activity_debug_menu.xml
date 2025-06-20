@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center_horizontal"
+        tools:context=".DebugMenuActivity">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MÀN HÌNH TEST (DEBUG)"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"/>
+
+        <Button
+            android:id="@+id/btn_dashboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dashboard Page"
+            android:layout_marginBottom="12dp"/>
+
+        <Button
+            android:id="@+id/btn_launch_add_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thêm Người Dùng Hàng Loạt"
+            android:layout_marginBottom="12dp"/>
+        <Button
+            android:id="@+id/btn_add_field_to_collection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thêm mới một trường vào Collection"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Trong res/layout/activity_debug_menu.xml -->
+        <Button
+            android:id="@+id/btn_delete_field_from_collection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xóa Field khỏi Collection" />
+
+    </LinearLayout>
+</ScrollView>
