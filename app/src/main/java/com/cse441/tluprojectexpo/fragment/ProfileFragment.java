@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.Project.adapter.UserProjectsAdapter;
+import com.cse441.tluprojectexpo.auth.SettingProfileActivity;
 import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
 import com.cse441.tluprojectexpo.auth.LoginActivity;
@@ -133,6 +134,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         }
 
         return view;
+
     }
 
     // Phương thức mới để hiển thị UI cho chế độ khách
@@ -204,8 +206,8 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                     if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (getContext() != null)
-                    Toast.makeText(getContext(), "Chức năng xem/sửa profile chi tiết (chưa code)", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), SettingProfileActivity.class);
+                startActivity(intent);
             });
         }
 
@@ -523,4 +525,5 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         userProjectList = null;
         progressBarProfile = null;
     }
+
 }

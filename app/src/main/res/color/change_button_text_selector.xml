@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Khi Button được focus (giả sử lúc này nền Button là màu đen) -->
+    <item android:state_focused="true"
+        android:color="@android:color/white" /> <!-- Chữ màu trắng -->
+
+    <!-- Trạng thái mặc định (không focus, giả sử lúc này nền Button là màu trắng) -->
+    <item android:color="@android:color/black" />   <!-- Chữ màu đen -->
+</selector>

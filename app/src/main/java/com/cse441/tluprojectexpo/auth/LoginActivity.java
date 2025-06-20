@@ -1,3 +1,4 @@
+// PATH: com/cse441/tluprojectexpo/auth/LoginActivity.java
 package com.cse441.tluprojectexpo.auth;
 
 import android.content.Context;
@@ -20,8 +21,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.cse441.tluprojectexpo.MainActivity;
+import com.cse441.tluprojectexpo.MainActivity; // Màn hình chính cho người dùng thường
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.Dashboard; // Màn hình Dashboard cho Admin
+// import com.cse441.tluprojectexpo.model.Role; // KHÔNG CẦN NỮA VÌ TRUY VẤN TRỰC TIẾP ROLE TỪ USERROLE
+import com.cse441.tluprojectexpo.model.UserRole; // Import UserRole (đã được cập nhật)
 import com.cse441.tluprojectexpo.utils.GuestModeHandler; // Import lớp tiện ích
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,73 +35,62 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = "LoginActivity";
-
     private TextInputEditText edEmailLogin, edPasswordLogin;
     private Button btnLogin;
-    private TextView txtForgotPassword, txtRegister, txtGuestMode;
-    private ProgressBar progressBar;
+    private TextView txtRegister, txtForgotPassword, txtGuestMode;
     private CheckBox cbRememberMe;
-
-    private static final String PREF_NAME = "MyPrefs";
-    private static final String KEY_REMEMBER_LOGIN = "remember_login";
-    private static final String KEY_LAST_EMAIL = "last_email";
-    private static final String KEY_IS_GUEST_MODE = "isGuestMode";
+    private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+
+    private static final String TAG = "LoginActivity";
+    private static final String PREF_NAME = "LoginPrefs";
+    private static final String KEY_REMEMBER_ME = "rememberMe";
+    private static final String KEY_EMAIL = "email";
+    private static final String KEY_PASSWORD = "password";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        edEmailLogin = findViewById(R.id.edFullName);
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
+        edEmailLogin = findViewById(R.id.edEmailLogin);
         edPasswordLogin = findViewById(R.id.edPasswordLogin);
         btnLogin = findViewById(R.id.btnLogin);
-        txtForgotPassword = findViewById(R.id.txtForgotPassword);
         txtRegister = findViewById(R.id.txtRegister);
-        progressBar = findViewById(R.id.progressBar);
+        txtForgotPassword = findViewById(R.id.txtForgotPassword);
         cbRememberMe = findViewById(R.id.cbRememberMe);
-        txtGuestMode = findViewById(R.id.txtGuestMode); // Ánh xạ txtGuestMode
+        progressBar = findViewById(R.id.progressBar);
+        txtGuestMode = findViewById(R.id.txtGuestMode);
 
-        mAuth = FirebaseAuth.getInstance();
+        loadRememberMePreferences();
 
-        loadRememberMeState();
+        btnLogin.setOnClickListener(v -> loginUser());
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                attemptLogin();
-            }
+        txtRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
         });
 
-        txtForgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
-                startActivity(intent);
-            }
+        txtForgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
+            startActivity(intent);
         });
 
-        txtRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // Xử lý click cho chế độ khách - Gọi từ GuestModeHandler
         if (txtGuestMode != null) {
-            txtGuestMode.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    GuestModeHandler.enterGuestMode(LoginActivity.this, mAuth);
-                    finish(); // Đóng LoginActivity sau khi chuyển hướng
-                }
+            txtGuestMode.setOnClickListener(v -> {
+                GuestModeHandler.enterGuestMode(LoginActivity.this, mAuth);
+                finish();
             });
         }
 
@@ -108,48 +101,49 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void loadRememberMeState() {
-        SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        boolean rememberMe = prefs.getBoolean(KEY_REMEMBER_LOGIN, false);
-        String lastEmail = prefs.getString(KEY_LAST_EMAIL, "");
-
+    private void loadRememberMePreferences() {
+        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        boolean rememberMe = preferences.getBoolean(KEY_REMEMBER_ME, false);
         cbRememberMe.setChecked(rememberMe);
-        if (rememberMe && !TextUtils.isEmpty(lastEmail)) {
-            edEmailLogin.setText(lastEmail);
-            edPasswordLogin.requestFocus();
+
+        if (rememberMe) {
+            String savedEmail = preferences.getString(KEY_EMAIL, "");
+            String savedPassword = preferences.getString(KEY_PASSWORD, "");
+            edEmailLogin.setText(savedEmail);
+            edPasswordLogin.setText(savedPassword);
         }
     }
 
-    private void saveRememberMeState(String email, boolean remember) {
-        SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(KEY_REMEMBER_LOGIN, remember);
-        if (remember) {
-            editor.putString(KEY_LAST_EMAIL, email);
+    private void saveRememberMePreferences(String email, String password) {
+        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        if (cbRememberMe.isChecked()) {
+            editor.putBoolean(KEY_REMEMBER_ME, true);
+            editor.putString(KEY_EMAIL, email);
+            editor.putString(KEY_PASSWORD, password);
         } else {
-            editor.remove(KEY_LAST_EMAIL);
+            editor.putBoolean(KEY_REMEMBER_ME, false);
+            editor.remove(KEY_EMAIL);
+            editor.remove(KEY_PASSWORD);
         }
         editor.apply();
     }
 
-    private void attemptLogin() {
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private void loginUser() {
+        hideKeyboard();
         String email = edEmailLogin.getText().toString().trim();
         String password = edPasswordLogin.getText().toString().trim();
 
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(edEmailLogin.getWindowToken(), 0);
-        }
-
-        if (TextUtils.isEmpty(email)) {
-            edEmailLogin.setError("Email không được để trống!");
-            edEmailLogin.requestFocus();
-            return;
-        }
-
-        if (TextUtils.isEmpty(password)) {
-            edPasswordLogin.setError("Mật khẩu không được để trống!");
-            edPasswordLogin.requestFocus();
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Vui lòng nhập email và mật khẩu.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -159,36 +153,32 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        hideProgressBar();
-
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                saveRememberMeState(email, cbRememberMe.isChecked());
-                                // Đảm bảo thoát chế độ khách khi đăng nhập thành công
-                                GuestModeHandler.setGuestModePreference(LoginActivity.this, false);
+                                Log.d(TAG, "Đăng nhập thành công.");
+                                saveRememberMePreferences(email, password);
 
-                                if (user.isEmailVerified()) {
-                                    Log.d(TAG, "Đăng nhập thành công: Email đã xác minh.");
-                                    Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                                    navigateToMainActivity();
+                                // Logic kiểm tra xác thực email đã được giữ lại ở đây
+                                if (!user.isEmailVerified()) {
+                                    Toast.makeText(LoginActivity.this, "Email của bạn chưa được xác thực. Một số tính năng có thể bị hạn chế. Vui lòng kiểm tra email để xác thực tài khoản.", Toast.LENGTH_LONG).show();
+                                    // Vẫn cho vào MainActivity nếu email chưa xác thực
+                                    checkUserRoleAndNavigate(user.getUid()); // Gọi hàm kiểm tra vai trò để điều hướng
                                 } else {
-                                    Log.d(TAG, "Đăng nhập thành công: Email chưa xác minh.");
-                                    Toast.makeText(LoginActivity.this, "Đăng nhập thành công! Vui lòng kiểm tra email để xác minh tài khoản của bạn.", Toast.LENGTH_LONG).show();
-                                    navigateToMainActivity();
+                                    checkUserRoleAndNavigate(user.getUid()); // Email đã xác thực, kiểm tra vai trò để điều hướng
                                 }
+
+                            } else {
+                                hideProgressBar();
+                                Toast.makeText(LoginActivity.this, "Người dùng không tồn tại.", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Log.w(TAG, "Đăng nhập thất bại", task.getException());
+                            hideProgressBar();
                             String errorMessage;
                             if (task.getException() instanceof FirebaseAuthInvalidUserException) {
-                                errorMessage = "Email này chưa được đăng ký. Vui lòng đăng ký tài khoản.";
-                                edEmailLogin.setError(errorMessage);
-                                edEmailLogin.requestFocus();
+                                errorMessage = "Tài khoản không tồn tại hoặc đã bị vô hiệu hóa.";
                             } else if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                                errorMessage = "Sai mật khẩu hoặc email. Vui lòng thử lại.";
-                                edPasswordLogin.setError(errorMessage);
-                                edPasswordLogin.requestFocus();
+                                errorMessage = "Mật khẩu không đúng.";
                             } else {
                                 errorMessage = "Đăng nhập thất bại: " + task.getException().getMessage();
                             }
@@ -198,8 +188,55 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    private void checkUserRoleAndNavigate(String userId) {
+        db.collection("UserRoles")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    hideProgressBar(); // Ẩn ProgressBar ngay sau khi task hoàn thành
+
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        String userRoleName = null;
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            UserRole userRole = document.toObject(UserRole.class);
+                            // Lấy trực tiếp trường 'role' (String)
+                            userRoleName = userRole.getRole(); // <-- Lấy role trực tiếp từ UserRole
+                            Log.d(TAG, "Fetched Role Name from UserRoles: " + userRoleName);
+                            break; // Lấy vai trò đầu tiên tìm thấy
+                        }
+
+                        if (userRoleName != null) {
+                            if ("Admin".equalsIgnoreCase(userRoleName)) { // So sánh không phân biệt hoa thường
+                                Log.d(TAG, "Navigating to Admin Dashboard.");
+                                navigateToAdminDashboard();
+                            } else { // Mặc định là User hoặc các vai trò khác không phải Admin
+                                Log.d(TAG, "Navigating to Main Activity.");
+                                navigateToMainActivity();
+                            }
+                        } else {
+                            // Trường hợp không tìm thấy 'role' trong document UserRoles
+                            Log.e(TAG, "Lỗi: Không tìm thấy trường 'role' trong UserRole cho userId: " + userId);
+                            Toast.makeText(LoginActivity.this, "Lỗi: Không tìm thấy vai trò người dùng. Mặc định vào màn hình người dùng.", Toast.LENGTH_LONG).show();
+                            navigateToMainActivity();
+                        }
+                    } else {
+                        // Trường hợp không tìm thấy UserRole cho userId
+                        Log.e(TAG, "Lỗi khi lấy UserRole từ Firestore hoặc không tìm thấy UserRole cho userId: " + userId, task.getException());
+                        Toast.makeText(LoginActivity.this, "Lỗi: Không thể lấy vai trò người dùng. Mặc định vào màn hình người dùng.", Toast.LENGTH_LONG).show();
+                        navigateToMainActivity();
+                    }
+                });
+    }
+
     private void navigateToMainActivity() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void navigateToAdminDashboard() {
+        Intent intent = new Intent(LoginActivity.this, Dashboard.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
@@ -215,7 +252,7 @@ public class LoginActivity extends AppCompatActivity {
         txtRegister.setEnabled(false);
         txtForgotPassword.setEnabled(false);
         cbRememberMe.setEnabled(false);
-        if (txtGuestMode != null) txtGuestMode.setEnabled(false); // Vô hiệu hóa chế độ khách
+        if (txtGuestMode != null) txtGuestMode.setEnabled(false);
     }
 
     private void hideProgressBar() {
@@ -228,6 +265,6 @@ public class LoginActivity extends AppCompatActivity {
         txtRegister.setEnabled(true);
         txtForgotPassword.setEnabled(true);
         cbRememberMe.setEnabled(true);
-        if (txtGuestMode != null) txtGuestMode.setEnabled(true); // Kích hoạt lại chế độ khách
+        if (txtGuestMode != null) txtGuestMode.setEnabled(true);
     }
 }

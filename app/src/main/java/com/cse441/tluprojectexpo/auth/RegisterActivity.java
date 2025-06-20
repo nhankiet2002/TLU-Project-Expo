@@ -1,9 +1,9 @@
 package com.cse441.tluprojectexpo.auth;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.cse441.tluprojectexpo.MainActivity;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.User;
 import com.cse441.tluprojectexpo.utils.GuestModeHandler;
@@ -25,11 +24,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.nio.charset.StandardCharsets; // Import này cho SHA-256
-import java.security.MessageDigest;     // Import này cho SHA-256
-import java.security.NoSuchAlgorithmException; // Import này cho SHA-256
-import android.util.Base64;              // Import này cho Base64
-
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,7 +60,7 @@ public class RegisterActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        edFullName = findViewById(R.id.edFullName);
+        edFullName = findViewById(R.id.edEmailLogin);
         edEmailRegister = findViewById(R.id.edEmailRegister);
         edPasswordRegister = findViewById(R.id.edPasswordRegister);
         edVerifyPW = findViewById(R.id.edVarifyPW); // ĐÃ SỬA TỪ edVarifyPW SANG edVerifyPW
@@ -116,10 +113,13 @@ public class RegisterActivity extends AppCompatActivity {
             edEmailRegister.setError("Email không hợp lệ.");
             return;
         }
-        if (password.length() < 6) {
-            edPasswordRegister.setError("Mật khẩu phải có ít nhất 6 ký tự.");
+
+        // Cập nhật kiểm tra mật khẩu: yêu cầu chữ hoa, chữ thường, số, và ký tự đặc biệt
+        if (!isValidPassword(password)) {
+            edPasswordRegister.setError("Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
             return;
         }
+
         if (!password.equals(verifyPassword)) {
             edVerifyPW.setError("Mật khẩu xác nhận không khớp.");
             return;
@@ -146,9 +146,23 @@ public class RegisterActivity extends AppCompatActivity {
                                         if (authTask.isSuccessful()) {
                                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
                                             if (firebaseUser != null) {
-                                                // Hash mật khẩu trước khi lưu vào Firestore
-                                                String hashedPassword = hashPassword(password);
-                                                saveUserToFirestore(firebaseUser.getUid(), fullName, email, selectedRole, hashedPassword);
+                                                // Gửi link xác thực email
+                                                firebaseUser.sendEmailVerification()
+                                                        .addOnCompleteListener(verificationTask -> {
+                                                            if (verificationTask.isSuccessful()) {
+                                                                Log.d(TAG, "Email xác thực đã được gửi.");
+                                                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công! Vui lòng kiểm tra email của bạn để xác thực tài khoản.", Toast.LENGTH_LONG).show();
+
+                                                                // Hash mật khẩu trước khi lưu vào Firestore
+                                                                String hashedPassword = hashPassword(password);
+                                                                saveUserToFirestore(firebaseUser.getUid(), fullName, email, selectedRole, hashedPassword);
+                                                            } else {
+                                                                Log.e(TAG, "Không thể gửi email xác thực.", verificationTask.getException());
+                                                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công nhưng không thể gửi email xác thực. Vui lòng thử lại sau.", Toast.LENGTH_LONG).show();
+                                                                // Nếu không gửi được email xác thực, có thể ẩn progressBar và cho phép người dùng thử lại
+                                                                hideProgressBar();
+                                                            }
+                                                        });
                                             }
                                         } else {
                                             hideProgressBar();
@@ -170,10 +184,9 @@ public class RegisterActivity extends AppCompatActivity {
         User user = new User();
         user.setUserId(uid);
         user.setFullName(fullName);
-        user.setUserClass(""); // Giữ nguyên role cho UserClass
-        user.setEmail(email); // ĐẶT EMAIL TỪ THAM SỐ
-        user.setCreatedAt(new Date()); // ĐẶT THỜI GIAN TẠO
-        user.setIsLocked(false); // ĐẶT TRẠNG THÁI KHÔNG KHÓA MẶC ĐỊNH
+        user.setClassName(""); // Giữ nguyên role cho UserClass
+        user.setEmail(email); // ĐẶT EMAIL TỪ THAM S
+        user.setLocked(false); // ĐẶT TRẠNG THÁI KHÔNG KHÓA MẶC ĐỊNH
         user.setPasswordHash(hashedPassword); // ĐẶT HASHED PASSWORD
         user.setAvatarUrl("https://i.pravatar.cc/150?u=" + email); // DÙNG EMAIL TỪ THAM SỐ CHO AVATAR URL
 
@@ -189,9 +202,10 @@ public class RegisterActivity extends AppCompatActivity {
                                 .addOnCompleteListener(roleSaveTask -> {
                                     hideProgressBar();
                                     if (roleSaveTask.isSuccessful()) {
-                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_LONG).show();
+                                        // Đã chuyển Toast "Đăng ký thành công!" lên sau sendEmailVerification
                                         GuestModeHandler.setGuestModePreference(RegisterActivity.this, false);
-                                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                        // Chuyển về màn hình OpenActivity
+                                        Intent intent = new Intent(RegisterActivity.this, OpenActivity.class); // <-- THAY ĐỔI Ở ĐÂY
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                         startActivity(intent);
                                         finish();
@@ -222,6 +236,27 @@ public class RegisterActivity extends AppCompatActivity {
             return null;
         }
     }
+
+    /**
+     * Kiểm tra xem mật khẩu có đáp ứng các yêu cầu về độ mạnh hay không.
+     * Yêu cầu: ít nhất 6 ký tự, có chữ hoa, chữ thường, số, và ký tự đặc biệt.
+     * Ký tự đặc biệt bao gồm: !@#$%^&*()_+-=[]{};':"\|,<>.?
+     * @param password Mật khẩu cần kiểm tra.
+     * @return true nếu mật khẩu hợp lệ, ngược lại là false.
+     */
+    private boolean isValidPassword(String password) {
+        // Regex giải thích:
+        // (?=.*[0-9]): Phải chứa ít nhất một chữ số
+        // (?=.*[a-z]): Phải chứa ít nhất một chữ cái viết thường
+        // (?=.*[A-Z]): Phải chứa ít nhất một chữ cái viết hoa
+        // (?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]): Phải chứa ít nhất một ký tự đặc biệt
+        // .{6,}: Phải có ít nhất 6 ký tự (hoặc nhiều hơn)
+        String passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{6,}$";
+        Pattern pattern = Pattern.compile(passwordRegex);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
+
 
     private boolean isValidEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
