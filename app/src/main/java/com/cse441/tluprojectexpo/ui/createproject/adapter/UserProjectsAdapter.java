@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.Project.adapter;
+package com.cse441.tluprojectexpo.ui.createproject.adapter;
 
 // UserProjectsAdapter.java
 

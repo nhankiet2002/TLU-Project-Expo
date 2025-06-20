@@ -1,5 +1,5 @@
 // UserSearchAdapter.java
-package com.cse441.tluprojectexpo.Project.adapter;
+package com.cse441.tluprojectexpo.ui.createproject.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;

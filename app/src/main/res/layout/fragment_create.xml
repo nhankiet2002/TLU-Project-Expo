@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:background="@android:color/white"
     android:fitsSystemWindows="true"
-    tools:context="com.cse441.tluprojectexpo.fragment.CreateFragment">
+    tools:context="com.cse441.tluprojectexpo.ui.createproject.CreateFragment">
 
     <!-- ... (Top Bar không đổi) ... -->
     <RelativeLayout
@@ -154,24 +154,42 @@
                     tools:ignore="LabelFor" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Công nghệ (MODIFIED TO TextInputEditText) -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_technology"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <!-- Technology Input Section -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Công nghệ"
+                android:text="Công nghệ sử dụng (chọn từ gợi ý)"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_technologies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="4dp"
+                app:chipSpacingVertical="4dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_technology_input"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập và chọn công nghệ"
                 app:boxCornerRadiusTopStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusBottomEnd="8dp"
                 android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_technology"
+
+                <AutoCompleteTextView
+                    android:id="@+id/actv_technology_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapSentences" />
+                    android:inputType="textCapWords"
+                    android:completionThreshold="1" />
             </com.google.android.material.textfield.TextInputLayout>
+            <!-- End Technology Input Section -->
 
 
             <!-- KHỐI NÚT "THÊM THÀNH VIÊN" -->

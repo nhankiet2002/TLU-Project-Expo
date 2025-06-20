@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import com.cse441.tluprojectexpo.fragment.CreateFragment;
+import com.cse441.tluprojectexpo.ui.createproject.CreateFragment;
 import com.cse441.tluprojectexpo.fragment.HomeFragment;
 import com.cse441.tluprojectexpo.fragment.NotificationFragment;
 import com.cse441.tluprojectexpo.fragment.ProfileFragment;
