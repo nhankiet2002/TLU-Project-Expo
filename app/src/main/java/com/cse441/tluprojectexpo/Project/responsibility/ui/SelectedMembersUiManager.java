@@ -69,7 +69,7 @@ public class SelectedMembersUiManager {
             TextInputLayout tilRole = memberView.findViewById(R.id.til_member_role);
 
             tvName.setText(user.getFullName() != null ? user.getFullName() : "N/A");
-            tvClass.setText(user.getUserClass() != null ? user.getUserClass() : "N/A");
+            tvClass.setText(user.getClassName() != null ? user.getClassName() : "N/A");
             Glide.with(context).load(user.getAvatarUrl())
                     .placeholder(R.drawable.ic_default_avatar)
                     .error(R.drawable.ic_default_avatar)

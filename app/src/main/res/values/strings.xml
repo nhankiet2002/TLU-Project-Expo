@@ -1,8 +1,48 @@
 <resources>
-    <string name="app_name">TLUProjectExpo</string>
-    <!-- Các string khác của bạn -->
+    <!-- Các string của nhánh nghia -->
+    <string name="sys_manager">Quản lý hệ thống</string>
+    <string name="user">Người dùng</string>
+    <string name="category">Danh mục</string>
+    <string name="featured">Nổi bật</string>
+    <string name="censor">Kiểm duyệt</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="admin">Admin</string>
+    <string name="home">Trang chủ</string>
+    <string name="search_user">Tìm kiếm người dùng...</string>
+    <string name="active">Hoạt động</string>
+    <string name="locked">Đã khóa</string>
+    <string name="see_more">Xem thêm</string>
+    <string name="add_new_catalog">Thêm mới danh mục</string>
+    <string name="search_catalog">Tìm kiếm lĩnh vực, công nghệ...</string>
+    <string name="catalog_tag">Danh mục / Thẻ</string>
+    <string name="field">Lĩnh vực</string>
+    <string name="technology">Công nghệ</string>
+    <string name="search_prj_comment">Tìm kiếm dự án, bình luận</string>
+    <string name="wait_censor">Nội dung chờ duyệt</string>
+    <string name="search_featured">Tìm kiếm dự án nổi bật...</string>
+    <string name="project_featured">Dự án nổi bật</string>
+    <string name="add_project">Thêm dự án</string>
+    <string name="view_more">Xem chi tiết ></string>
+    <string name="save_record">Lưu thông tin</string>
+    <string name="back_user_detail">Người dùng/Chi tiết</string>
+    <string name="user_name1">Tên người dùng:</string>
+    <string name="department">Khoa:</string>
+    <string name="class_name">Lớp:</string>
+    <string name="email">Email:</string>
+    <string name="role">Vai trò:</string>
+    <string name="status">Trạng thái:</string>
+    <string name="project_detail">Chi tiết dự án</string>
+    <string name="short_description">Mô tả dự án</string>
+    <string name="source_code">Mã nguồn</string>
+    <string name="video">Video</string>
+    <string name="member">Thành viên</string>
+    <string name="comment">Bình luận</string>
+    <string name="delete_project">Xóa dự án</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="delete_field">Xóa field</string>
 
+    <!-- Các string của nhánh main -->
+    <string name="app_name">TLUProjectExpo</string>
     <string name="no_projects_for_this_user">Người dùng này chưa có dự án nào.</string>
     <string name="error_loading_projects">Lỗi khi tải danh sách dự án.</string>
-    <!-- Bạn có thể thêm các string khác ở đây nếu cần -->
 </resources>
