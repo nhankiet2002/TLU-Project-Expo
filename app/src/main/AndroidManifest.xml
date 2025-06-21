@@ -35,6 +35,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.createproject.CreateProjectActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.Detail.ProjectDetailActivity"
             android:exported="false">
         </activity>

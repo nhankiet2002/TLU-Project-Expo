@@ -8,8 +8,7 @@
 
     <string-array name="link_platforms">
         <item>GitHub</item>
-        <item>Demo URL</item>
-        <item>Khác</item>
+        <item>Demo</item>
     </string-array>
     <string-array name="project_statuses">
         <item>Đang thực hiện</item>

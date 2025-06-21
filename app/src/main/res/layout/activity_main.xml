@@ -8,12 +8,11 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <androidx.viewpager.widget.ViewPager
+    <com.cse441.tluprojectexpo.NonSwipeableViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        />
+        android:clipToPadding="false" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

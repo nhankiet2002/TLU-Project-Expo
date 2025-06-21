@@ -21,6 +21,9 @@ public class Constants {
     public static final String FIELD_ROLE_IN_PROJECT = "RoleInProject";
     public static final String FIELD_FULL_NAME = "FullName";
     public static final String FIELD_ROLE_ID = "RoleId"; // Trong UserRoles và có thể cả Roles collection THÊM MỚI
+    // User Roles related
+    public static final String ROLE_ID_USER = "role_user";          // ID của vai trò User thường (VÍ DỤ)
+    public static final String FIELD_IS_LOCKED = "IsLocked";      // Field boolean trong collection Users
 
     // Firestore Role ID Values
     public static final String ROLE_ID_ADMIN = "role_admin"; // THÊM MỚI - ID của vai trò Admin
@@ -33,8 +36,10 @@ public class Constants {
     public static final String CLOUDINARY_FOLDER_PROJECT_THUMBNAILS = "project_thumbnails_expo";
     public static final String CLOUDINARY_FOLDER_PROJECT_MEDIA = "project_media_expo";
 
-
+    // Link Platforms (Khớp với R.array.link_platforms)
+    public static final String PLATFORM_GITHUB = "GitHub";
+    public static final String PLATFORM_DEMO = "Demo";
     // Other constants
-    public static final String DEFAULT_MEMBER_ROLE = "thành viên";
-    public static final String DEFAULT_LEADER_ROLE = "nhóm trưởng";
+    public static final String DEFAULT_MEMBER_ROLE = "Thành viên";
+    public static final String DEFAULT_LEADER_ROLE = "Trưởng nhóm";
 }
