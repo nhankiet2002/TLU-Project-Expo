@@ -18,23 +18,17 @@ public class UserRole {
     public UserRole() {}
 
     // Getters and Setters cho userId
-    @PropertyName("userId")
+    @PropertyName("UserId")
     public String getUserId() { return userId; }
 
-    @PropertyName("userId")
+    @PropertyName("UserId")
     public void setUserId(String userId) { this.userId = userId; }
 
     // Getters and Setters cho role (đã sửa)
-    @PropertyName("role")
+    @PropertyName("RoleId")
     public String getRole() { return role; }
 
-    @PropertyName("role")
+    @PropertyName("RoleId")
     public void setRole(String role) { this.role = role; }
 
-    // Getters and Setters cho assignedAt
-    @PropertyName("assignedAt")
-    public Timestamp getAssignedAt() { return assignedAt; }
-
-    @PropertyName("assignedAt")
-    public void setAssignedAt(Timestamp assignedAt) { this.assignedAt = assignedAt; }
 }

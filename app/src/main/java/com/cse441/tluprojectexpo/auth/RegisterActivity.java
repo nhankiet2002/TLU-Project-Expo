@@ -60,7 +60,7 @@ public class RegisterActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        edFullName = findViewById(R.id.edEmailLogin);
+        edFullName = findViewById(R.id.edFullName);
         edEmailRegister = findViewById(R.id.edEmailRegister);
         edPasswordRegister = findViewById(R.id.edPasswordRegister);
         edVerifyPW = findViewById(R.id.edVarifyPW); // ĐÃ SỬA TỪ edVarifyPW SANG edVerifyPW
@@ -118,6 +118,10 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (!password.equals(verifyPassword)) {
             edVerifyPW.setError("Mật khẩu xác nhận không khớp.");
+            return;
+        }
+        if (spinnerRole.getSelectedItemPosition() == 0) {
+            Toast.makeText(this, "Vui lòng chọn vai trò của bạn.", Toast.LENGTH_SHORT).show();
             return;
         }
         if (!checkBoxAgreeTerms.isChecked()) {
@@ -190,9 +194,8 @@ public class RegisterActivity extends AppCompatActivity {
                 .addOnCompleteListener(userSaveTask -> {
                     if (userSaveTask.isSuccessful()) {
                         Map<String, Object> roleData = new HashMap<>();
-                        roleData.put("userId", uid);
-                        roleData.put("role", role);
-                        roleData.put("assignedAt", new Date());
+                        roleData.put("UserId", uid);
+                        roleData.put("RoleId", role);
 
                         db.collection("UserRoles").add(roleData)
                                 .addOnCompleteListener(roleSaveTask -> {
