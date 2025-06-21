@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="8dp"
+    app:strokeColor="@color/black"
+    app:strokeWidth="1dp"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Ảnh đại diện của dự án -->
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="#E0E0E0"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Tên dự án -->
+        <TextView
+            android:id="@+id/project_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/thumbnail"
+            app:layout_constraintTop_toTopOf="@id/thumbnail"
+            app:layout_constraintEnd_toStartOf="@id/iv_featured_star"
+            android:layout_marginEnd="8dp"
+            tools:text="Thiết kế hệ thống tưới hồ chứa nước Khe Lại" />
+
+        <!-- Icon ngôi sao cho dự án nổi bật -->
+        <ImageView
+            android:id="@+id/iv_featured_star"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_star_featured"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@id/project_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible"/>
+
+        <!-- Lĩnh vực -->
+        <TextView
+            android:id="@+id/field"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/project_name"
+            app:layout_constraintEnd_toEndOf="@id/project_name"
+            app:layout_constraintTop_toBottomOf="@id/project_name"
+            tools:text="Lĩnh vực: Kỹ thuật tài nguyên nước" />
+
+        <!-- Công nghệ -->
+        <TextView
+            android:id="@+id/technology"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/project_name"
+            app:layout_constraintEnd_toEndOf="@id/project_name"
+            app:layout_constraintTop_toBottomOf="@id/field"
+            tools:text="Công nghệ: Autocad, Java" />
+
+        <!-- Tên tác giả -->
+        <TextView
+            android:id="@+id/creator"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/project_name"
+            app:layout_constraintEnd_toEndOf="@id/project_name"
+            app:layout_constraintTop_toBottomOf="@id/technology"
+            tools:text="Tác giả: Đàm Nhân Kiệt" />
+
+        <!-- Button "Làm nổi bật" -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_set_featured"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/make_featured"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/creator"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

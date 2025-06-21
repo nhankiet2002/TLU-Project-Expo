@@ -63,6 +63,8 @@ public class Project implements Serializable {
     private List<String> categoryNames;
     @Exclude
     private List<UserShortInfo> projectMembersInfo;
+    @Exclude
+    private boolean isFeatured = false;
 
     public Project() {
         this.MediaGalleryUrls = new ArrayList<>();
@@ -280,5 +282,14 @@ public class Project implements Serializable {
         public String getUserAvatarUrl() { return userAvatarUrl; }
         @Exclude
         public void setUserAvatarUrl(String userAvatarUrl) { this.userAvatarUrl = userAvatarUrl; }
+    }
+    @Exclude
+    public boolean isFeatured() {
+        return isFeatured;
+    }
+
+    @Exclude
+    public void setFeatured(boolean featured) {
+        isFeatured = featured;
     }
 }

@@ -2,6 +2,7 @@ package com.cse441.tluprojectexpo.admin;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +27,7 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
     private FeaturedProjectAdapter adapter;
     private ProjectRepository projectRepository;
     private List<FeaturedProjectUIModel> uiModelList = new ArrayList<>();
+    private ImageButton btnBackToDashboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,9 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
 
         // 5. Bắt đầu tải dữ liệu
         loadFeaturedProjects();
+
+        btnBackToDashboard = (ImageButton) findViewById(R.id.back_to_dashboard);
+        btnBackToDashboard.setOnClickListener(v -> {finish();});
     }
 
     /**
@@ -64,7 +69,7 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
                 // Cập nhật dữ liệu cho adapter khi có kết quả
                 adapter.updateData(featuredProjects);
             } else {
-                Toast.makeText(this, "Lỗi khi tải dự án nổi bật.", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Lỗi khi tải dự án nổi bật.", Toast.LENGTH_SHORT).show();
             }
         });
     }

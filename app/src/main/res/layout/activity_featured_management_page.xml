@@ -118,7 +118,7 @@
             android:id="@+id/btn_add_featured"
             android:text="@string/add_project"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/button_see_more"
             app:backgroundTint="@null"
             android:layout_marginTop="10dp"

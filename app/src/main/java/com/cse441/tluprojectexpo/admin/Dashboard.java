@@ -33,7 +33,7 @@ public class Dashboard extends AppCompatActivity {
         btnCensor.setOnClickListener(v -> NavigationUtil.navigateTo(this, CensorManagementPage.class));
         btnFeatured.setOnClickListener(v -> NavigationUtil.navigateTo(this, FeaturedManagementPage.class));
         btnCategory.setOnClickListener(v -> NavigationUtil.navigateTo(this, CatalogManagementPage.class));
-        btnBackHome.setOnClickListener(v -> NavigationUtil.navigateTo(this, MainActivity.class));
+        btnBackHome.setOnClickListener(v -> NavigationUtil.navigateTo(this, AdminHomePage.class));
         //btnGoAdminProfile.setOnClickListener(v -> NavigationUtil.navigateTo(this, AdminProfilePage.class));
     }
 }

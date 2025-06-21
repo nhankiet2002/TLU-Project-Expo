@@ -31,6 +31,7 @@
     <string name="email">Email:</string>
     <string name="role">Vai trò:</string>
     <string name="status">Trạng thái:</string>
+    <string name="status_2">Trạng thái</string>
     <string name="project_detail">Chi tiết dự án</string>
     <string name="short_description">Mô tả dự án</string>
     <string name="source_code">Mã nguồn</string>
@@ -40,6 +41,11 @@
     <string name="delete_project">Xóa dự án</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="delete_field">Xóa field</string>
+    <string name="management">Quản lý</string>
+    <string name="profile">Trang cá nhân</string>
+    <string name="search_project">Tìm kiếm dự án</string>
+    <string name="field_subject">Lĩnh vực/Chủ đề</string>
+    <string name="make_featured">Làm nổi bật</string>
 
     <!-- Các string của nhánh main -->
     <string name="app_name">TLUProjectExpo</string>

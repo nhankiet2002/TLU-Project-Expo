@@ -172,4 +172,66 @@ public class ProjectRepository {
         void onSuccess();
         void onFailure(Exception e);
     }
+
+    public MutableLiveData<List<Project>> getAllProjectsWithDetails() {
+        MutableLiveData<List<Project>> liveData = new MutableLiveData<>();
+
+        // STAGE 1: Lấy tất cả các collection cần thiết cùng lúc
+        Task<QuerySnapshot> projectsTask = db.collection("Projects").get();
+        Task<QuerySnapshot> usersTask = db.collection("Users").get();
+        Task<QuerySnapshot> categoriesTask = db.collection("Categories").get();
+        Task<QuerySnapshot> technologiesTask = db.collection("Technologies").get();
+        Task<QuerySnapshot> projectCategoriesTask = db.collection("ProjectCategories").get();
+        Task<QuerySnapshot> projectTechnologiesTask = db.collection("ProjectTechnologies").get();
+        Task<QuerySnapshot> featuredProjectsTask = db.collection("FeaturedProjects").get();
+
+        Tasks.whenAllSuccess(projectsTask, usersTask, categoriesTask, technologiesTask,
+                        projectCategoriesTask, projectTechnologiesTask, featuredProjectsTask)
+                .addOnSuccessListener(results -> {
+                    // --- STAGE 2: CHUYỂN DỮ LIỆU THÔ SANG CÁC MAP ĐỂ TRA CỨU NHANH ---
+                    List<Project> projectList = ((QuerySnapshot) results.get(0)).toObjects(Project.class);
+                    Map<String, User> userMap = ((QuerySnapshot) results.get(1)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.toObject(User.class)));
+                    Map<String, String> categoryMap = ((QuerySnapshot) results.get(2)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
+                    Map<String, String> technologyMap = ((QuerySnapshot) results.get(3)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
+                    Map<String, String> projectToCategoryMap = ((QuerySnapshot) results.get(4)).getDocuments().stream().collect(Collectors.toMap(doc -> doc.getString("ProjectId"), doc -> doc.getString("CategoryId"), (v1, v2) -> v1));
+                    Map<String, List<String>> projectToTechsMap = new HashMap<>();
+                    for (DocumentSnapshot doc : ((QuerySnapshot) results.get(5)).getDocuments()) {
+                        projectToTechsMap.computeIfAbsent(doc.getString("ProjectId"), k -> new ArrayList<>()).add(doc.getString("TechnologyId"));
+                    }
+                    List<String> featuredProjectIds = ((QuerySnapshot) results.get(6)).getDocuments().stream().map(doc -> doc.getString("ProjectId")).collect(Collectors.toList());
+
+                    // --- STAGE 3: KẾT HỢP DỮ LIỆU VÀO DANH SÁCH PROJECT ---
+                    for (Project project : projectList) {
+                        User creator = userMap.get(project.getCreatorUserId());
+                        if (creator != null) project.setCreatorFullName(creator.getFullName());
+
+                        String categoryId = projectToCategoryMap.get(project.getProjectId());
+                        if (categoryId != null) {
+                            String categoryName = categoryMap.get(categoryId);
+                            project.setCategoryNames(new ArrayList<>(List.of(categoryName != null ? categoryName : "")));
+                        }
+
+                        List<String> techIds = projectToTechsMap.get(project.getProjectId());
+                        if (techIds != null) {
+                            List<String> techNames = techIds.stream().map(technologyMap::get).collect(Collectors.toList());
+                            project.setTechnologyNames(techNames);
+                        }
+
+                        project.setFeatured(featuredProjectIds.contains(project.getProjectId()));
+                    }
+                    liveData.setValue(projectList);
+                }).addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi khi lấy dữ liệu tổng hợp: ", e);
+                    liveData.setValue(null);
+                });
+        return liveData;
+    }
+
+    public void addFeaturedProject(String projectId, OnTaskCompleteListener listener) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("ProjectId", projectId);
+        db.collection("FeaturedProjects").add(data)
+                .addOnSuccessListener(documentReference -> listener.onSuccess())
+                .addOnFailureListener(listener::onFailure);
+    }
 }
