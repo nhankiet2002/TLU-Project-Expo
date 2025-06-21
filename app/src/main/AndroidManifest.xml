@@ -38,7 +38,7 @@
             android:name=".ui.createproject.CreateProjectActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.Detail.ProjectDetailActivity"
+            android:name=".ui.detailproject.ProjectDetailActivity"
             android:exported="false">
         </activity>
     </application>
