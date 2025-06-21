@@ -7,10 +7,10 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
-    app:cardCornerRadius="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
     app:strokeColor="#E0E0E0"
     app:strokeWidth="1dp"
-    app:cardElevation="4dp"
     app:cardBackgroundColor="@android:color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,29 +23,10 @@
             android:id="@+id/thumbnail"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:background="#E0E0E0"
+            android:background="#F0F0F0"
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Trạng thái của dự án -->
-        <TextView
-            android:id="@+id/project_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Đang thực hiện"
-            android:textColor="#FFFFFF"
-            android:layout_weight="3"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingVertical="4dp"
-            android:paddingHorizontal="4dp"
-            android:gravity="center_horizontal"
-            tools:background="@drawable/progress_background"
-            android:layout_marginTop="32dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/thumbnail"/>
 
         <!-- Tên dự án -->
         <TextView
@@ -53,16 +34,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:textColor="@android:color/black"
             android:textSize="16sp"
             android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/iv_featured_star"
             app:layout_constraintStart_toEndOf="@id/thumbnail"
             app:layout_constraintTop_toTopOf="@id/thumbnail"
-            app:layout_constraintEnd_toStartOf="@id/iv_featured_star"
-            android:layout_marginEnd="8dp"
-            tools:text="Thiết kế hệ thống tưới hồ chứa nước Khe Lại" />
+            tools:text="Ứng dụng Di động Kết nối Cộng đồng Học tập" />
 
         <!-- Icon ngôi sao cho dự án nổi bật -->
         <ImageView
@@ -71,9 +52,9 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_star_featured"
             android:visibility="gone"
-            app:layout_constraintTop_toTopOf="@id/project_name"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:visibility="visible"/>
+            app:layout_constraintTop_toTopOf="@id/project_name"
+            tools:visibility="visible" />
 
         <!-- Lĩnh vực -->
         <TextView
@@ -83,10 +64,10 @@
             android:layout_marginTop="4dp"
             android:textColor="#666666"
             android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="@id/project_name"
             app:layout_constraintEnd_toEndOf="@id/project_name"
+            app:layout_constraintStart_toStartOf="@id/project_name"
             app:layout_constraintTop_toBottomOf="@id/project_name"
-            tools:text="Lĩnh vực: Kỹ thuật tài nguyên nước" />
+            tools:text="Lĩnh vực: Ứng dụng di động" />
 
         <!-- Công nghệ -->
         <TextView
@@ -96,10 +77,10 @@
             android:layout_marginTop="2dp"
             android:textColor="#666666"
             android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="@id/project_name"
             app:layout_constraintEnd_toEndOf="@id/project_name"
+            app:layout_constraintStart_toStartOf="@id/project_name"
             app:layout_constraintTop_toBottomOf="@id/field"
-            tools:text="Công nghệ: Autocad, Java" />
+            tools:text="Công nghệ: Flutter, Java" />
 
         <!-- Tên tác giả -->
         <TextView
@@ -109,25 +90,46 @@
             android:layout_marginTop="2dp"
             android:textColor="#666666"
             android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="@id/project_name"
             app:layout_constraintEnd_toEndOf="@id/project_name"
+            app:layout_constraintStart_toStartOf="@id/project_name"
             app:layout_constraintTop_toBottomOf="@id/technology"
-            tools:text="Tác giả: Đàm Nhân Kiệt" />
+            tools:text="Tác giả: Trần Văn Bình" />
+
+        <!-- SỬA LẠI HOÀN TOÀN RÀNG BUỘC CỦA CÁC VIEW DƯỚI ĐÂY -->
+
+        <!-- Trạng thái của dự án -->
+        <TextView
+            android:id="@+id/project_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:background="@drawable/progress_background"
+            tools:text="Đang thực hiện"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/creator"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <!-- Button "Làm nổi bật" -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_set_featured"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:text="@string/make_featured"
             android:textColor="@android:color/white"
-            app:backgroundTint="@android:color/black"
             android:textSize="12sp"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/creator"
+            app:backgroundTint="@android:color/black"
+            android:layout_marginTop="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/creator"
             tools:visibility="visible"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
