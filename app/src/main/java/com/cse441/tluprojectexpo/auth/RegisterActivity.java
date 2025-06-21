@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText edFullName, edEmailRegister, edPasswordRegister, edVerifyPW;
-    private Spinner spinnerRole;
+
     private MaterialButton btnRegister;
     private CheckBox checkBoxAgreeTerms;
     private TextView txtLoginFromRegister;
@@ -64,17 +64,13 @@ public class RegisterActivity extends AppCompatActivity {
         edEmailRegister = findViewById(R.id.edEmailRegister);
         edPasswordRegister = findViewById(R.id.edPasswordRegister);
         edVerifyPW = findViewById(R.id.edVarifyPW); // ĐÃ SỬA TỪ edVarifyPW SANG edVerifyPW
-        spinnerRole = findViewById(R.id.spinner);
         btnRegister = findViewById(R.id.btnRegister);
         checkBoxAgreeTerms = findViewById(R.id.checkBox);
         txtLoginFromRegister = findViewById(R.id.txtLoginFromRegister);
         txtGuestMode = findViewById(R.id.txtGuestMode);
         progressBar = findViewById(R.id.progressBar);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.user_roles, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerRole.setAdapter(adapter);
+
 
         btnRegister.setOnClickListener(v -> registerUser());
 
@@ -98,7 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
         String email = edEmailRegister.getText().toString().trim();
         String password = edPasswordRegister.getText().toString().trim();
         String verifyPassword = edVerifyPW.getText().toString().trim();
-        String selectedRole = spinnerRole.getSelectedItem().toString();
+        String selectedRole = "User";
 
         Log.d(TAG, "Dữ liệu đăng ký: FullName='" + fullName + "', Email='" + email + "', Role='" + selectedRole + "'");
 
@@ -274,7 +270,6 @@ public class RegisterActivity extends AppCompatActivity {
         edEmailRegister.setEnabled(false);
         edPasswordRegister.setEnabled(false);
         edVerifyPW.setEnabled(false);
-        spinnerRole.setEnabled(false);
         checkBoxAgreeTerms.setEnabled(false);
         txtLoginFromRegister.setEnabled(false);
         if (txtGuestMode != null) txtGuestMode.setEnabled(false);
@@ -289,7 +284,6 @@ public class RegisterActivity extends AppCompatActivity {
         edEmailRegister.setEnabled(true);
         edPasswordRegister.setEnabled(true);
         edVerifyPW.setEnabled(true);
-        spinnerRole.setEnabled(true);
         checkBoxAgreeTerms.setEnabled(true);
         txtLoginFromRegister.setEnabled(true);
         if (txtGuestMode != null) txtGuestMode.setEnabled(true);

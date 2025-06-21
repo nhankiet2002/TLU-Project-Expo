@@ -31,6 +31,7 @@ public class User {
     private String passwordHash;
 
     public User() {
+        this.role = new Role("User");
     }
 
     public User(String avatarUrl, String className, String email, String fullName, boolean isLocked, String passwordHash) {
@@ -40,6 +41,7 @@ public class User {
         this.fullName = fullName;
         this.isLocked = isLocked;
         this.passwordHash = passwordHash;
+        this.role = new Role("User");
     }
 
 
