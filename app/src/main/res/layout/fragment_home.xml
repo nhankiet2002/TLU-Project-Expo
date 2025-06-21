@@ -23,8 +23,8 @@
             app:title="Trang chủ"
             app:titleTextColor="@android:color/black"
             app:titleTextAppearance="@style/Toolbar.TitleText"
-        app:menu="@menu/main_toolbar_menu"
-        app:layout_scrollFlags="scroll|enterAlways|snap" />
+            app:menu="@menu/main_toolbar_menu"
+            app:layout_scrollFlags="scroll|enterAlways|snap" />
 
         <!-- Container cho Thanh tìm kiếm và Nút sắp xếp -->
         <RelativeLayout
@@ -72,9 +72,11 @@
         </RelativeLayout>
 
         <!-- Container cho các Chip bộ lọc -->
-        <RelativeLayout
+        <!-- BỌC ChipGroup TRONG HorizontalScrollView -->
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:scrollbars="none"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
@@ -84,8 +86,6 @@
                 android:id="@+id/chipGroupFilter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
                 app:singleLine="true">
                 <!-- Các Chip của bạn ở đây -->
                 <com.google.android.material.chip.Chip
@@ -97,7 +97,9 @@
                     android:textColor="@android:color/black"
                     app:chipBackgroundColor="@android:color/white"
                     app:chipStrokeColor="@color/black"
-                    app:chipStrokeWidth="1dp" />
+                    app:chipStrokeWidth="1dp"
+                    app:closeIconVisible="false"
+                    app:checkedIconVisible="false" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_cong_nghe"
@@ -108,7 +110,9 @@
                     android:textColor="@android:color/black"
                     app:chipBackgroundColor="@android:color/white"
                     app:chipStrokeColor="@color/black"
-                    app:chipStrokeWidth="1dp" />
+                    app:chipStrokeWidth="1dp"
+                    app:closeIconVisible="false"
+                    app:checkedIconVisible="false" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_trang_thai"
@@ -119,9 +123,11 @@
                     android:textColor="@android:color/black"
                     app:chipBackgroundColor="@android:color/white"
                     app:chipStrokeColor="@color/black"
-                    app:chipStrokeWidth="1dp" />
+                    app:chipStrokeWidth="1dp"
+                    app:closeIconVisible="false"
+                    app:checkedIconVisible="false" />
             </com.google.android.material.chip.ChipGroup>
-        </RelativeLayout>
+        </HorizontalScrollView>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -145,7 +151,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                tools:listitem="@layout/list_item" />
+                tools:listitem="@layout/list_item_project" />
 
             <ProgressBar
                 android:id="@+id/progressBarLoadMore"

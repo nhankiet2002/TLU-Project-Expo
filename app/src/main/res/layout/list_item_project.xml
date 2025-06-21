@@ -44,16 +44,14 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textStyle="bold"
                 android:textColor="@android:color/black" />
-
             <TextView
-                android:id="@+id/textViewDescription"
+                android:id="@+id/textViewCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Mô tả"
+                tools:text="Lĩnh vực"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textColor="@android:color/darker_gray"
-                android:layout_marginTop="2dp"/>
-
+                android:layout_marginTop="4dp"/>
             <TextView
                 android:id="@+id/textViewAuthor"
                 android:layout_width="match_parent"
@@ -62,16 +60,9 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="4dp"/>
 
-            <TextView
-                android:id="@+id/textViewTechnology"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="Công nghệ"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginTop="2dp"/>
+
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

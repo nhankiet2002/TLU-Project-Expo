@@ -19,8 +19,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.cse441.tluprojectexpo.ui.createproject.CreateProjectActivity; // THÊM: Import Activity mới
-import com.cse441.tluprojectexpo.fragment.HomeFragment;
-import com.cse441.tluprojectexpo.adapter.ViewPagerAdapter;
+import com.cse441.tluprojectexpo.ui.Home.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnScrollInteractionListener {

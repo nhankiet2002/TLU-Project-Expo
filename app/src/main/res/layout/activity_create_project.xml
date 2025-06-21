@@ -67,7 +67,7 @@
                     app:boxCornerRadiusTopEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
                     app:boxCornerRadiusBottomEnd="8dp"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="8dp">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_project_name"
                         android:layout_width="match_parent"
@@ -112,7 +112,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
-                    android:layout_marginBottom="20dp">
+                    android:layout_marginBottom="16dp">
                     <ImageView
                         android:id="@+id/iv_project_image_preview"
                         android:layout_width="match_parent"
@@ -129,31 +129,49 @@
                         android:src="@drawable/ic_add_circle" />
                 </FrameLayout>
                 <!-- ... (Lĩnh vực) ... -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/til_category"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                <!-- Lĩnh vực/ Chủ đề - THAY ĐỔI CHO CHỌN NHIỀU -->
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Lĩnh vực/ Chủ đề"
+                    android:text="Lĩnh vực/Chủ đề dự án "
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="4dp"/>
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group_categories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:chipSpacingHorizontal="4dp"
+                    app:chipSpacingVertical="4dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_category"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nhập và chọn lĩnh vực"
                     app:boxCornerRadiusTopStart="8dp"
                     app:boxCornerRadiusTopEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
                     app:boxCornerRadiusBottomEnd="8dp"
                     android:layout_marginBottom="16dp">
+
                     <AutoCompleteTextView
-                        android:id="@+id/actv_category"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="none"
-                        tools:ignore="LabelFor" />
+                        android:id="@+id/actv_category_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"
+                    android:completionThreshold="1"
+                    tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
                 <!-- ... (Công nghệ) ... -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Công nghệ sử dụng (chọn từ gợi ý)"
+                    android:text="Công nghệ sử dụng"
                     android:textAppearance="?attr/textAppearanceSubtitle1"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="1dp"
                     android:layout_marginBottom="4dp"/>
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chip_group_technologies"
@@ -255,7 +273,7 @@
                     android:orientation="vertical"
                     android:layout_gravity="start"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="20dp">
+                    android:layout_marginBottom="8dp">
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_add_media"
                         android:layout_width="match_parent"
@@ -275,7 +293,7 @@
                     app:boxCornerRadiusTopEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
                     app:boxCornerRadiusBottomEnd="8dp"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="8dp">
                     <AutoCompleteTextView
                         android:id="@+id/actv_status"
                         android:layout_width="match_parent"
