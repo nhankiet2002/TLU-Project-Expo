@@ -94,7 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
         String email = edEmailRegister.getText().toString().trim();
         String password = edPasswordRegister.getText().toString().trim();
         String verifyPassword = edVerifyPW.getText().toString().trim();
-        String selectedRole = "User";
+        String selectedRole = "role_user";
 
         Log.d(TAG, "Dữ liệu đăng ký: FullName='" + fullName + "', Email='" + email + "', Role='" + selectedRole + "'");
 
