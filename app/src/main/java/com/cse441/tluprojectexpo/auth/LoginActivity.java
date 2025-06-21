@@ -57,6 +57,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -228,13 +229,13 @@ public class LoginActivity extends AppCompatActivity {
                         String userRoleName = null;
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             UserRole userRole = document.toObject(UserRole.class);
-                            userRoleName = userRole.getRole();
+                            userRoleName = userRole.getRoleId();
                             Log.d(TAG, "Fetched Role Name from UserRoles: " + userRoleName);
                             break;
                         }
 
                         if (userRoleName != null) {
-                            if ("Admin".equalsIgnoreCase(userRoleName)) {
+                            if ("role_admin".equalsIgnoreCase(userRoleName)) {
                                 Log.d(TAG, "Navigating to Admin Dashboard.");
                                 navigateToAdminDashboard();
                             } else {

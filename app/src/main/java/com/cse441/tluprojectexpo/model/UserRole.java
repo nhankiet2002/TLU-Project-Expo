@@ -26,9 +26,9 @@ public class UserRole {
 
     // Getters and Setters cho role (đã sửa)
     @PropertyName("RoleId")
-    public String getRole() { return role; }
+    public String getRoleId() { return role; }
 
     @PropertyName("RoleId")
-    public void setRole(String role) { this.role = role; }
+    public void setRoleId(String role) { this.role = role; }
 
 }
