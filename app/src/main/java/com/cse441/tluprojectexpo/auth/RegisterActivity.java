@@ -120,10 +120,6 @@ public class RegisterActivity extends AppCompatActivity {
             edVerifyPW.setError("Mật khẩu xác nhận không khớp.");
             return;
         }
-        if (spinnerRole.getSelectedItemPosition() == 0) {
-            Toast.makeText(this, "Vui lòng chọn vai trò của bạn.", Toast.LENGTH_SHORT).show();
-            return;
-        }
         if (!checkBoxAgreeTerms.isChecked()) {
             Toast.makeText(this, "Vui lòng chấp nhận các điều khoản.", Toast.LENGTH_SHORT).show();
             return;
