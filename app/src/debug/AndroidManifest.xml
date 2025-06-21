@@ -13,7 +13,7 @@
 
         <!-- Đặt DebugMenuActivity làm Activity khởi động MỚI cho bản debug -->
         <activity
-            android:name=".DebugMenu"
+            android:name=".admin.AdminHomePage"
             android:exported="true"
             tools:node="replace">
 <!--            <intent-filter>-->

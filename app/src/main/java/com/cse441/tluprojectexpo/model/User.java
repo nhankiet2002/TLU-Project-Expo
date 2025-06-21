@@ -5,7 +5,9 @@ import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
 
     @DocumentId
     private String userId;
