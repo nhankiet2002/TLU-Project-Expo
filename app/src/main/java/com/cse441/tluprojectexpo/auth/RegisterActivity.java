@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText edFullName, edEmailRegister, edPasswordRegister, edVerifyPW;
-    private Spinner spinnerRole;
+
     private MaterialButton btnRegister;
     private CheckBox checkBoxAgreeTerms;
     private TextView txtLoginFromRegister;
@@ -64,17 +64,13 @@ public class RegisterActivity extends AppCompatActivity {
         edEmailRegister = findViewById(R.id.edEmailRegister);
         edPasswordRegister = findViewById(R.id.edPasswordRegister);
         edVerifyPW = findViewById(R.id.edVarifyPW); // ĐÃ SỬA TỪ edVarifyPW SANG edVerifyPW
-        spinnerRole = findViewById(R.id.spinner);
         btnRegister = findViewById(R.id.btnRegister);
         checkBoxAgreeTerms = findViewById(R.id.checkBox);
         txtLoginFromRegister = findViewById(R.id.txtLoginFromRegister);
         txtGuestMode = findViewById(R.id.txtGuestMode);
         progressBar = findViewById(R.id.progressBar);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.user_roles, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerRole.setAdapter(adapter);
+
 
         btnRegister.setOnClickListener(v -> registerUser());
 
@@ -98,7 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
         String email = edEmailRegister.getText().toString().trim();
         String password = edPasswordRegister.getText().toString().trim();
         String verifyPassword = edVerifyPW.getText().toString().trim();
-        String selectedRole = spinnerRole.getSelectedItem().toString();
+        String selectedRole = "User";
 
         Log.d(TAG, "Dữ liệu đăng ký: FullName='" + fullName + "', Email='" + email + "', Role='" + selectedRole + "'");
 
@@ -113,12 +109,19 @@ public class RegisterActivity extends AppCompatActivity {
             edEmailRegister.setError("Email không hợp lệ.");
             return;
         }
-        if (password.length() < 6) {
-            edPasswordRegister.setError("Mật khẩu phải có ít nhất 6 ký tự.");
+
+        // Cập nhật kiểm tra mật khẩu: yêu cầu chữ hoa, chữ thường, số, và ký tự đặc biệt
+        if (!isValidPassword(password)) {
+            edPasswordRegister.setError("Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
             return;
         }
+
         if (!password.equals(verifyPassword)) {
             edVerifyPW.setError("Mật khẩu xác nhận không khớp.");
+            return;
+        }
+        if (spinnerRole.getSelectedItemPosition() == 0) {
+            Toast.makeText(this, "Vui lòng chọn vai trò của bạn.", Toast.LENGTH_SHORT).show();
             return;
         }
         if (!checkBoxAgreeTerms.isChecked()) {
@@ -143,9 +146,23 @@ public class RegisterActivity extends AppCompatActivity {
                                         if (authTask.isSuccessful()) {
                                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
                                             if (firebaseUser != null) {
-                                                // Hash mật khẩu trước khi lưu vào Firestore
-                                                String hashedPassword = hashPassword(password);
-                                                saveUserToFirestore(firebaseUser.getUid(), fullName, email, selectedRole, hashedPassword);
+                                                // Gửi link xác thực email
+                                                firebaseUser.sendEmailVerification()
+                                                        .addOnCompleteListener(verificationTask -> {
+                                                            if (verificationTask.isSuccessful()) {
+                                                                Log.d(TAG, "Email xác thực đã được gửi.");
+                                                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công! Vui lòng kiểm tra email của bạn để xác thực tài khoản.", Toast.LENGTH_LONG).show();
+
+                                                                // Hash mật khẩu trước khi lưu vào Firestore
+                                                                String hashedPassword = hashPassword(password);
+                                                                saveUserToFirestore(firebaseUser.getUid(), fullName, email, selectedRole, hashedPassword);
+                                                            } else {
+                                                                Log.e(TAG, "Không thể gửi email xác thực.", verificationTask.getException());
+                                                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công nhưng không thể gửi email xác thực. Vui lòng thử lại sau.", Toast.LENGTH_LONG).show();
+                                                                // Nếu không gửi được email xác thực, có thể ẩn progressBar và cho phép người dùng thử lại
+                                                                hideProgressBar();
+                                                            }
+                                                        });
                                             }
                                         } else {
                                             hideProgressBar();
@@ -177,17 +194,17 @@ public class RegisterActivity extends AppCompatActivity {
                 .addOnCompleteListener(userSaveTask -> {
                     if (userSaveTask.isSuccessful()) {
                         Map<String, Object> roleData = new HashMap<>();
-                        roleData.put("userId", uid);
-                        roleData.put("role", role);
-                        roleData.put("assignedAt", new Date());
+                        roleData.put("UserId", uid);
+                        roleData.put("RoleId", role);
 
                         db.collection("UserRoles").add(roleData)
                                 .addOnCompleteListener(roleSaveTask -> {
                                     hideProgressBar();
                                     if (roleSaveTask.isSuccessful()) {
-                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_LONG).show();
+                                        // Đã chuyển Toast "Đăng ký thành công!" lên sau sendEmailVerification
                                         GuestModeHandler.setGuestModePreference(RegisterActivity.this, false);
-                                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                        // Chuyển về màn hình OpenActivity
+                                        Intent intent = new Intent(RegisterActivity.this, OpenActivity.class); // <-- THAY ĐỔI Ở ĐÂY
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                         startActivity(intent);
                                         finish();
@@ -219,6 +236,27 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Kiểm tra xem mật khẩu có đáp ứng các yêu cầu về độ mạnh hay không.
+     * Yêu cầu: ít nhất 6 ký tự, có chữ hoa, chữ thường, số, và ký tự đặc biệt.
+     * Ký tự đặc biệt bao gồm: !@#$%^&*()_+-=[]{};':"\|,<>.?
+     * @param password Mật khẩu cần kiểm tra.
+     * @return true nếu mật khẩu hợp lệ, ngược lại là false.
+     */
+    private boolean isValidPassword(String password) {
+        // Regex giải thích:
+        // (?=.*[0-9]): Phải chứa ít nhất một chữ số
+        // (?=.*[a-z]): Phải chứa ít nhất một chữ cái viết thường
+        // (?=.*[A-Z]): Phải chứa ít nhất một chữ cái viết hoa
+        // (?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]): Phải chứa ít nhất một ký tự đặc biệt
+        // .{6,}: Phải có ít nhất 6 ký tự (hoặc nhiều hơn)
+        String passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{6,}$";
+        Pattern pattern = Pattern.compile(passwordRegex);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
+
+
     private boolean isValidEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
         Pattern pattern = Pattern.compile(emailRegex);
@@ -235,7 +273,6 @@ public class RegisterActivity extends AppCompatActivity {
         edEmailRegister.setEnabled(false);
         edPasswordRegister.setEnabled(false);
         edVerifyPW.setEnabled(false);
-        spinnerRole.setEnabled(false);
         checkBoxAgreeTerms.setEnabled(false);
         txtLoginFromRegister.setEnabled(false);
         if (txtGuestMode != null) txtGuestMode.setEnabled(false);
@@ -250,7 +287,6 @@ public class RegisterActivity extends AppCompatActivity {
         edEmailRegister.setEnabled(true);
         edPasswordRegister.setEnabled(true);
         edVerifyPW.setEnabled(true);
-        spinnerRole.setEnabled(true);
         checkBoxAgreeTerms.setEnabled(true);
         txtLoginFromRegister.setEnabled(true);
         if (txtGuestMode != null) txtGuestMode.setEnabled(true);

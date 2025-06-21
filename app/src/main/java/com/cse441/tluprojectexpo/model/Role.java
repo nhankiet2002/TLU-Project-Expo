@@ -10,7 +10,7 @@ public class Role {
     @PropertyName("RoleName")
     private String roleName;
 
-    public Role(){}
+    public Role(String user){}
 
     public String getRoleId() {
         return roleId;
