@@ -2,6 +2,7 @@ package com.cse441.tluprojectexpo.admin;
 
 import android.os.Bundle;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -34,6 +35,8 @@ public class Dashboard extends AppCompatActivity {
         btnFeatured.setOnClickListener(v -> NavigationUtil.navigateTo(this, FeaturedManagementPage.class));
         btnCategory.setOnClickListener(v -> NavigationUtil.navigateTo(this, CatalogManagementPage.class));
         btnBackHome.setOnClickListener(v -> NavigationUtil.navigateTo(this, AdminHomePage.class));
-        //btnGoAdminProfile.setOnClickListener(v -> NavigationUtil.navigateTo(this, AdminProfilePage.class));
+        btnGoAdminProfile.setOnClickListener(v -> {
+            Toast.makeText(this, "Trang profile admin đang được phát triển", Toast.LENGTH_SHORT).show();
+        });
     }
 }

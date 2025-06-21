@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <!-- Quyền Internet -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Quyền đọc/ghi storage tuỳ theo phiên bản Android -->
     <!-- Dành cho thiết bị chạy Android 12L (API 32) trở xuống -->
@@ -12,9 +13,11 @@
         android:maxSdkVersion="28" /> <!-- Dành cho Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <!-- <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> Nếu dùng âm thanh -->
 
     <application
         android:name=".MyApplication"
+        tools:replace="android:fullBackupContent"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -33,7 +36,9 @@
             android:exported="false" />
         <activity
             android:name=".ProjectDetail"
-            android:exported="false" /> <!-- Admin Activities -->
+            android:exported="false" />
+
+        <!-- Admin Activities -->
         <activity
             android:name=".admin.UserDetailManagementPage"
             android:exported="false" />
@@ -57,17 +62,19 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".auth.RegisterActivity" />
         <activity android:name=".auth.CheckEmailActivity" />
         <activity android:name=".auth.LoginActivity" />
-        <activity android:name=".auth.ForgotPasswordActivity" /> <!-- Main App Activity -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
+        <activity android:name=".auth.ForgotPasswordActivity" />
+
+        <!-- Main App Activity -->
+        <activity android:name=".MainActivity"
+            android:exported="false"/>
+        <activity android:name=".auth.SettingProfileActivity" />
+        <activity android:name=".auth.SaveProfileSuccessfulActivity" />
     </application>
 
 </manifest>
