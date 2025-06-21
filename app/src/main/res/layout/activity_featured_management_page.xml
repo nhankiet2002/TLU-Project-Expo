@@ -37,21 +37,21 @@
         android:focusable="true"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
-            android:id="@+id/back_from_censor"
-            android:layout_width="40dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="4dp"
-            android:scaleType="fitXY"
+        <ImageButton
+            android:id="@+id/back_to_dashboard"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             app:srcCompat="@drawable/ic_arrow_back_left"
-            android:clickable="true"
-            android:focusable="true"/>
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitXY"
+            />
 
         <TextView
             android:textColor="#1D1B20"
             android:textSize="22sp"
             android:layout_marginBottom="1dp"
             android:layout_marginEnd="4dp"
+            android:layout_gravity="center_vertical"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="@string/featured"
@@ -83,7 +83,7 @@
             android:hint="@string/search_featured"
             />
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/btn_icon_search_censor"
+            android:id="@+id/btn_search_featured"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
@@ -118,7 +118,7 @@
             android:id="@+id/btn_add_featured"
             android:text="@string/add_project"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/button_see_more"
             app:backgroundTint="@null"
             android:layout_marginTop="10dp"
@@ -132,6 +132,7 @@
 
     <!--Item need to censor-->
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/hold_featured_projects"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/notice_featured"
@@ -155,6 +156,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 

@@ -22,18 +22,24 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
 
     private final Context context;
     private final List<User> userList;
-    private final OnUserSwitchListener listener;
+    private final OnUserSwitchListener switchListener;
+    private final OnUserClickListener clickListener;
 
     // Interface để gửi sự kiện click switch về Activity/Fragment
     public interface OnUserSwitchListener {
         void onUserLockStateChanged(User user, boolean isLocked);
     }
 
+    public interface OnUserClickListener {
+        void onUserItemClicked(User user);
+    }
+
     // Constructor
-    public UserManagementAdapter(Context context, List<User> userList, OnUserSwitchListener listener) {
+    public UserManagementAdapter(Context context, List<User> userList, OnUserSwitchListener switchListener, OnUserClickListener clickListener) {
         this.context = context;
         this.userList = userList;
-        this.listener = listener;
+        this.switchListener = switchListener;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -116,12 +122,20 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
                 // Thêm điều kiện `isPressed()` để đảm bảo code chỉ chạy khi người dùng
                 // thực sự nhấn vào switch, không phải khi code tự động setChecked.
                 if (buttonView.isPressed()) {
-                    if (listener != null) {
+                    if (switchListener != null) {
                         // isChecked là trạng thái MỚI của switch.
                         // isChecked = true (Bật)  -> isLocked phải là false
                         // isChecked = false (Tắt) -> isLocked phải là true
-                        listener.onUserLockStateChanged(user, !isChecked);
+                        switchListener.onUserLockStateChanged(user, !isChecked);
                     }
+                }
+            });
+
+            // Gán sự kiện click cho toàn bộ item view
+            itemView.setOnClickListener(v -> {
+                if (clickListener != null) {
+                    // Gọi phương thức trong interface và truyền vào user của item này
+                    clickListener.onUserItemClicked(user);
                 }
             });
         }

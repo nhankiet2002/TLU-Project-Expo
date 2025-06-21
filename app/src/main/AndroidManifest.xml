@@ -3,22 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Quyền Internet -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Quyền đọc/ghi storage tuỳ theo phiên bản Android -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Quyền đọc/ghi storage tuỳ theo phiên bản Android -->
     <!-- Dành cho thiết bị chạy Android 12L (API 32) trở xuống -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-
-    <!-- Dành cho Android 13+ -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" /> <!-- Dành cho Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-
     <!-- <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> Nếu dùng âm thanh -->
 
     <application
+        android:name=".MyApplication"
         tools:replace="android:fullBackupContent"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -28,9 +26,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TLUProjectExpo"
-        tools:targetApi="31"
-        android:name=".MyApplication">
-
+        tools:targetApi="31">
+        <activity
+            android:name=".admin.AdminHomePage"
+            android:exported="false" />
         <!-- Debug Activities -->
         <activity
             android:name=".DebugMenu"
@@ -57,9 +56,7 @@
             android:exported="false" />
         <activity
             android:name=".admin.UserManagementPage"
-            android:exported="false" />
-
-        <!-- Auth Activities -->
+            android:exported="false" /> <!-- Auth Activities -->
         <activity
             android:name=".auth.OpenActivity"
             android:exported="true">
@@ -74,7 +71,8 @@
         <activity android:name=".auth.ForgotPasswordActivity" />
 
         <!-- Main App Activity -->
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity"
+            android:exported="false"/>
         <activity android:name=".auth.SettingProfileActivity" />
         <activity android:name=".auth.SaveProfileSuccessfulActivity" />
     </application>
