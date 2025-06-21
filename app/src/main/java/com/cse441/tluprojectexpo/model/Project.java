@@ -95,7 +95,9 @@ public class Project implements Serializable {
     public String getDemoUrl() { return DemoUrl; }
     public void setDemoUrl(String demoUrl) { this.DemoUrl = demoUrl; }
 
+    @PropertyName("Status")
     public String getStatus() { return Status; }
+    @PropertyName("Status")
     public void setStatus(String status) { this.Status = status; }
 
     public String getCourseId() { return CourseId; }

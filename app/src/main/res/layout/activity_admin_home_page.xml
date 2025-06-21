@@ -56,6 +56,9 @@
             style="@style/Widget.MaterialComponents.Chip.Action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/black"
+            app:chipStrokeWidth="1dp"
             android:text="@string/field_subject" />
 
         <com.google.android.material.chip.Chip
@@ -63,6 +66,9 @@
             style="@style/Widget.MaterialComponents.Chip.Action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/black"
+            app:chipStrokeWidth="1dp"
             android:text="@string/technology" />
 
         <com.google.android.material.chip.Chip
@@ -70,6 +76,9 @@
             style="@style/Widget.MaterialComponents.Chip.Action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/black"
+            app:chipStrokeWidth="1dp"
             android:text="@string/status_2" />
 
     </com.google.android.material.chip.ChipGroup>
@@ -94,7 +103,7 @@
         android:layout_height="50dp"
         android:minHeight="50dp"
         android:layout_alignParentBottom="true"
-        android:background="?android:attr/windowBackground"
+        android:background="@android:color/white"
         app:elevation="0dp"
         app:itemIconSize="24dp"
         app:itemPaddingTop="5dp"

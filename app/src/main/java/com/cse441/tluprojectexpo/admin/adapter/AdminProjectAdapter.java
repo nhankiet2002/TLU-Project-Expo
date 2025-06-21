@@ -59,7 +59,7 @@ public class AdminProjectAdapter extends RecyclerView.Adapter<AdminProjectAdapte
 
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView thumbnail, ivFeaturedStar;
-        TextView projectName, field, technology, creator;
+        TextView projectName, field, technology, creator, projectStatus;
         Button btnSetFeatured;
 
         ViewHolder(View itemView) {
@@ -71,11 +71,30 @@ public class AdminProjectAdapter extends RecyclerView.Adapter<AdminProjectAdapte
             technology = itemView.findViewById(R.id.technology);
             creator = itemView.findViewById(R.id.creator);
             btnSetFeatured = itemView.findViewById(R.id.btn_set_featured);
+            projectStatus = (TextView) itemView.findViewById(R.id.project_status);
         }
 
         void bind(final Project project) {
             projectName.setText(project.getTitle());
             creator.setText("Tác giả: " + (project.getCreatorFullName() != null ? project.getCreatorFullName() : "N/A"));
+
+            String status = project.getStatus();
+            if (status != null && !status.isEmpty()) {
+                projectStatus.setText(status);
+                projectStatus.setVisibility(View.VISIBLE);
+
+                // Kiểm tra giá trị của status và đặt background tương ứng
+                if (status.equalsIgnoreCase("Hoàn thành")) {
+                    projectStatus.setText("Đã hoàn thành");
+                    projectStatus.setBackgroundResource(R.drawable.finish);
+                } else if (status.equalsIgnoreCase("Đang thực hiện")) {
+                    projectStatus.setText("Đang thực hiện");
+                    projectStatus.setBackgroundResource(R.drawable.progress_background);
+                }else{
+                    projectStatus.setText("Tạm dừng");
+                    projectStatus.setBackgroundResource(R.drawable.stopped);
+                }
+            }
 
             if (project.getCategoryNames() != null && !project.getCategoryNames().isEmpty()) {
                 field.setText("Lĩnh vực: " + project.getCategoryNames().get(0));

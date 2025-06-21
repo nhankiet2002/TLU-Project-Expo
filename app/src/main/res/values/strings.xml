@@ -46,6 +46,8 @@
     <string name="search_project">Tìm kiếm dự án</string>
     <string name="field_subject">Lĩnh vực/Chủ đề</string>
     <string name="make_featured">Làm nổi bật</string>
+    <string name="in_progress">Đang thực hiện</string>
+    <string name="finished">Đã hoàn thành</string>
 
     <!-- Các string của nhánh main -->
     <string name="app_name">TLUProjectExpo</string>
