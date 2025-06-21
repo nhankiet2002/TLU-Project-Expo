@@ -234,7 +234,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         if (userRoleName != null) {
-                            if ("Admin".equalsIgnoreCase(userRoleName)) {
+                            if ("role_admin".equalsIgnoreCase(userRoleName)) {
                                 Log.d(TAG, "Navigating to Admin Dashboard.");
                                 navigateToAdminDashboard();
                             } else {
