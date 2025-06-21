@@ -24,9 +24,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.cse441.tluprojectexpo.MainActivity; // Màn hình chính cho người dùng thường
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.Dashboard; // Màn hình Dashboard cho Admin
-// import com.cse441.tluprojectexpo.model.Role; // KHÔNG CẦN NỮA VÌ TRUY VẤN TRỰC TIẾP ROLE TỪ USERROLE
-import com.cse441.tluprojectexpo.model.UserRole; // Import UserRole (đã được cập nhật)
-import com.cse441.tluprojectexpo.utils.GuestModeHandler; // Import lớp tiện ích
+import com.cse441.tluprojectexpo.model.UserRole;
+import com.cse441.tluprojectexpo.utils.GuestModeHandler;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -35,9 +34,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot; // Import DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -156,17 +155,47 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                Log.d(TAG, "Đăng nhập thành công.");
-                                saveRememberMePreferences(email, password);
+                                // Bắt đầu kiểm tra trạng thái khóa tài khoản
+                                db.collection("Users").document(user.getUid()).get()
+                                        .addOnCompleteListener(userDocTask -> {
+                                            if (userDocTask.isSuccessful()) {
+                                                DocumentSnapshot document = userDocTask.getResult();
+                                                if (document.exists()) {
+                                                    Boolean isLocked = document.getBoolean("IsLocked");
+                                                    // Mặc định không khóa nếu trường IsLocked không tồn tại hoặc null
+                                                    if (isLocked != null && isLocked) {
+                                                        // Tài khoản bị khóa
+                                                        mAuth.signOut(); // Đăng xuất người dùng ngay lập tức
+                                                        hideProgressBar();
+                                                        Toast.makeText(LoginActivity.this, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.", Toast.LENGTH_LONG).show();
+                                                        Log.d(TAG, "Tài khoản bị khóa: " + user.getUid());
+                                                    } else {
 
-                                // Logic kiểm tra xác thực email đã được giữ lại ở đây
-                                if (!user.isEmailVerified()) {
-                                    Toast.makeText(LoginActivity.this, "Email của bạn chưa được xác thực. Một số tính năng có thể bị hạn chế. Vui lòng kiểm tra email để xác thực tài khoản.", Toast.LENGTH_LONG).show();
-                                    // Vẫn cho vào MainActivity nếu email chưa xác thực
-                                    checkUserRoleAndNavigate(user.getUid()); // Gọi hàm kiểm tra vai trò để điều hướng
-                                } else {
-                                    checkUserRoleAndNavigate(user.getUid()); // Email đã xác thực, kiểm tra vai trò để điều hướng
-                                }
+                                                        // Tài khoản không bị khóa, tiếp tục logic thông thường
+                                                        Log.d(TAG, "Đăng nhập thành công.");
+                                                        saveRememberMePreferences(email, password);
+
+                                                        if (!user.isEmailVerified()) {
+                                                            Toast.makeText(LoginActivity.this, "Email của bạn chưa được xác thực. Một số tính năng có thể bị hạn chế. Vui lòng kiểm tra email để xác thực tài khoản.", Toast.LENGTH_LONG).show();
+                                                        }
+                                                        checkUserRoleAndNavigate(user.getUid());
+                                                    }
+                                                } else {
+                                                    // Document người dùng không tồn tại trong Firestore
+                                                    // Điều này có thể xảy ra nếu người dùng được tạo qua Authentication nhưng chưa có document trong Users collection
+                                                    Log.e(TAG, "Không tìm thấy thông tin người dùng trong Firestore cho UID: " + user.getUid());
+                                                    mAuth.signOut(); // Đăng xuất để tránh trạng thái không nhất quán
+                                                    hideProgressBar();
+                                                    Toast.makeText(LoginActivity.this, "Lỗi: Không thể truy xuất thông tin tài khoản. Vui lòng thử lại hoặc liên hệ hỗ trợ.", Toast.LENGTH_LONG).show();
+                                                }
+                                            } else {
+                                                // Lỗi khi truy vấn Firestore
+                                                Log.e(TAG, "Lỗi khi lấy trạng thái khóa từ Firestore: " + userDocTask.getException().getMessage());
+                                                mAuth.signOut(); // Đăng xuất để tránh trạng thái không nhất quán
+                                                hideProgressBar();
+                                                Toast.makeText(LoginActivity.this, "Lỗi: Không thể kiểm tra trạng thái tài khoản. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
 
                             } else {
                                 hideProgressBar();
@@ -199,28 +228,25 @@ public class LoginActivity extends AppCompatActivity {
                         String userRoleName = null;
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             UserRole userRole = document.toObject(UserRole.class);
-                            // Lấy trực tiếp trường 'role' (String)
-                            userRoleName = userRole.getRole(); // <-- Lấy role trực tiếp từ UserRole
+                            userRoleName = userRole.getRole();
                             Log.d(TAG, "Fetched Role Name from UserRoles: " + userRoleName);
-                            break; // Lấy vai trò đầu tiên tìm thấy
+                            break;
                         }
 
                         if (userRoleName != null) {
-                            if ("Admin".equalsIgnoreCase(userRoleName)) { // So sánh không phân biệt hoa thường
+                            if ("Admin".equalsIgnoreCase(userRoleName)) {
                                 Log.d(TAG, "Navigating to Admin Dashboard.");
                                 navigateToAdminDashboard();
-                            } else { // Mặc định là User hoặc các vai trò khác không phải Admin
+                            } else {
                                 Log.d(TAG, "Navigating to Main Activity.");
                                 navigateToMainActivity();
                             }
                         } else {
-                            // Trường hợp không tìm thấy 'role' trong document UserRoles
                             Log.e(TAG, "Lỗi: Không tìm thấy trường 'role' trong UserRole cho userId: " + userId);
                             Toast.makeText(LoginActivity.this, "Lỗi: Không tìm thấy vai trò người dùng. Mặc định vào màn hình người dùng.", Toast.LENGTH_LONG).show();
                             navigateToMainActivity();
                         }
                     } else {
-                        // Trường hợp không tìm thấy UserRole cho userId
                         Log.e(TAG, "Lỗi khi lấy UserRole từ Firestore hoặc không tìm thấy UserRole cho userId: " + userId, task.getException());
                         Toast.makeText(LoginActivity.this, "Lỗi: Không thể lấy vai trò người dùng. Mặc định vào màn hình người dùng.", Toast.LENGTH_LONG).show();
                         navigateToMainActivity();
