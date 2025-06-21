@@ -1,3 +1,4 @@
+// CreateProjectActivity.java
 package com.cse441.tluprojectexpo.ui.createproject;
 
 import android.app.Activity;
@@ -32,11 +33,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.LinkItem;
 import com.cse441.tluprojectexpo.model.User;
+import com.cse441.tluprojectexpo.ui.createproject.AddMemberDialogFragment;
 import com.cse441.tluprojectexpo.ui.createproject.uimanager.AddedLinksUiManager;
 import com.cse441.tluprojectexpo.ui.createproject.uimanager.MediaGalleryUiManager;
 import com.cse441.tluprojectexpo.ui.createproject.uimanager.SelectedMembersUiManager;
@@ -77,16 +78,17 @@ public class CreateProjectActivity extends AppCompatActivity implements
     private static final String TAG = "CreateProjectActivity";
 
     // --- CỜ ĐỂ BẬT/TẮT CHẾ ĐỘ TEST VỚI USER GIẢ LẬP ---
-    private static final boolean IS_TESTING_WITH_MOCK_USER = false;
+    // private static final boolean IS_TESTING_WITH_MOCK_USER = true;
+    private static final boolean IS_TESTING_WITH_MOCK_USER = false; // Chạy bình thường
     private static final String MOCK_USER_ID = "user_004";
     private static final String MOCK_USER_DISPLAY_NAME = "Kiet Debug User";
     private static final String MOCK_USER_EMAIL = "kiet.debug@example.com";
     // ----------------------------------------------------
 
-    // ... (Khai báo views và các biến khác giữ nguyên) ...
     private TextInputEditText etProjectName, etProjectDescription;
-    private AutoCompleteTextView actvCategory, actvStatus;
+    private AutoCompleteTextView actvCategoryInput, actvStatus;
     private TextInputLayout tilProjectName, tilProjectDescription, tilCategory, tilStatus;
+    private ChipGroup chipGroupCategories;
     private ChipGroup chipGroupTechnologies;
     private AutoCompleteTextView actvTechnologyInput;
     private TextInputLayout tilTechnologyInput;
@@ -99,20 +101,25 @@ public class CreateProjectActivity extends AppCompatActivity implements
     private LinearLayout llSelectedMembersContainer, llAddedLinksContainer;
     private LinearLayout llMemberSectionRoot, llLinkSectionRoot, llMediaSectionRoot;
     private ProgressBar pbCreatingProject;
+
     private Uri projectImageUri = null;
     private List<Uri> selectedMediaUris = new ArrayList<>();
     private List<User> selectedProjectUsers = new ArrayList<>();
     private Map<String, String> userRolesInProject = new HashMap<>();
     private List<LinkItem> projectLinks = new ArrayList<>();
     private List<String> selectedTechnologyNames = new ArrayList<>();
+    private List<String> selectedCategoryNames = new ArrayList<>();
+
     private List<String> categoryNameListForDropdown = new ArrayList<>();
     private Map<String, String> categoryNameToIdMap = new HashMap<>();
     private List<String> statusNameListForDropdown = new ArrayList<>();
     private List<String> allAvailableTechnologyNames = new ArrayList<>();
     private Map<String, String> technologyNameToIdMap = new HashMap<>();
+
     private ArrayAdapter<String> categoryAdapter;
     private ArrayAdapter<String> statusAdapter;
     private ArrayAdapter<String> technologyAdapter;
+
     private FirebaseAuth mAuth;
     private PermissionManager permissionManager;
     private ActivityResultLauncher<String[]> permissionLauncher;
@@ -120,23 +127,34 @@ public class CreateProjectActivity extends AppCompatActivity implements
     private CloudinaryUploadService cloudinaryUploadService;
     private FirestoreService firestoreService;
     private ProjectCreationService projectCreationService;
+
     private SelectedMembersUiManager selectedMembersUiManager;
     private AddedLinksUiManager addedLinksUiManager;
     private MediaGalleryUiManager mediaGalleryUiManager;
+
     private static final int ACTION_PICK_PROJECT_IMAGE = 1;
     private static final int ACTION_PICK_MEDIA = 2;
     private int currentPickerAction;
     private boolean hasUserMadeChanges = false;
 
+    // Hàm kiểm tra đăng nhập và hiển thị thông báo nếu cần
+    // TẠM THỜI LUÔN TRẢ VỀ TRUE ĐỂ DEBUG VẤN ĐỀ KHÁC
     private boolean checkLoginAndNotify(String actionMessage) {
         if (mAuth.getCurrentUser() == null && !IS_TESTING_WITH_MOCK_USER) {
-            if (this != null && !isFinishing() && !isDestroyed()) {
+            if (!isFinishing() && !isDestroyed()) {
                 UiHelper.showInfoDialog(this, "Yêu cầu đăng nhập", "Vui lòng đăng nhập để " + actionMessage + ".");
             }
-            return false;
+            return false; // Vẫn trả về false để logic gọi nó biết là chưa đăng nhập
         }
-        return true;
+        return true; // Đã đăng nhập hoặc đang test
     }
+    // PHIÊN BẢN TẠM THỜI ĐỂ DEBUG VĂNG APP (LUÔN CHO PHÉP HÀNH ĐỘNG)
+    // private boolean checkLoginAndNotify(String actionMessage) {
+    //     Log.d(TAG, "checkLoginAndNotify called for: " + actionMessage + ". Current user: " + (mAuth.getCurrentUser() == null ? "null" : mAuth.getCurrentUser().getUid()));
+    //     // Tạm thời luôn trả về true để không chặn hành động, giúp debug lỗi văng app khác nếu có
+    //     return true;
+    // }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -154,7 +172,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
         initializeViews(rootView);
         initializeUiManagers();
         setupAdaptersAndData();
-        addCurrentUserAsMember(); // Gọi trước để cập nhật nút tạo dự án
+        addCurrentUserAsMember();
         setupEventListeners();
         updateAllUIs();
         setupInputValidationListeners();
@@ -185,9 +203,12 @@ public class CreateProjectActivity extends AppCompatActivity implements
         etProjectDescription = findViewById(R.id.et_project_description);
         tilProjectName = findViewById(R.id.til_project_name);
         tilProjectDescription = findViewById(R.id.til_project_description);
-        actvCategory = findViewById(R.id.actv_category);
-        actvStatus = findViewById(R.id.actv_status);
+
+        chipGroupCategories = findViewById(R.id.chip_group_categories);
+        actvCategoryInput = findViewById(R.id.actv_category_input);
         tilCategory = findViewById(R.id.til_category);
+
+        actvStatus = findViewById(R.id.actv_status);
         tilStatus = findViewById(R.id.til_status);
         chipGroupTechnologies = findViewById(R.id.chip_group_technologies);
         actvTechnologyInput = findViewById(R.id.actv_technology_input);
@@ -207,19 +228,31 @@ public class CreateProjectActivity extends AppCompatActivity implements
         flexboxMediaPreviewContainer = findViewById(R.id.flexbox_media_preview_container);
         tvMediaGalleryLabel = findViewById(R.id.tv_media_gallery_label);
         btnCreateProject = findViewById(R.id.btn_create_project);
+
         pbCreatingProject = findViewById(R.id.pb_creating_project_activity);
         if (pbCreatingProject == null) {
             pbCreatingProject = new ProgressBar(this, null, android.R.attr.progressBarStyleLarge);
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.CENTER_IN_PARENT);
-            pbCreatingProject.setLayoutParams(params);
-            if (findViewById(android.R.id.content).getRootView() instanceof ViewGroup) {
-                ((ViewGroup) findViewById(android.R.id.content).getRootView()).addView(pbCreatingProject);
+            ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content).getRootView();
+            if (rootView instanceof RelativeLayout || rootView instanceof FrameLayout) {
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.addRule(RelativeLayout.CENTER_IN_PARENT);
+                pbCreatingProject.setLayoutParams(params);
+                try { rootView.addView(pbCreatingProject); }
+                catch (IllegalStateException e) { Log.w(TAG, "ProgressBar already added to root.", e); }
+            } else {
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.gravity = android.view.Gravity.CENTER;
+                pbCreatingProject.setLayoutParams(params);
+                if (rootView != null) {
+                    try { rootView.addView(pbCreatingProject); }
+                    catch (IllegalStateException e) { Log.w(TAG, "ProgressBar already added to root (LinearLayout fallback).", e); }
+                }
             }
+            pbCreatingProject.setZ(10f);
             pbCreatingProject.setVisibility(View.GONE);
         } else {
-            pbCreatingProject.setVisibility(View.GONE); // Đảm bảo ẩn ban đầu nếu có trong XML
+            pbCreatingProject.setVisibility(View.GONE);
         }
     }
 
@@ -241,13 +274,16 @@ public class CreateProjectActivity extends AppCompatActivity implements
     private void setupAdaptersAndData() {
         if (firestoreService == null) return;
         categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, categoryNameListForDropdown);
-        if (actvCategory != null) actvCategory.setAdapter(categoryAdapter);
+        if (actvCategoryInput != null) actvCategoryInput.setAdapter(categoryAdapter);
         firestoreService.fetchCategories(new FirestoreService.CategoriesFetchListener() {
             @Override
             public void onCategoriesFetched(List<String> fetchedCategoryNames, Map<String, String> fetchedNameToIdMap) {
                 categoryNameListForDropdown.clear(); categoryNameListForDropdown.addAll(fetchedCategoryNames);
                 categoryNameToIdMap.clear(); categoryNameToIdMap.putAll(fetchedNameToIdMap);
-                if (categoryAdapter != null) categoryAdapter.notifyDataSetChanged();
+                if (categoryAdapter != null) {
+                    categoryAdapter.getFilter().filter(null);
+                    categoryAdapter.notifyDataSetChanged();
+                }
             }
             @Override
             public void onError(String errorMessage) {
@@ -336,7 +372,9 @@ public class CreateProjectActivity extends AppCompatActivity implements
         if (btnCreateProject != null) {
             btnCreateProject.setOnClickListener(v -> {
                 Log.d(TAG, "Nút Tạo dự án được nhấn.");
-                if (!checkLoginAndNotify("tạo dự án")) return;
+                if (!checkLoginAndNotify("tạo dự án")) {
+                    return;
+                }
                 if (validateForm()) {
                     startProjectCreationProcess();
                 } else {
@@ -344,21 +382,72 @@ public class CreateProjectActivity extends AppCompatActivity implements
                 }
             });
         }
+
+        // Listener cho Category Input - TẠM THỜI BỎ CHECK LOGIN ĐỂ DEBUG
+        if (actvCategoryInput != null) {
+            actvCategoryInput.setOnClickListener(v -> {
+                // if (!checkLoginAndNotify("chọn lĩnh vực")) { hideKeyboard(); return; }
+                if(!actvCategoryInput.isPopupShowing()) {
+                    actvCategoryInput.showDropDown();
+                }
+            });
+            actvCategoryInput.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus) {
+                    // if (!checkLoginAndNotify("chọn lĩnh vực")) { hideKeyboard(); findViewById(android.R.id.content).getRootView().requestFocus(); return; }
+                    if (!actvCategoryInput.isPopupShowing()) {
+                        actvCategoryInput.showDropDown();
+                    }
+                } else {
+                    if (actvCategoryInput.isPopupShowing()) {
+                        actvCategoryInput.dismissDropDown();
+                    }
+                }
+            });
+            actvCategoryInput.setOnItemClickListener((parent, view, position, id) -> {
+                String selectedCategory = (String) parent.getItemAtPosition(position);
+                addCategoryChip(selectedCategory);
+                actvCategoryInput.setText("");
+                actvCategoryInput.dismissDropDown();
+                hideKeyboard();
+            });
+            actvCategoryInput.setOnEditorActionListener((v, actionId, event) -> {
+                // if (!checkLoginAndNotify("thêm lĩnh vực")) { hideKeyboard(); return true; }
+                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                    String currentText = actvCategoryInput.getText().toString().trim();
+                    if (!currentText.isEmpty()) {
+                        if (categoryNameListForDropdown.contains(currentText)) {
+                            addCategoryChip(currentText);
+                            actvCategoryInput.setText("");
+                        } else {
+                            UiHelper.showToast(this, "Lĩnh vực '" + currentText + "' không hợp lệ.", Toast.LENGTH_SHORT);
+                        }
+                        hideKeyboard();
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+
+        // Listener cho Technology Input - TẠM THỜI BỎ CHECK LOGIN ĐỂ DEBUG
         if (actvTechnologyInput != null) {
             actvTechnologyInput.setOnClickListener(v -> {
-                if (!checkLoginAndNotify("chọn công nghệ")) { hideKeyboard(); return; }
-                if(!actvTechnologyInput.isPopupShowing()) actvTechnologyInput.showDropDown();
+                // if (!checkLoginAndNotify("chọn công nghệ")) { hideKeyboard(); return; }
+                if(!actvTechnologyInput.isPopupShowing()) {
+                    actvTechnologyInput.showDropDown();
+                }
             });
             actvTechnologyInput.setOnFocusChangeListener((v, hasFocus) -> {
                 if (hasFocus) {
-                    if (!checkLoginAndNotify("chọn công nghệ")) {
-                        hideKeyboard();
-                        findViewById(android.R.id.content).getRootView().requestFocus();
-                        return;
+                    // if (!checkLoginAndNotify("chọn công nghệ")) { hideKeyboard(); findViewById(android.R.id.content).getRootView().requestFocus(); return; }
+                    if (!actvTechnologyInput.isPopupShowing()) {
+                        actvTechnologyInput.showDropDown();
                     }
-                    if (!actvTechnologyInput.isPopupShowing()) actvTechnologyInput.showDropDown();
                 } else {
-                    if (actvTechnologyInput.isPopupShowing()) actvTechnologyInput.dismissDropDown();
+                    if (actvTechnologyInput.isPopupShowing()) {
+                        actvTechnologyInput.dismissDropDown();
+                    }
                 }
             });
             actvTechnologyInput.setOnItemClickListener((parent, view, position, id) -> {
@@ -369,7 +458,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
                 hideKeyboard();
             });
             actvTechnologyInput.setOnEditorActionListener((v, actionId, event) -> {
-                if (!checkLoginAndNotify("thêm công nghệ")) { hideKeyboard(); return true; }
+                // if (!checkLoginAndNotify("thêm công nghệ")) { hideKeyboard(); return true; }
                 if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
                     String currentText = actvTechnologyInput.getText().toString().trim();
                     if (!currentText.isEmpty()) {
@@ -386,7 +475,8 @@ public class CreateProjectActivity extends AppCompatActivity implements
                 return false;
             });
         }
-        UiHelper.setupDropdownToggle(tilCategory, actvCategory);
+
+        UiHelper.setupDropdownToggle(tilCategory, actvCategoryInput);
         UiHelper.setupDropdownToggle(tilStatus, actvStatus);
         if (tilTechnologyInput != null && actvTechnologyInput != null) {
             UiHelper.setupDropdownToggle(tilTechnologyInput, actvTechnologyInput);
@@ -398,7 +488,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
     private void setupInputValidationListeners() {
         addTextWatcherToClearError(etProjectName, tilProjectName);
         addTextWatcherToClearError(etProjectDescription, tilProjectDescription);
-        addTextWatcherToClearError(actvCategory, tilCategory);
+        addTextWatcherToClearError(actvCategoryInput, tilCategory);
         addTextWatcherToClearError(actvTechnologyInput, tilTechnologyInput);
         TextWatcher changesWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -407,7 +497,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
         };
         etProjectName.addTextChangedListener(changesWatcher);
         etProjectDescription.addTextChangedListener(changesWatcher);
-        actvCategory.addTextChangedListener(changesWatcher);
+        actvCategoryInput.addTextChangedListener(changesWatcher);
         actvStatus.addTextChangedListener(changesWatcher);
         actvTechnologyInput.addTextChangedListener(changesWatcher);
     }
@@ -445,11 +535,11 @@ public class CreateProjectActivity extends AppCompatActivity implements
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-        if(findViewById(android.R.id.content).getRootView() != null) findViewById(android.R.id.content).getRootView().clearFocus();
+        View rootView = findViewById(android.R.id.content).getRootView();
+        if(rootView != null) rootView.clearFocus();
     }
     private void handlePermissionResult(Map<String, Boolean> permissionsResult) {
-        boolean allGranted = true;
-        for(Boolean b : permissionsResult.values()) if(!b) allGranted = false;
+        boolean allGranted = permissionsResult.values().stream().allMatch(b -> b);
         if (allGranted) {
             if (currentPickerAction == ACTION_PICK_PROJECT_IMAGE && imagePickerDelegate != null) imagePickerDelegate.launchProjectImagePicker();
             else if (currentPickerAction == ACTION_PICK_MEDIA && imagePickerDelegate != null) imagePickerDelegate.launchMediaPicker();
@@ -483,6 +573,38 @@ public class CreateProjectActivity extends AppCompatActivity implements
             }
         }
     }
+
+    private void addCategoryChip(String categoryName) {
+        if (categoryName == null || categoryName.trim().isEmpty() || selectedCategoryNames.contains(categoryName)) {
+            if (selectedCategoryNames.contains(categoryName)) UiHelper.showToast(this, "Lĩnh vực '" + categoryName + "' đã được thêm.", Toast.LENGTH_SHORT);
+            return;
+        }
+        if (chipGroupCategories == null) return;
+        if (selectedCategoryNames.size() >= 3) {
+            UiHelper.showToast(this, "Bạn chỉ có thể chọn tối đa 3 lĩnh vực.", Toast.LENGTH_SHORT);
+            return;
+        }
+        Chip chip = new Chip(this);
+        chip.setText(categoryName);
+        chip.setCloseIconVisible(true);
+        chip.setCheckable(false);
+        chip.setClickable(false);
+        chip.setOnCloseIconClickListener(v -> {
+            chipGroupCategories.removeView(chip);
+            selectedCategoryNames.remove(categoryName);
+            hasUserMadeChanges = true;
+            if (tilCategory != null && tilCategory.isErrorEnabled() && !selectedCategoryNames.isEmpty()) {
+                tilCategory.setError(null); tilCategory.setErrorEnabled(false);
+            }
+        });
+        chipGroupCategories.addView(chip);
+        selectedCategoryNames.add(categoryName);
+        hasUserMadeChanges = true;
+        if (tilCategory != null && tilCategory.isErrorEnabled()) {
+            tilCategory.setError(null); tilCategory.setErrorEnabled(false);
+        }
+    }
+
     private void addTechnologyChip(String techName) {
         if (techName == null || techName.trim().isEmpty() || selectedTechnologyNames.contains(techName)) {
             if (selectedTechnologyNames.contains(techName)) UiHelper.showToast(this, techName + " đã được thêm.", Toast.LENGTH_SHORT);
@@ -554,36 +676,37 @@ public class CreateProjectActivity extends AppCompatActivity implements
                 firestoreService.fetchUserDetails(finalUserIdToUse, new FirestoreService.UserDetailsFetchListener() {
                     @Override
                     public void onUserDetailsFetched(User userFromFirestore) {
-                        // THAY ĐỔI: Vai trò mặc định là Thành viên
+                        if (isFinishing() || isDestroyed()) return;
                         userRolesInProject.put(userFromFirestore.getUserId(), Constants.DEFAULT_MEMBER_ROLE);
                         selectedProjectUsers.add(0, userFromFirestore); hasUserMadeChanges = true;
                         if (selectedMembersUiManager != null) selectedMembersUiManager.updateUI();
                     }
                     @Override
                     public void onUserNotFound() {
+                        if (isFinishing() || isDestroyed()) return;
                         String nameToUse = (finalDisplayNameForFallback != null && !finalDisplayNameForFallback.isEmpty()) ? finalDisplayNameForFallback : ((finalEmailForFallback != null && finalEmailForFallback.contains("@")) ? finalEmailForFallback.split("@")[0] : "User");
                         User fallbackUser = new User(finalUserIdToUse, nameToUse, finalEmailForFallback, "N/A", finalPhotoUrlForFallback != null ? finalPhotoUrlForFallback.toString() : null);
-                        userRolesInProject.put(finalUserIdToUse, Constants.DEFAULT_MEMBER_ROLE); // THAY ĐỔI
+                        userRolesInProject.put(finalUserIdToUse, Constants.DEFAULT_MEMBER_ROLE);
                         selectedProjectUsers.add(0, fallbackUser); hasUserMadeChanges = true;
                         if (selectedMembersUiManager != null) selectedMembersUiManager.updateUI();
                     }
                     @Override
                     public void onError(String errorMessage) {
+                        if (isFinishing() || isDestroyed()) return;
                         String nameToUse = (finalDisplayNameForFallback != null && !finalDisplayNameForFallback.isEmpty()) ? finalDisplayNameForFallback : ((finalEmailForFallback != null && finalEmailForFallback.contains("@")) ? finalEmailForFallback.split("@")[0] : "User");
                         User fallbackUserOnError = new User(finalUserIdToUse, nameToUse, finalEmailForFallback, "N/A", finalPhotoUrlForFallback != null ? finalPhotoUrlForFallback.toString() : null);
-                        userRolesInProject.put(finalUserIdToUse, Constants.DEFAULT_MEMBER_ROLE); // THAY ĐỔI
+                        userRolesInProject.put(finalUserIdToUse, Constants.DEFAULT_MEMBER_ROLE);
                         selectedProjectUsers.add(0, fallbackUserOnError); hasUserMadeChanges = true;
                         if (selectedMembersUiManager != null) selectedMembersUiManager.updateUI();
                         UiHelper.showToast(CreateProjectActivity.this, "Lỗi tải thông tin người dùng: " + errorMessage, Toast.LENGTH_SHORT);
                     }
                 });
             }
-        } else { // Nếu user đã có, đảm bảo vai trò của họ được set (nếu chưa có)
+        } else {
             if (userRolesInProject.get(finalUserIdToUse) == null) {
-                userRolesInProject.put(finalUserIdToUse, Constants.DEFAULT_MEMBER_ROLE); // THAY ĐỔI
+                userRolesInProject.put(finalUserIdToUse, Constants.DEFAULT_MEMBER_ROLE);
                 hasUserMadeChanges = true;
             }
-            // Đảm bảo user hiện tại ở đầu danh sách nếu họ đã có
             User userInList = null; int userIndex = -1;
             for (int i = 0; i < selectedProjectUsers.size(); i++) {
                 if (selectedProjectUsers.get(i).getUserId().equals(finalUserIdToUse)) {
@@ -615,11 +738,19 @@ public class CreateProjectActivity extends AppCompatActivity implements
         } else {
             tilProjectDescription.setError(null); tilProjectDescription.setErrorEnabled(false);
         }
-        if (TextUtils.isEmpty(getTextFromInput(actvCategory))) {
-            tilCategory.setErrorEnabled(true); tilCategory.setError("Vui lòng chọn một lĩnh vực."); isValid = false;
+
+        if (selectedCategoryNames.isEmpty()) {
+            tilCategory.setErrorEnabled(true);
+            tilCategory.setError("Vui lòng chọn ít nhất một lĩnh vực.");
+            if(actvCategoryInput != null) actvCategoryInput.requestFocus();
+            isValid = false;
         } else {
-            tilCategory.setError(null); tilCategory.setErrorEnabled(false);
+            if (tilCategory != null) {
+                tilCategory.setError(null);
+                tilCategory.setErrorEnabled(false);
+            }
         }
+
         if (selectedTechnologyNames.isEmpty()) {
             tilTechnologyInput.setErrorEnabled(true); tilTechnologyInput.setError("Vui lòng chọn ít nhất một công nghệ.");
             if(actvTechnologyInput != null) actvTechnologyInput.requestFocus();
@@ -632,25 +763,21 @@ public class CreateProjectActivity extends AppCompatActivity implements
             if(flProjectImageContainer != null) flProjectImageContainer.requestFocus();
             isValid = false;
         }
-        if (selectedProjectUsers.isEmpty()) { // Vẫn cần ít nhất 1 thành viên
+        if (selectedProjectUsers.isEmpty()) {
             UiHelper.showToast(this, "Dự án phải có ít nhất một thành viên.", Toast.LENGTH_SHORT);
             isValid = false;
         }
-        // THAY ĐỔI: Kiểm tra xem có ít nhất một trưởng nhóm được chọn không
         boolean hasLeader = userRolesInProject.values().stream().anyMatch(role -> Constants.DEFAULT_LEADER_ROLE.equalsIgnoreCase(role));
-        if (!hasLeader && !selectedProjectUsers.isEmpty()) { // Nếu có thành viên nhưng không có trưởng nhóm
+        if (!hasLeader && !selectedProjectUsers.isEmpty()) {
             UiHelper.showToast(this, "Vui lòng chọn một trưởng nhóm cho dự án.", Toast.LENGTH_LONG);
-            // Có thể focus vào danh sách thành viên hoặc hiển thị lỗi cụ thể hơn
             isValid = false;
         }
-
         return isValid;
     }
 
     private void startProjectCreationProcess() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         String creatorUserIdToUse;
-
         if (IS_TESTING_WITH_MOCK_USER) {
             creatorUserIdToUse = MOCK_USER_ID;
         } else {
@@ -662,9 +789,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
             }
             creatorUserIdToUse = currentUser.getUid();
         }
-
         showCreatingProgress(true, "Đang xử lý dữ liệu...");
-
         cloudinaryUploadService.uploadThumbnail(projectImageUri,
                 Constants.CLOUDINARY_UPLOAD_PRESET_THUMBNAIL,
                 Constants.CLOUDINARY_FOLDER_PROJECT_THUMBNAILS,
@@ -712,7 +837,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
         showCreatingProgress(true, "Đang lưu dự án...");
         String projectName = getTextFromInput(etProjectName);
         String projectDescription = getTextFromInput(etProjectDescription);
-        String categoryName = getTextFromInput(actvCategory);
+        // String categoryName = getTextFromInput(actvCategoryInput); // Không dùng nữa
         String statusValue = getTextFromInput(actvStatus);
         Map<String, Object> projectData = new HashMap<>();
         projectData.put("Title", projectName);
@@ -747,7 +872,12 @@ public class CreateProjectActivity extends AppCompatActivity implements
         }
         projectData.put("ProjectUrl", projectUrlFromUiLinks);
         projectData.put("DemoUrl", demoUrlFromUiLinks);
-        String categoryIdToSave = categoryNameToIdMap.get(categoryName);
+
+        List<String> selectedCategoryIds = selectedCategoryNames.stream()
+                .map(name -> categoryNameToIdMap.get(name))
+                .filter(id -> id != null && !id.isEmpty())
+                .collect(Collectors.toList());
+
         List<Map<String, Object>> membersForFirestore = new ArrayList<>();
         for (User u : selectedProjectUsers) {
             if (u.getUserId() == null) continue;
@@ -760,8 +890,9 @@ public class CreateProjectActivity extends AppCompatActivity implements
                 .map(name -> technologyNameToIdMap.get(name))
                 .filter(id -> id != null && !id.isEmpty())
                 .collect(Collectors.toList());
+
         if (projectCreationService != null) {
-            projectCreationService.createNewProject(projectData, membersForFirestore, categoryIdToSave, selectedTechnologyIds, this);
+            projectCreationService.createNewProject(projectData, membersForFirestore, selectedCategoryIds, selectedTechnologyIds, this);
         } else {
             Log.e(TAG, "projectCreationService is null! Cannot create project.");
             onProjectCreationFailed("Lỗi hệ thống khi tạo dự án.");
@@ -774,8 +905,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
         showCreatingProgress(false, null);
         new AlertDialog.Builder(this)
                 .setTitle("Thành công")
-                .setMessage("Dự án đã được tạo thành công!" +
-                        "Vui lòng chờ hệ thống duyệt dự án của bạn")
+                .setMessage("Dự án đã được tạo thành công!")
                 .setPositiveButton("Đóng", (dialog, which) -> {
                     clearForm();
                     updateCreateButtonState();
@@ -828,8 +958,13 @@ public class CreateProjectActivity extends AppCompatActivity implements
         if (tilProjectName != null) { tilProjectName.setError(null); tilProjectName.setErrorEnabled(false); }
         if (etProjectDescription != null) etProjectDescription.setText("");
         if (tilProjectDescription != null) { tilProjectDescription.setError(null); tilProjectDescription.setErrorEnabled(false); }
-        if (actvCategory != null) actvCategory.setText("", false);
+
+        if (chipGroupCategories != null) chipGroupCategories.removeAllViews();
+        selectedCategoryNames.clear();
+        if (actvCategoryInput != null) actvCategoryInput.setText("");
         if (tilCategory != null) { tilCategory.setError(null); tilCategory.setErrorEnabled(false); }
+
+
         if (actvStatus != null) {
             if (statusAdapter != null && !statusNameListForDropdown.isEmpty()) {
                 actvStatus.setText(statusNameListForDropdown.get(0), false);
@@ -867,12 +1002,10 @@ public class CreateProjectActivity extends AppCompatActivity implements
     @Override public void onMemberRemoved(User user, int index) {
         if (user!= null && user.getUserId() != null && index >= 0 && index < selectedProjectUsers.size()) {
             hasUserMadeChanges = true;
-            // THAY ĐỔI: Cho phép xóa người tạo nếu họ không phải là thành viên cuối cùng
             if (selectedProjectUsers.size() == 1) {
                 UiHelper.showToast(this, "Dự án phải có ít nhất một thành viên.", Toast.LENGTH_SHORT);
                 return;
             }
-
             User removedUser = selectedProjectUsers.remove(index);
             userRolesInProject.remove(removedUser.getUserId());
             if (selectedMembersUiManager != null) selectedMembersUiManager.updateUI();
@@ -882,16 +1015,10 @@ public class CreateProjectActivity extends AppCompatActivity implements
     @Override public void onMemberRoleChanged(User user, String newRole, int index) {
         if (user != null && user.getUserId() != null && newRole != null && index >= 0 && index < selectedProjectUsers.size()) {
             hasUserMadeChanges = true;
-            // String currentAuthUserId = IS_TESTING_WITH_MOCK_USER ? MOCK_USER_ID : (mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null);
-
-            // Logic đảm bảo chỉ có một trưởng nhóm
             if (Constants.DEFAULT_LEADER_ROLE.equals(newRole)) {
                 for (Map.Entry<String, String> entry : userRolesInProject.entrySet()) {
-                    // Nếu tìm thấy một trưởng nhóm khác (không phải user đang được thay đổi vai trò)
                     if (Constants.DEFAULT_LEADER_ROLE.equals(entry.getValue()) && !entry.getKey().equals(user.getUserId())) {
-                        // Đổi vai trò của trưởng nhóm cũ thành thành viên
                         userRolesInProject.put(entry.getKey(), Constants.DEFAULT_MEMBER_ROLE);
-                        Log.d(TAG, "Đã đổi vai trò của " + entry.getKey() + " thành Thành viên do " + user.getUserId() + " được chọn làm Trưởng nhóm mới.");
                     }
                 }
             }
@@ -938,7 +1065,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
                 if (addedLinksUiManager != null) {
                     addedLinksUiManager.updateUI();
                 }
-                hasUserMadeChanges = false; // Vì thay đổi không được chấp nhận
+                hasUserMadeChanges = false;
                 return;
             }
         }
@@ -962,7 +1089,6 @@ public class CreateProjectActivity extends AppCompatActivity implements
                 UiHelper.showToast(this, "Bạn chỉ có thể thêm tối đa 7 thành viên.", Toast.LENGTH_SHORT);
                 return;
             }
-            // THAY ĐỔI: Mặc định vai trò là thành viên khi thêm mới
             userRolesInProject.put(user.getUserId(), Constants.DEFAULT_MEMBER_ROLE);
             selectedProjectUsers.add(user); hasUserMadeChanges = true;
             if(selectedMembersUiManager != null) selectedMembersUiManager.updateUI();
@@ -994,7 +1120,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
     private boolean isAnyFieldNotEmpty() {
         if (!TextUtils.isEmpty(getTextFromInput(etProjectName))) return true;
         if (!TextUtils.isEmpty(getTextFromInput(etProjectDescription))) return true;
-        if (!TextUtils.isEmpty(getTextFromInput(actvCategory))) return true;
+        if (!selectedCategoryNames.isEmpty()) return true;
         if (projectImageUri != null) return true;
         if (!selectedMediaUris.isEmpty()) return true;
         if (projectLinks.stream().anyMatch(link -> !TextUtils.isEmpty(link.getUrl()))) return true;
@@ -1014,10 +1140,10 @@ public class CreateProjectActivity extends AppCompatActivity implements
         }
         pbCreatingProject = null;
         etProjectName=null; etProjectDescription=null;
-        actvCategory=null; actvStatus=null;
+        actvCategoryInput=null; actvStatus=null;
         tilCategory=null; tilStatus=null;
         tilProjectName=null; tilProjectDescription=null;
-        chipGroupTechnologies = null; actvTechnologyInput = null; tilTechnologyInput = null;
+        chipGroupCategories=null; chipGroupTechnologies = null; actvTechnologyInput = null; tilTechnologyInput = null;
         ivBackArrow=null; flProjectImageContainer=null; ivProjectImagePreview=null; ivProjectImagePlaceholderIcon=null;
         btnAddMedia=null; btnAddMember=null; btnAddLink=null; btnCreateProject=null;
         flexboxMediaPreviewContainer=null; tvMediaGalleryLabel=null; llSelectedMembersContainer=null;
