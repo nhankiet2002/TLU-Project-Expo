@@ -23,6 +23,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.cse441.tluprojectexpo.MainActivity; // Màn hình chính cho người dùng thường
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.AdminHomePage;
 import com.cse441.tluprojectexpo.admin.Dashboard; // Màn hình Dashboard cho Admin
 import com.cse441.tluprojectexpo.model.UserRole;
 import com.cse441.tluprojectexpo.utils.GuestModeHandler;
@@ -220,7 +221,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void checkUserRoleAndNavigate(String userId) {
         db.collection("UserRoles")
-                .whereEqualTo("userId", userId)
+                .whereEqualTo("UserId", userId)
                 .get()
                 .addOnCompleteListener(task -> {
                     hideProgressBar(); // Ẩn ProgressBar ngay sau khi task hoàn thành
@@ -237,7 +238,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (userRoleName != null) {
                             if ("role_admin".equalsIgnoreCase(userRoleName)) {
                                 Log.d(TAG, "Navigating to Admin Dashboard.");
-                                navigateToAdminDashboard();
+                                navigateToAdminHomePage();
                             } else {
                                 Log.d(TAG, "Navigating to Main Activity.");
                                 navigateToMainActivity();
@@ -262,8 +263,8 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-    private void navigateToAdminDashboard() {
-        Intent intent = new Intent(LoginActivity.this, Dashboard.class);
+    private void navigateToAdminHomePage() {
+        Intent intent = new Intent(LoginActivity.this, AdminHomePage.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
