@@ -51,10 +51,10 @@ public class Project implements Serializable {
     @PropertyName("UpdatedAt")
     private Timestamp updatedAt;
 
-    @PropertyName("IsApproved")
+
     private boolean isApproved;
 
-    @PropertyName("IsFeatured")
+
     private boolean isFeatured = false;
 
     @PropertyName("VoteCount")
@@ -119,10 +119,15 @@ public class Project implements Serializable {
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
     // Đối với kiểu boolean, getter chuẩn là "isSomething()" và setter là "setSomething()"
-    public boolean isApproved() { return isApproved; }
+    @PropertyName("IsApproved")
+    public boolean getIsApproved() { return isApproved; }
+    @PropertyName("IsApproved")
     public void setApproved(boolean approved) { isApproved = approved; }
 
+    @PropertyName("IsFeatured")
     public boolean isFeatured() { return isFeatured; }
+
+    @PropertyName("IsFeatured")
     public void setFeatured(boolean featured) { isFeatured = featured; }
 
     public int getVoteCount() { return voteCount; }

@@ -2,12 +2,10 @@ package com.cse441.tluprojectexpo.admin;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,7 +15,6 @@ import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
 import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.model.Project;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +41,8 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
 
         // Khởi tạo và thiết lập
         repository = new ProjectRepository();
+        // Quan trọng: Adapter được khởi tạo với projectList. Mọi thay đổi trên projectList
+        // sẽ được adapter nhận biết sau khi gọi notifyDataSetChanged().
         adapter = new AdminProjectAdapter(this, projectList, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
@@ -56,20 +55,24 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
         progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
 
-        // Phương thức này trong repository đã được cập nhật để sắp xếp nổi bật lên đầu
         repository.getAllProjectsForAdmin().observe(this, projects -> {
             progressBar.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
 
             if (projects != null) {
-                // projectList đã được gán địa chỉ mới, cần gán lại cho adapter
                 Log.d("AdminHomePage", "Dữ liệu trả về. Số lượng dự án: " + projects.size());
                 if (!projects.isEmpty()) {
                     Log.d("AdminHomePage", "Dự án đầu tiên: " + projects.get(0).getTitle() + " - isFeatured: " + projects.get(0).isFeatured());
                 }
+
+                // Cập nhật danh sách mà adapter đang giữ tham chiếu
                 this.projectList.clear();
                 this.projectList.addAll(projects);
-                adapter.updateData(this.projectList); // Cập nhật adapter với danh sách mới
+
+                // THAY ĐỔI QUAN TRỌNG NHẤT Ở ĐÂY
+                // Thông báo cho adapter rằng dữ liệu đã thay đổi và cần vẽ lại UI.
+                adapter.notifyDataSetChanged();
+
             } else {
                 Log.e("AdminHomePage", "Dữ liệu trả về là NULL. Có lỗi trong Repository.");
                 Toast.makeText(this, "Lỗi khi tải danh sách dự án.", Toast.LENGTH_SHORT).show();
@@ -81,12 +84,9 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_manage) {
-                // Giả sử Dashboard là một Activity khác
                 NavigationUtil.navigateTo(AdminHomePage.this, Dashboard.class);
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                // Giả sử AdminProfile là một Activity khác
-                // NavigationUtil.navigateTo(AdminHomePage.this, AdminProfileActivity.class);
                 Toast.makeText(AdminHomePage.this, "Chuyển đến trang cá nhân Admin", Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -94,23 +94,15 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
         });
     }
 
-    // --- SỬA LẠI HOÀN TOÀN PHƯƠNG THỨC NÀY ---
-    /**
-     * Được gọi khi Admin nhấn nút "Làm nổi bật" trên một item.
-     * @param project Đối tượng Project của item được nhấn.
-     * @param position Vị trí của item trong RecyclerView.
-     */
     @Override
     public void onSetFeaturedClick(Project project, int position) {
         Toast.makeText(this, "Đang làm nổi bật: " + project.getTitle(), Toast.LENGTH_SHORT).show();
 
-        // Gọi phương thức mới để đặt IsFeatured = true
         repository.setProjectFeaturedStatus(project.getProjectId(), true, new ProjectRepository.OnTaskCompleteListener() {
             @Override
             public void onSuccess() {
                 Toast.makeText(AdminHomePage.this, "Đã làm nổi bật thành công!", Toast.LENGTH_SHORT).show();
 
-                // Cập nhật trạng thái của project trong danh sách local
                 project.setFeatured(true);
 
                 // Sắp xếp lại danh sách để đưa item vừa được làm nổi bật lên đầu
@@ -123,7 +115,6 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
                     return 0;
                 });
 
-                // Thông báo cho adapter rằng toàn bộ dữ liệu đã thay đổi (vì thứ tự đã thay đổi)
                 adapter.notifyDataSetChanged();
             }
 

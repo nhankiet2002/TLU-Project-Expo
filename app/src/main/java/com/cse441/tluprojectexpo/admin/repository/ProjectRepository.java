@@ -1,4 +1,4 @@
-// File: com/cse441/tluprojectexpo/admin/repository/ProjectRepository.java
+
 package com.cse441.tluprojectexpo.admin.repository;
 
 import android.util.Log;
@@ -46,12 +46,18 @@ public class ProjectRepository {
                     // --- STAGE 2: Xử lý dữ liệu thô vào các Map ---
                     QuerySnapshot projectsSnapshot = (QuerySnapshot) results.get(0);
                     // Tạo danh sách Project và gán ID ngay lập tức
+                    Log.d(TAG, "Tổng số document dự án lấy về: " + projectsSnapshot.size());
                     List<Project> projectList = new ArrayList<>();
                     for (DocumentSnapshot doc : projectsSnapshot.getDocuments()) {
                         Project p = doc.toObject(Project.class);
                         if (p != null) {
                             p.setProjectId(doc.getId()); // <-- SỬA LỖI QUAN TRỌNG NHẤT
                             projectList.add(p);
+                            // Log để xác nhận project được thêm vào
+                            Log.d(TAG, "Chuyển đổi THÀNH CÔNG project ID: " + p.getProjectId() + " | Tên: " + p.getTitle());
+                        }else {
+                            // Đây là log quan trọng nhất, nó sẽ cho bạn biết document nào bị lỗi
+                            Log.e(TAG, "Chuyển đổi THẤT BẠI cho document ID: " + doc.getId());
                         }
                     }
 

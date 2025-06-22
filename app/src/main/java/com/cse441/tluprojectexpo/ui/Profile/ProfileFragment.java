@@ -25,7 +25,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 
 import com.bumptech.glide.Glide;
-import com.cse441.tluprojectexpo.ui.LoginActivity; // GIẢ SỬ BẠN CÓ LoginActivity
+import com.cse441.tluprojectexpo.auth.LoginActivity;
 import com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.ui.createproject.adapter.UserProjectsAdapter;
