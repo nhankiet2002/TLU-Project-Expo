@@ -1,5 +1,5 @@
 // ProjectCreationService.java
-package com.cse441.tluprojectexpo.repository.project;
+package com.cse441.tluprojectexpo.repository;
 
 import android.util.Log;
 import androidx.annotation.Nullable;

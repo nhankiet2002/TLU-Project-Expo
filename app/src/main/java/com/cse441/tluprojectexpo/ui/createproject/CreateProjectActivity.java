@@ -42,7 +42,7 @@ import com.cse441.tluprojectexpo.ui.createproject.uimanager.MediaGalleryUiManage
 import com.cse441.tluprojectexpo.ui.createproject.uimanager.SelectedMembersUiManager;
 import com.cse441.tluprojectexpo.service.CloudinaryUploadService;
 import com.cse441.tluprojectexpo.service.FirestoreService;
-import com.cse441.tluprojectexpo.repository.project.ProjectCreationService;
+import com.cse441.tluprojectexpo.repository.ProjectCreationService;
 import com.cse441.tluprojectexpo.utils.ImagePickerDelegate;
 import com.cse441.tluprojectexpo.utils.PermissionManager;
 import com.cse441.tluprojectexpo.utils.UiHelper;

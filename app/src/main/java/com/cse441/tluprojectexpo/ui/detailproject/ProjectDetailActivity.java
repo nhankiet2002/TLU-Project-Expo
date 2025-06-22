@@ -1,31 +1,39 @@
 package com.cse441.tluprojectexpo.ui.detailproject;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
-// Sử dụng model Comment, Project, User của bạn
+// Models
 import com.cse441.tluprojectexpo.model.Comment;
 import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
-// Các service và util đã tạo/chỉnh sửa
-import com.cse441.tluprojectexpo.service.FirestoreService;
-import com.cse441.tluprojectexpo.service.ProjectInteractionHandler;
+// Repositories
+import com.cse441.tluprojectexpo.ui.detailproject.repository.CommentRepository;
+import com.cse441.tluprojectexpo.ui.detailproject.repository.CourseRepository;
+import com.cse441.tluprojectexpo.ui.detailproject.repository.ProjectRepository;
+import com.cse441.tluprojectexpo.ui.detailproject.repository.UserRepository;
+import com.cse441.tluprojectexpo.ui.detailproject.repository.VoteRepository;
+// Utils
+import com.cse441.tluprojectexpo.utils.Constants;
 import com.cse441.tluprojectexpo.utils.UiHelper;
-// Import các Adapter đã tách file
+// Adapters
 import com.cse441.tluprojectexpo.ui.detailproject.adapter.CommentAdapter;
 import com.cse441.tluprojectexpo.ui.detailproject.adapter.MediaGalleryAdapter;
 import com.cse441.tluprojectexpo.ui.detailproject.adapter.ProjectMemberAdapter;
@@ -36,7 +44,6 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore; // Chỉ cần cho khởi tạo dbInstance
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,14 +51,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ProjectDetailActivity extends AppCompatActivity {
+public class ProjectDetailActivity extends AppCompatActivity implements CommentAdapter.OnCommentInteractionListener {
 
     public static final String EXTRA_PROJECT_ID = "EXTRA_PROJECT_ID";
     private static final String TAG = "ProjectDetailActivity";
 
-    // UI Elements
+    // UI Elements (giữ nguyên)
     private ImageView ivBackArrow;
-    private TextView tvToolbarTitle;
+    private TextView tvToolbarTitle; /* ... và các UI elements khác ... */
     private ImageView imageViewProjectThumbnail;
     private TextView textViewProjectTitle;
     private TextView textViewProjectCreator;
@@ -71,40 +78,49 @@ public class ProjectDetailActivity extends AppCompatActivity {
     private EditText editTextNewComment;
     private MaterialButton buttonPostComment;
     private RecyclerView recyclerViewComments;
+    private TextView tvReplyingTo;
 
-    // Services and Handlers
-    private FirebaseFirestore dbInstance;
-    private FirestoreService firestoreService;
-    private ProjectInteractionHandler interactionHandler;
+
+    // Repositories
+    private ProjectRepository projectRepository;
+    private UserRepository userRepository;
+    private CourseRepository courseRepository;
+    private CommentRepository commentRepository;
+    private VoteRepository voteRepository;
 
     // Firebase Auth
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
 
-    // Data
+    // Data (giữ nguyên)
     private String projectId;
-    private Project currentProject; // Sử dụng model Project của bạn
+    private Project currentProject;
     private ProjectMemberAdapter memberAdapter;
     private MediaGalleryAdapter mediaGalleryAdapter;
     private CommentAdapter commentAdapter;
-    private List<Project.UserShortInfo> memberList = new ArrayList<>(); // UserShortInfo là inner class của Project
-    private List<Project.MediaItem> mediaList = new ArrayList<>();   // MediaItem là inner class của Project
-    private List<Comment> commentList = new ArrayList<>();             // Sử dụng model Comment của bạn
+    private List<Project.UserShortInfo> memberList = new ArrayList<>();
+    private List<Project.MediaItem> mediaList = new ArrayList<>();
+    private List<Comment> rootCommentList = new ArrayList<>();
+    private String replyingToCommentId = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_detail);
 
-        dbInstance = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
-        firestoreService = new FirestoreService(); // Khởi tạo service
-        interactionHandler = new ProjectInteractionHandler(dbInstance); // Khởi tạo handler
+        // Khởi tạo Repositories
+        projectRepository = new ProjectRepository();
+        userRepository = new UserRepository();
+        courseRepository = new CourseRepository();
+        commentRepository = new CommentRepository();
+        voteRepository = new VoteRepository();
 
         initViews();
-        setupRecyclerViews(); // Tách riêng setup RecyclerViews
+        setupRecyclerViews();
         setupListeners();
 
         projectId = getIntent().getStringExtra(EXTRA_PROJECT_ID);
@@ -116,7 +132,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
         loadAllProjectData();
     }
 
-    private void initViews() {
+    private void initViews() { /* ... (giữ nguyên) ... */
         ivBackArrow = findViewById(R.id.iv_back_arrow);
         tvToolbarTitle = findViewById(R.id.tv_title);
         imageViewProjectThumbnail = findViewById(R.id.imageViewProjectThumbnail);
@@ -138,29 +154,24 @@ public class ProjectDetailActivity extends AppCompatActivity {
         editTextNewComment = findViewById(R.id.editTextNewComment);
         buttonPostComment = findViewById(R.id.buttonPostComment);
         recyclerViewComments = findViewById(R.id.recyclerViewComments);
+        tvReplyingTo = findViewById(R.id.tvReplyingTo);
     }
-
-    private void setupRecyclerViews() {
-        // Member Adapter
+    private void setupRecyclerViews() { /* ... (giữ nguyên) ... */
         recyclerViewMembers.setLayoutManager(new LinearLayoutManager(this));
         memberAdapter = new ProjectMemberAdapter(this, memberList);
         recyclerViewMembers.setAdapter(memberAdapter);
         recyclerViewMembers.setNestedScrollingEnabled(false);
 
-        // Media Gallery Adapter
         recyclerViewMediaGallery.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mediaGalleryAdapter = new MediaGalleryAdapter(this, mediaList);
         recyclerViewMediaGallery.setAdapter(mediaGalleryAdapter);
 
-        // Comment Adapter
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
-        commentAdapter = new CommentAdapter(this, commentList); // Sử dụng Comment model của bạn
+        commentAdapter = new CommentAdapter(this, new ArrayList<>(), this);
         recyclerViewComments.setAdapter(commentAdapter);
         recyclerViewComments.setNestedScrollingEnabled(false);
     }
-
-
-    private void setupListeners() {
+    private void setupListeners() { /* ... (giữ nguyên) ... */
         ivBackArrow.setOnClickListener(v -> finish());
         buttonUpvote.setOnClickListener(v -> triggerUpvoteAction());
         buttonPostComment.setOnClickListener(v -> triggerPostCommentAction());
@@ -176,8 +187,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void openUrl(String url) {
+    private void openUrl(String url) { /* ... (giữ nguyên) ... */
         if (url == null || url.trim().isEmpty()) {
             UiHelper.showToast(this, "Liên kết không hợp lệ.", Toast.LENGTH_SHORT);
             return;
@@ -196,7 +206,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
     }
 
     private void loadAllProjectData() {
-        firestoreService.fetchProjectDetails(projectId, new FirestoreService.ProjectDetailsFetchListener() {
+        projectRepository.fetchProjectDetails(projectId, new ProjectRepository.ProjectDetailsListener() {
             @Override
             public void onProjectFetched(Project project) {
                 currentProject = project;
@@ -204,14 +214,12 @@ public class ProjectDetailActivity extends AppCompatActivity {
                 loadAdditionalProjectData();
                 checkInitialUpvoteStatus();
             }
-            @Override
-            public void onProjectNotFound() { showErrorAndFinish("Dự án không tồn tại."); }
-            @Override
-            public void onError(String errorMessage) { showErrorAndFinish("Lỗi tải dự án: " + errorMessage); }
+            @Override public void onProjectNotFound() { showErrorAndFinish("Dự án không tồn tại."); }
+            @Override public void onError(String errorMessage) { showErrorAndFinish("Lỗi tải dự án: " + errorMessage); }
         });
     }
 
-    private void populateBaseUI() {
+    private void populateBaseUI() { /* ... (giữ nguyên) ... */
         if (currentProject == null) return;
         tvToolbarTitle.setText(currentProject.getTitle() != null ? currentProject.getTitle() : "Chi tiết dự án");
         textViewProjectTitle.setText(currentProject.getTitle());
@@ -236,14 +244,13 @@ public class ProjectDetailActivity extends AppCompatActivity {
             recyclerViewMediaGallery.setVisibility(View.VISIBLE);
             mediaList.clear();
             mediaList.addAll(currentProject.getMediaGalleryUrls());
-            mediaGalleryAdapter.notifyDataSetChanged();
+            if (mediaGalleryAdapter != null) mediaGalleryAdapter.notifyDataSetChanged();
         } else {
             textViewMediaGalleryTitle.setVisibility(View.GONE);
             recyclerViewMediaGallery.setVisibility(View.GONE);
         }
     }
-
-    private void updateLinkUI(TextView textView, String prefix, String url) {
+    private void updateLinkUI(TextView textView, String prefix, String url) { /* ... (giữ nguyên) ... */
         if (url != null && !url.isEmpty()) {
             textView.setText(prefix + url);
             textView.setVisibility(View.VISIBLE);
@@ -251,8 +258,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
             textView.setVisibility(View.GONE);
         }
     }
-
-    private void setStatusUI(String status) {
+    private void setStatusUI(String status) { /* ... (giữ nguyên) ... */
         if (status == null) status = "Không rõ";
         textViewProjectStatus.setText(status);
         switch (status.toLowerCase().trim()) {
@@ -276,18 +282,11 @@ public class ProjectDetailActivity extends AppCompatActivity {
 
         // Load Creator Info
         if (currentProject.getCreatorUserId() != null && !currentProject.getCreatorUserId().isEmpty()) {
-            // SỬA Ở ĐÂY: Đổi fetchCreatorDetails thành fetchUserDetails
-            firestoreService.fetchUserDetails(currentProject.getCreatorUserId(), new FirestoreService.UserDetailsFetchListener() {
+            userRepository.fetchUserDetails(currentProject.getCreatorUserId(), new UserRepository.UserDetailsFetchListener() {
                 @Override
                 public void onUserDetailsFetched(User user) {
-                    // Giả sử Project model có setCreatorFullName và User model có getFullName
-                    if (currentProject != null && user != null) { // Thêm kiểm tra null
-                        currentProject.setCreatorFullName(user.getFullName());
-                        updateCreatorInfoUI(user.getFullName());
-                    } else if (user == null) {
-                        Log.e(TAG, "User object is null after fetching details for creator.");
-                        updateCreatorInfoUI("Lỗi dữ liệu người tạo");
-                    }
+                    if (currentProject != null) currentProject.setCreatorFullName(user.getFullName());
+                    updateCreatorInfoUI(user.getFullName());
                 }
                 @Override public void onUserNotFound() { updateCreatorInfoUI("Người tạo không tồn tại"); }
                 @Override public void onError(String errorMessage) {
@@ -301,9 +300,8 @@ public class ProjectDetailActivity extends AppCompatActivity {
 
         // Load Course Info
         if (currentProject.getCourseId() != null && !currentProject.getCourseId().isEmpty()) {
-            firestoreService.fetchCourseDetails(currentProject.getCourseId(), new FirestoreService.CourseDetailsListener() {
-                @Override
-                public void onCourseFetched(String courseName) {
+            courseRepository.fetchCourseDetails(currentProject.getCourseId(), new CourseRepository.CourseDetailsListener() {
+                @Override public void onCourseFetched(String courseName) {
                     textViewProjectCourse.setText(courseName);
                     layoutProjectCourse.setVisibility(View.VISIBLE);
                 }
@@ -317,67 +315,54 @@ public class ProjectDetailActivity extends AppCompatActivity {
             layoutProjectCourse.setVisibility(View.GONE);
         }
 
-        // Load Categories
-        firestoreService.fetchCategoriesForProject(projectId, new FirestoreService.ProjectRelatedListListener<String>() {
+        // Load Categories, Technologies, Members using ProjectRepository
+        projectRepository.fetchCategoriesForProject(projectId, new ProjectRepository.ProjectRelatedListListener<String>() {
             @Override public void onListFetched(List<String> items) {
-                currentProject.setCategoryNames(items); updateChipGroupUI(chipGroupCategories, items);
+                if (currentProject != null) currentProject.setCategoryNames(items);
+                updateChipGroupUI(chipGroupCategories, items);
             }
             @Override public void onListEmpty() { updateChipGroupUI(chipGroupCategories, new ArrayList<>()); }
-            @Override public void onError(String errorMessage) {
-                Log.e(TAG, "Error loading categories: " + errorMessage);
-                updateChipGroupUI(chipGroupCategories, new ArrayList<>());
-            }
+            @Override public void onError(String e) { updateChipGroupUI(chipGroupCategories, new ArrayList<>()); Log.e(TAG, "Lỗi tải categories: " + e);}
         });
 
-        // Load Technologies
-        firestoreService.fetchTechnologiesForProject(projectId, new FirestoreService.ProjectRelatedListListener<String>() {
+        projectRepository.fetchTechnologiesForProject(projectId, new ProjectRepository.ProjectRelatedListListener<String>() {
             @Override public void onListFetched(List<String> items) {
-                currentProject.setTechnologyNames(items); updateChipGroupUI(chipGroupTechnologies, items);
+                if (currentProject != null) currentProject.setTechnologyNames(items);
+                updateChipGroupUI(chipGroupTechnologies, items);
             }
             @Override public void onListEmpty() { updateChipGroupUI(chipGroupTechnologies, new ArrayList<>()); }
-            @Override public void onError(String errorMessage) {
-                Log.e(TAG, "Error loading technologies: " + errorMessage);
-                updateChipGroupUI(chipGroupTechnologies, new ArrayList<>());
-            }
+            @Override public void onError(String e) { updateChipGroupUI(chipGroupTechnologies, new ArrayList<>()); Log.e(TAG, "Lỗi tải technologies: " + e);}
         });
 
-        // Load Members
-        firestoreService.fetchProjectMembers(projectId, new FirestoreService.ProjectRelatedListListener<Project.UserShortInfo>() {
+        projectRepository.fetchProjectMembers(projectId, new ProjectRepository.ProjectRelatedListListener<Project.UserShortInfo>() {
             @Override public void onListFetched(List<Project.UserShortInfo> items) {
                 memberList.clear(); memberList.addAll(items);
-                currentProject.setProjectMembersInfo(items); memberAdapter.notifyDataSetChanged();
+                if (currentProject != null) currentProject.setProjectMembersInfo(items);
+                if (memberAdapter != null) memberAdapter.notifyDataSetChanged();
             }
             @Override public void onListEmpty() {
-                memberList.clear(); currentProject.setProjectMembersInfo(new ArrayList<>()); memberAdapter.notifyDataSetChanged();
+                memberList.clear(); if (currentProject != null) currentProject.setProjectMembersInfo(new ArrayList<>());
+                if (memberAdapter != null) memberAdapter.notifyDataSetChanged();
             }
-            @Override public void onError(String errorMessage) {
-                Log.e(TAG, "Error loading members: " + errorMessage);
-                memberList.clear(); currentProject.setProjectMembersInfo(new ArrayList<>()); memberAdapter.notifyDataSetChanged();
+            @Override public void onError(String e) {
+                memberList.clear(); if (currentProject != null) currentProject.setProjectMembersInfo(new ArrayList<>());
+                if (memberAdapter != null) memberAdapter.notifyDataSetChanged();
+                Log.e(TAG, "Lỗi tải members: " + e);
             }
         });
 
-        // Load Comments
-        firestoreService.fetchProjectComments(projectId, new FirestoreService.ProjectRelatedListListener<Comment>() {
-            @Override public void onListFetched(List<Comment> items) {
-                commentList.clear(); commentList.addAll(items); commentAdapter.notifyDataSetChanged();
-            }
-            @Override public void onListEmpty() { commentList.clear(); commentAdapter.notifyDataSetChanged(); }
-            @Override public void onError(String errorMessage) {
-                Log.e(TAG, "Error loading comments: " + errorMessage);
-                commentList.clear(); commentAdapter.notifyDataSetChanged();
-            }
-        });
+        // Load Comments using CommentRepository
+        loadCommentsWithReplies();
     }
 
-    private void updateCreatorInfoUI(String creatorName) {
+    private void updateCreatorInfoUI(String creatorName) { /* ... (giữ nguyên) ... */
         String createdDateStr = "N/A";
         if (currentProject != null && currentProject.getCreatedAt() != null) {
             createdDateStr = formatDate(currentProject.getCreatedAt());
         }
         textViewProjectCreator.setText(String.format("Tạo bởi: %s - Ngày: %s", creatorName, createdDateStr));
     }
-
-    private void updateChipGroupUI(ChipGroup chipGroup, List<String> items) {
+    private void updateChipGroupUI(ChipGroup chipGroup, List<String> items) { /* ... (giữ nguyên) ... */
         chipGroup.removeAllViews();
         if (items == null || items.isEmpty()) {
             Chip noDataChip = new Chip(this); noDataChip.setText("Chưa có");
@@ -387,20 +372,18 @@ public class ProjectDetailActivity extends AppCompatActivity {
             Chip chip = new Chip(this); chip.setText(item); chipGroup.addView(chip);
         }
     }
-
     private void checkInitialUpvoteStatus() {
         if (currentUser != null && projectId != null) {
-            firestoreService.checkIfUserUpvoted(projectId, currentUser.getUid(), this::updateUpvoteButtonUI);
+            voteRepository.checkIfUserUpvoted(projectId, currentUser.getUid(), this::updateUpvoteButtonUI);
         } else {
             updateUpvoteButtonUI(false);
         }
     }
-
-    private void updateUpvoteButtonUI(boolean hasVoted) {
+    private void updateUpvoteButtonUI(boolean hasVoted) { /* ... (giữ nguyên) ... */
         if (buttonUpvote == null) return;
         if (hasVoted) {
             buttonUpvote.setText("Đã bình chọn");
-            buttonUpvote.setIconResource(R.drawable.ic_thumb_up_filled); // Nên có icon filled
+            buttonUpvote.setIconResource(R.drawable.ic_thumb_up_filled);
         } else {
             buttonUpvote.setText("Bình chọn");
             buttonUpvote.setIconResource(R.drawable.ic_thumb_up);
@@ -408,16 +391,12 @@ public class ProjectDetailActivity extends AppCompatActivity {
     }
 
     private void triggerUpvoteAction() {
-        if (currentUser == null) {
-            UiHelper.showToast(this, "Bạn cần đăng nhập để bình chọn.", Toast.LENGTH_SHORT); return;
-        }
-        if (projectId == null) {
-            UiHelper.showToast(this, "Lỗi: Không tìm thấy dự án.", Toast.LENGTH_SHORT); return;
-        }
+        if (currentUser == null) { UiHelper.showToast(this, "Bạn cần đăng nhập.", Toast.LENGTH_SHORT); return; }
+        if (projectId == null) { UiHelper.showToast(this, "Lỗi dự án.", Toast.LENGTH_SHORT); return; }
         buttonUpvote.setEnabled(false);
-        interactionHandler.handleUpvote(currentUser, projectId, new ProjectInteractionHandler.InteractionListener<ProjectInteractionHandler.UpvoteResult>() {
+        voteRepository.handleUpvote(currentUser, projectId, new VoteRepository.VoteInteractionListener<VoteRepository.UpvoteResult>() {
             @Override
-            public void onSuccess(ProjectInteractionHandler.UpvoteResult result) {
+            public void onSuccess(VoteRepository.UpvoteResult result) {
                 if (currentProject != null) currentProject.setVoteCount((int) result.getNewVoteCount());
                 textViewVoteCount.setText(String.format(Locale.getDefault(), "%d lượt bình chọn", result.getNewVoteCount()));
                 updateUpvoteButtonUI(result.didUserUpvoteNow());
@@ -426,53 +405,100 @@ public class ProjectDetailActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(String errorMessage) {
-                UiHelper.showToast(ProjectDetailActivity.this, "Lỗi bình chọn: " + errorMessage, Toast.LENGTH_SHORT);
+                UiHelper.showToast(ProjectDetailActivity.this, "Lỗi: " + errorMessage, Toast.LENGTH_SHORT);
                 buttonUpvote.setEnabled(true);
-                checkInitialUpvoteStatus(); // Kiểm tra lại trạng thái vote từ DB khi có lỗi
+                checkInitialUpvoteStatus();
             }
         });
     }
 
     private void triggerPostCommentAction() {
-        if (currentUser == null) {
-            UiHelper.showToast(this, "Bạn cần đăng nhập để bình luận.", Toast.LENGTH_SHORT); return;
-        }
+        if (currentUser == null) { UiHelper.showToast(this, "Bạn cần đăng nhập.", Toast.LENGTH_SHORT); return; }
         String commentText = editTextNewComment.getText().toString().trim();
-        if (commentText.isEmpty()) {
-            UiHelper.showToast(this, "Vui lòng nhập bình luận.", Toast.LENGTH_SHORT); return;
-        }
-        if (projectId == null) {
-            UiHelper.showToast(this, "Lỗi: ID dự án không hợp lệ.", Toast.LENGTH_SHORT); return;
-        }
+        if (commentText.isEmpty()) { UiHelper.showToast(this, "Nhập bình luận.", Toast.LENGTH_SHORT); return; }
+        if (projectId == null) { UiHelper.showToast(this, "Lỗi dự án.", Toast.LENGTH_SHORT); return; }
 
         buttonPostComment.setEnabled(false);
-        interactionHandler.postComment(currentUser, projectId, commentText, new ProjectInteractionHandler.InteractionListener<Comment>() {
+        String parentIdForThisPost = replyingToCommentId;
+
+        commentRepository.postComment(currentUser, projectId, commentText, parentIdForThisPost,
+                new CommentRepository.CommentPostListener() {
+                    @Override
+                    public void onCommentPosted(Comment newPostedComment) {
+                        UiHelper.showToast(ProjectDetailActivity.this, "Đã gửi bình luận.", Toast.LENGTH_SHORT);
+                        editTextNewComment.setText("");
+                        hideKeyboard();
+                        loadCommentsWithReplies(); // Tải lại comments
+                        if (tvReplyingTo != null) tvReplyingTo.setVisibility(View.GONE);
+                        replyingToCommentId = null;
+                        buttonPostComment.setEnabled(true);
+                    }
+                    @Override
+                    public void onPostFailed(String errorMessage) {
+                        UiHelper.showToast(ProjectDetailActivity.this, "Lỗi: " + errorMessage, Toast.LENGTH_SHORT);
+                        buttonPostComment.setEnabled(true);
+                    }
+                });
+    }
+
+    private void loadCommentsWithReplies() {
+        if (projectId == null || commentRepository == null) return;
+        commentRepository.fetchProjectCommentsWithReplies(projectId, new CommentRepository.CommentsLoadListener() {
             @Override
-            public void onSuccess(Comment newPostedComment) { // newPostedComment là đối tượng từ model của bạn
-                UiHelper.showToast(ProjectDetailActivity.this, "Đã gửi bình luận.", Toast.LENGTH_SHORT);
-                editTextNewComment.setText("");
-                commentList.add(0, newPostedComment);
-                commentAdapter.notifyItemInserted(0);
-                if(recyclerViewComments.getLayoutManager() != null) recyclerViewComments.scrollToPosition(0);
-                buttonPostComment.setEnabled(true);
+            public void onCommentsLoaded(List<Comment> rootComments) {
+                rootCommentList.clear(); rootCommentList.addAll(rootComments);
+                if (commentAdapter != null) commentAdapter.updateComments(rootCommentList);
             }
-            @Override
-            public void onFailure(String errorMessage) {
-                UiHelper.showToast(ProjectDetailActivity.this, "Lỗi gửi bình luận: " + errorMessage, Toast.LENGTH_SHORT);
-                buttonPostComment.setEnabled(true);
+            @Override public void onCommentsEmpty() {
+                rootCommentList.clear();
+                if (commentAdapter != null) commentAdapter.updateComments(new ArrayList<>());
+            }
+            @Override public void onError(String errorMessage) {
+                Log.e(TAG, "Lỗi tải lại comments: " + errorMessage);
+                rootCommentList.clear();
+                if (commentAdapter != null) commentAdapter.updateComments(new ArrayList<>());
             }
         });
     }
 
-    private String formatDate(Timestamp timestamp) {
+    @Override
+    public void onReplyClicked(Comment parentComment) {
+        // ... (giữ nguyên như phiên bản trước)
+        if (parentComment == null || parentComment.getCommentId() == null) return;
+        replyingToCommentId = parentComment.getCommentId();
+
+        if (tvReplyingTo != null && parentComment.getUserName() != null) {
+            tvReplyingTo.setText("Đang trả lời " + parentComment.getUserName() + "...");
+            tvReplyingTo.setVisibility(View.VISIBLE);
+        } else if (tvReplyingTo != null) {
+            tvReplyingTo.setText("Đang trả lời bình luận...");
+            tvReplyingTo.setVisibility(View.VISIBLE);
+        }
+
+        if (editTextNewComment != null) {
+            editTextNewComment.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(editTextNewComment, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }
+    }
+    private void hideKeyboard() { /* ... (giữ nguyên) ... */
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
+    }
+    private String formatDate(Timestamp timestamp) { /* ... (giữ nguyên) ... */
         if (timestamp == null) return "N/A";
         Date date = timestamp.toDate();
-        // SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()); // Kèm giờ phút
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         return sdf.format(date);
     }
-
-    private void showErrorAndFinish(String message) {
+    private void showErrorAndFinish(String message) { /* ... (giữ nguyên) ... */
         UiHelper.showToast(this, message, Toast.LENGTH_LONG);
         finish();
     }

@@ -266,7 +266,18 @@
                 android:layout_marginTop="24dp"
                 android:text="Bình luận"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
-
+            <TextView
+                android:id="@+id/tvReplyingTo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:textColor="?attr/colorAccent"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="Đang trả lời Nguyễn Văn A..."
+                tools:visibility="visible"/>
             <EditText
                 android:id="@+id/editTextNewComment"
                 android:layout_width="match_parent"
