@@ -13,10 +13,16 @@ googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.1.4"
 navigationFragment = "2.9.0"
 swiperefreshlayout = "1.1.0"
+<<<<<<< HEAD
 firebaseDatabase = "21.0.0"
 
 firebaseCommon = "21.0.0"
 
+=======
+annotation = "1.6.0"
+lifecycleLivedataKtx = "2.8.7"
+lifecycleViewmodelKtx = "2.8.7"
+>>>>>>> 261ac75ad10d403d967faaf3d4d31f6e9bf1d791
 
 [libraries]
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
@@ -32,8 +38,14 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+<<<<<<< HEAD
 firebase-database = { group = "com.google.firebase", name = "firebase-database" }
 firebase-common = { group = "com.google.firebase", name = "firebase-common", version.ref = "firebaseCommon" }
+=======
+annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+>>>>>>> 261ac75ad10d403d967faaf3d4d31f6e9bf1d791
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

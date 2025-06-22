@@ -30,12 +30,17 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+<<<<<<< HEAD
     sourceSets {
         getByName("main") {
             assets {
                 srcDirs("src\\main\\assets", "src\\main\\assets")
             }
         }
+=======
+    buildFeatures {
+        viewBinding = true
+>>>>>>> 261ac75ad10d403d967faaf3d4d31f6e9bf1d791
     }
 }
 
@@ -73,9 +78,15 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.swiperefreshlayout)
+<<<<<<< HEAD
     implementation(libs.firebase.common)
 
     // Testing
+=======
+    implementation(libs.annotation)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
+>>>>>>> 261ac75ad10d403d967faaf3d4d31f6e9bf1d791
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

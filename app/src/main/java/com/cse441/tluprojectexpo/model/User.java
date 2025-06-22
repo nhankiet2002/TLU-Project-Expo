@@ -1,5 +1,5 @@
-
-package com.cse441.tluprojectexpo.model;
+// User.java
+package com.cse441.tluprojectexpo.model; // THAY ĐỔI PACKAGE
 
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
@@ -56,15 +56,6 @@ public class User implements Serializable {
         this.userId = userId;
     }
 
-    @PropertyName("AvatarUrl")
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
-
-    @PropertyName("AvatarUrl")
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-    }
 
     @PropertyName("Class")
     public String getClassName() {
@@ -126,4 +117,15 @@ public class User implements Serializable {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    @PropertyName("AvatarUrl")
+    public void setAvatarUrl(String avatarUrl){
+        avatarUrl = avatarUrl;
+    }
+
+    @PropertyName("AvatarUrl")
+    public String getAvatarUrl(){
+        return avatarUrl;
+    }
+
 }

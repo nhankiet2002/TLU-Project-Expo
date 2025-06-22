@@ -1,0 +1,5 @@
+<!-- drawable/status_background_completed.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#4CAF50"/> <!-- Green -->
+    <corners android:radius="4dp"/>
+</shape>

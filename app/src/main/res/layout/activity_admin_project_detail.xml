@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8"?>
+<<<<<<< HEAD
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProjectDetail"
+    android:background="@color/white">
+
+    <!--Header Title-->
+    <LinearLayout
+        android:id="@+id/header_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="8"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/nav_bar_project_detail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="4dp"
+            android:layout_marginBottom="5dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageView
+                android:id="@+id/back_to_home"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="4dp"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/ic_arrow_back_left" />
+
+            <TextView
+                android:textColor="#1D1B20"
+                android:textSize="20sp"
+                android:layout_marginBottom="1dp"
+                android:layout_marginEnd="4dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/project_detail"
+                />
+        </LinearLayout>
+        <ImageButton
+            android:id="@+id/option_project_detail"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:layout_gravity="center_vertical"
+            app:srcCompat="@drawable/ic_3soc"
+            android:background="@android:color/transparent"/>
+    </LinearLayout>
+
+    <!--Thumbnail Image-->
+    <ImageView
+        android:id="@+id/img_thumb"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        tools:src="@drawable/project_thumbnail"
+        app:layout_constraintTop_toBottomOf="@id/header_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!--Project Name, Status-->
+    <LinearLayout
+        android:id="@+id/name_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/img_thumb"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/project_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            tools:text="Project Name"
+            android:layout_weight="7"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:id="@+id/project_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            tools:text="Đang thực hiện"
+            android:textColor="#FFFFFF"
+            android:layout_weight="3"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingVertical="4dp"
+            android:gravity="center_horizontal"
+            android:background="@drawable/progress_background"/>
+    </LinearLayout>
+
+    <!--Project CreatedAt, UpdatedAt, Amount of Like-->
+    <LinearLayout
+        android:id="@+id/cul"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        app:layout_constraintTop_toBottomOf="@id/name_status"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/created_at"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            tools:text="Created At: 2023-10-01"
+            android:layout_weight="4"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/updated_at"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            tools:text="Updated At: 2023-10-05"
+            android:layout_weight="4"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/like_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            tools:text="Likes: 100"
+            android:layout_weight="2"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!--Project Description-->
+    <LinearLayout
+        android:id="@+id/project_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="10dp"
+        app:layout_constraintTop_toBottomOf="@id/cul"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/short_description"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:id="@+id/desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="This is a sample project description. It can be quite long and detailed."
+            android:textSize="16sp"
+            android:textColor="#000000"/>
+    </LinearLayout>
+
+    <!--Button Github, Video-->
+    <LinearLayout
+        android:id="@+id/github_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        app:layout_constraintTop_toBottomOf="@id/project_description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:id="@+id/github_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingVertical="4dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/border_button_medium">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                app:srcCompat="@drawable/ic_github"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginStart="4dp"
+                android:text="@string/source_code"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:id="@+id/video_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:paddingVertical="4dp"
+            android:gravity="center"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/border_button_medium">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                app:srcCompat="@drawable/ic_videor"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginStart="4dp"
+                android:text="@string/video"
+                android:textSize="16sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!--breakline-->
+    <View
+        android:id="@+id/break_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black"
+        android:layout_marginTop="25dp"
+        android:layout_marginHorizontal="10dp"
+        app:layout_constraintTop_toBottomOf="@id/github_video"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!--TabButton-->
+
+    <LinearLayout
+        android:id="@+id/tab_button"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/break_line"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_member"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_button_medium"
+            android:text="@string/member"
+            android:textSize="16sp"
+            android:layout_marginEnd="4dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:textColor="@color/change_button_text_selector"
+            app:backgroundTint="@null"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_comment"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_button_medium"
+            android:text="@string/comment"
+            android:textSize="16sp"
+            android:layout_marginStart="4dp"
+            android:textColor="@color/change_button_text_selector"
+            app:backgroundTint="@null"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_delete_project"
+        android:text="@string/delete_project"
+        android:layout_width="380dp"
+        android:layout_height="40dp"
+        android:background="@drawable/button_see_more"
+        app:backgroundTint="@null"
+        android:layout_marginTop="61dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+=======
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.detailproject.ProjectDetailActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">  <!-- Hoặc Theme.MaterialComponents.DayNight.DarkActionBar -->
+        <RelativeLayout
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp">
+            <ImageView
+                android:id="@+id/iv_back_arrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_back"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back" />
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chi tiết dự án"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/iv_back_arrow"
+                android:layout_marginStart="8dp" />
+        </RelativeLayout>
+        <!-- Nếu bạn dùng theme MaterialComponents, có thể dùng app:navigationIconTint="@color/white" nếu cần -->
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Nội dung còn lại của bạn (ImageView, TextViews, RecyclerViews, etc.) giữ nguyên -->
+            <!-- ... (ImageViewProjectThumbnail, textViewProjectTitle, etc.) ... -->
+            <ImageView
+                android:id="@+id/imageViewProjectThumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+
+                tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+            <TextView
+                android:id="@+id/textViewProjectTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                tools:text="Tên Dự Án" />
+
+            <TextView
+                android:id="@+id/textViewProjectCreator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                tools:text="Tạo bởi: Nguyễn Văn A - Ngày: 01/01/2024" />
+
+            <TextView
+                android:id="@+id/textViewProjectStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@drawable/status_background_completed"
+                android:textColor="@android:color/white"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                tools:text="Hoàn thành" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Mô tả dự án"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+
+            <TextView
+                android:id="@+id/textViewProjectDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                tools:text="Đây là mô tả chi tiết của dự án. Dự án này nhằm giải quyết vấn đề XYZ bằng cách sử dụng công nghệ ABC. Các chức năng chính bao gồm..." />
+
+            <!-- Links Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Liên kết"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+
+                <TextView
+                    android:id="@+id/textViewProjectLinkSourceCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:autoLink="web"
+                    android:textColorLink="@color/blue"
+                    tools:text="Mã nguồn: https://github.com/user/project" />
+
+                <TextView
+                    android:id="@+id/textViewProjectLinkDemo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:autoLink="web"
+                    android:textColorLink="@color/blue"
+                    tools:text="Demo: https://demo.project.com" />
+
+            </LinearLayout>
+
+            <!-- Course Info -->
+            <LinearLayout
+                android:id="@+id/layoutProjectCourse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Môn học: "
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"/>
+                <TextView
+                    android:id="@+id/textViewProjectCourse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    tools:text="Lập trình ứng dụng di động"/>
+            </LinearLayout>
+
+
+            <!-- Categories/Fields -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Lĩnh vực"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupCategories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:chipSpacingHorizontal="8dp"/>
+
+            <!-- Technologies Used -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Công nghệ sử dụng"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupTechnologies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:chipSpacingHorizontal="8dp"/>
+
+            <!-- Team Members -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Thành viên nhóm"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewMembers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_member"
+                tools:itemCount="2"/>
+
+            <!-- Media Gallery -->
+            <TextView
+                android:id="@+id/textViewMediaGalleryTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Thư viện Media"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewMediaGallery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_media_gallery"
+                tools:itemCount="3"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+
+
+            <!-- Interactions: Upvote -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="24dp">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonUpvote"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bình chọn"
+                    android:textColor="@color/blue"
+                    app:strokeColor="@color/blue"
+                    app:iconTint="@color/blue"
+                    app:icon="@drawable/ic_thumb_up" />
+                <TextView
+                    android:id="@+id/textViewVoteCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    tools:text="123 lượt bình chọn"/>
+            </LinearLayout>
+
+
+            <!-- Comments Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Bình luận"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+
+            <EditText
+                android:id="@+id/editTextNewComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Viết bình luận của bạn..."
+                android:inputType="textMultiLine"
+                android:minLines="2" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonPostComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="8dp"
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@android:color/black"
+                android:text="Gửi"
+                app:cornerRadius="10dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewComments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_comment"
+                tools:itemCount="3"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+>>>>>>> 261ac75ad10d403d967faaf3d4d31f6e9bf1d791

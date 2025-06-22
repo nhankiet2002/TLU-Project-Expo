@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginBottom="2dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/imageViewProject"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="centerCrop"
+            android:background="#E0E0E0"
+            tools:srcCompat="@style/Widget.AppCompat.ImageButton"
+            android:contentDescription="Ảnh dự án" />
+        <!-- tools:srcCompat để hiển thị placeholder trong preview -->
+        <!-- android:src sẽ được set động từ code Java/Kotlin -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/textViewProjectName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Tên dự án"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textStyle="bold"
+                android:textColor="@android:color/black" />
+            <TextView
+                android:id="@+id/textViewCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Lĩnh vực"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="4dp"/>
+            <TextView
+                android:id="@+id/textViewAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Tác giả"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/iv_featured_star"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_star_featured"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
