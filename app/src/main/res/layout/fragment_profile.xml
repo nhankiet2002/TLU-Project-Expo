@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#F5F5F5"
-    tools:context=".MainActivity">
+    tools:context=".ui.Profile.ProfileFragment"> <!-- Đổi context nếu cần -->
 
     <!-- Profile Section -->
     <RelativeLayout
@@ -129,20 +129,33 @@
         android:textColorHint="@android:color/darker_gray"
         android:textSize="16sp" />
 
-    <!-- Project List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/projectsRecyclerView"
+    <!-- Project List with SwipeRefreshLayout -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayoutProfile"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1">
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/list_item_project_actions"/>
-    <ProgressBar
-        android:id="@+id/progressBarProfile"
-        style="?android:attr/progressBarStyleLarge"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/projectsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/list_item_project_actions"/> <!-- Thay thế bằng layout item thực tế của bạn -->
+
+        <ProgressBar
+            android:id="@+id/progressBarProfile"
+            style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-    android:visibility="gone"
-    android:layout_gravity="center" />
-</LinearLayout>
+        android:visibility="gone" />
+    </RelativeLayout>
+
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </LinearLayout>
