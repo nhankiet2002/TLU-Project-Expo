@@ -111,7 +111,7 @@ public class SettingProfileActivity extends AppCompatActivity {
 
     private void setClickListener() {
         btnChangePW.setOnClickListener(v -> {
-            Intent intent = new Intent(SettingProfileActivity.this, ForgotPasswordActivity.class);
+            Intent intent = new Intent(SettingProfileActivity.this, ResetPasswordActivity.class);
             startActivity(intent);
         });
         imgBack.setOnClickListener(v -> {
