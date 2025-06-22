@@ -31,8 +31,8 @@
                 android:layout_height="120dp"
                 android:layout_marginTop="24dp"
                 android:src="@drawable/default_avatar"
-                app:civ_border_width="2dp"
-                app:civ_border_color="@color/black" />
+                app:civ_border_color="@color/black"
+                app:civ_border_width="2dp" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/txtUserName"
@@ -68,7 +68,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập khoa (VD: 63CNTT)">
+                android:hint="Nhập khoa (VD: Công nghệ thông tin)">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextText2"
@@ -88,7 +88,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập lớp (VD: 2)">
+                android:hint="Nhập lớp (VD: 64CNTT2)">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextText3"
@@ -99,7 +99,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveProfile"
-                android:layout_width="wrap_content"
+                android:layout_width="234dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="Lưu hồ sơ"
@@ -108,7 +108,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChangePW"
-                android:layout_width="wrap_content"
+                android:layout_width="229dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="Đổi mật khẩu"
