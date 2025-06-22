@@ -21,10 +21,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.cse441.tluprojectexpo.MainActivity; // Màn hình chính cho người dùng thường
+import com.cse441.tluprojectexpo.MainActivity;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.AdminHomePage;
-import com.cse441.tluprojectexpo.admin.Dashboard; // Màn hình Dashboard cho Admin
 import com.cse441.tluprojectexpo.model.UserRole;
 import com.cse441.tluprojectexpo.utils.GuestModeHandler;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,7 +34,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot; // Import DocumentSnapshot
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -58,13 +57,21 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        initializeUIAndListeners(); // Vẫn giữ nguyên khởi tạo UI
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        // Load các thông tin đã lưu vào các trường nhập liệu
+        loadRememberMePreferences();
+
+        // KHÔNG CÒN LOGIC TỰ ĐỘNG ĐĂNG NHẬP Ở ĐÂY NỮA
+        // Logic này đã được chuyển sang OpenActivity
+    }
+
+    private void initializeUIAndListeners() {
         edEmailLogin = findViewById(R.id.edEmailLogin);
         edPasswordLogin = findViewById(R.id.edPasswordLogin);
         btnLogin = findViewById(R.id.btnLogin);
@@ -73,8 +80,6 @@ public class LoginActivity extends AppCompatActivity {
         cbRememberMe = findViewById(R.id.cbRememberMe);
         progressBar = findViewById(R.id.progressBar);
         txtGuestMode = findViewById(R.id.txtGuestMode);
-
-        loadRememberMePreferences();
 
         btnLogin.setOnClickListener(v -> loginUser());
 
@@ -112,6 +117,10 @@ public class LoginActivity extends AppCompatActivity {
             String savedPassword = preferences.getString(KEY_PASSWORD, "");
             edEmailLogin.setText(savedEmail);
             edPasswordLogin.setText(savedPassword);
+        } else {
+            // Đảm bảo trường email và mật khẩu trống nếu "nhớ tài khoản" không được chọn
+            edEmailLogin.setText("");
+            edPasswordLogin.setText("");
         }
     }
 
@@ -128,6 +137,18 @@ public class LoginActivity extends AppCompatActivity {
             editor.remove(KEY_PASSWORD);
         }
         editor.apply();
+    }
+
+    // Phương thức tĩnh để clear SharedPreferences, cần gọi từ OpenActivity hoặc Dashboard
+    public static void clearRememberMePreferences(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(KEY_REMEMBER_ME, false);
+        editor.remove(KEY_EMAIL);
+        editor.remove(KEY_PASSWORD);
+        editor.apply();
+        // Không cập nhật UI ở đây vì đây là static method, không có quyền truy cập trực tiếp vào CheckBox
+        // CheckBox sẽ được cập nhật khi LoginActivity được load lại
     }
 
     private void hideKeyboard() {
@@ -157,25 +178,21 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                // Bắt đầu kiểm tra trạng thái khóa tài khoản
                                 db.collection("Users").document(user.getUid()).get()
                                         .addOnCompleteListener(userDocTask -> {
                                             if (userDocTask.isSuccessful()) {
                                                 DocumentSnapshot document = userDocTask.getResult();
                                                 if (document.exists()) {
                                                     Boolean isLocked = document.getBoolean("IsLocked");
-                                                    // Mặc định không khóa nếu trường IsLocked không tồn tại hoặc null
                                                     if (isLocked != null && isLocked) {
-                                                        // Tài khoản bị khóa
-                                                        mAuth.signOut(); // Đăng xuất người dùng ngay lập tức
+                                                        mAuth.signOut();
                                                         hideProgressBar();
                                                         Toast.makeText(LoginActivity.this, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.", Toast.LENGTH_LONG).show();
                                                         Log.d(TAG, "Tài khoản bị khóa: " + user.getUid());
+                                                        clearRememberMePreferences(LoginActivity.this);
                                                     } else {
-
-                                                        // Tài khoản không bị khóa, tiếp tục logic thông thường
                                                         Log.d(TAG, "Đăng nhập thành công.");
-                                                        saveRememberMePreferences(email, password);
+                                                        saveRememberMePreferences(email, password); // Lưu thông tin sau khi đăng nhập thành công
 
                                                         if (!user.isEmailVerified()) {
                                                             Toast.makeText(LoginActivity.this, "Email của bạn chưa được xác thực. Một số tính năng có thể bị hạn chế. Vui lòng kiểm tra email để xác thực tài khoản.", Toast.LENGTH_LONG).show();
@@ -183,19 +200,18 @@ public class LoginActivity extends AppCompatActivity {
                                                         checkUserRoleAndNavigate(user.getUid());
                                                     }
                                                 } else {
-                                                    // Document người dùng không tồn tại trong Firestore
-                                                    // Điều này có thể xảy ra nếu người dùng được tạo qua Authentication nhưng chưa có document trong Users collection
                                                     Log.e(TAG, "Không tìm thấy thông tin người dùng trong Firestore cho UID: " + user.getUid());
-                                                    mAuth.signOut(); // Đăng xuất để tránh trạng thái không nhất quán
+                                                    mAuth.signOut();
                                                     hideProgressBar();
                                                     Toast.makeText(LoginActivity.this, "Lỗi: Không thể truy xuất thông tin tài khoản. Vui lòng thử lại hoặc liên hệ hỗ trợ.", Toast.LENGTH_LONG).show();
+                                                    clearRememberMePreferences(LoginActivity.this);
                                                 }
                                             } else {
-                                                // Lỗi khi truy vấn Firestore
                                                 Log.e(TAG, "Lỗi khi lấy trạng thái khóa từ Firestore: " + userDocTask.getException().getMessage());
-                                                mAuth.signOut(); // Đăng xuất để tránh trạng thái không nhất quán
+                                                mAuth.signOut();
                                                 hideProgressBar();
                                                 Toast.makeText(LoginActivity.this, "Lỗi: Không thể kiểm tra trạng thái tài khoản. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                                                clearRememberMePreferences(LoginActivity.this);
                                             }
                                         });
 
@@ -224,7 +240,7 @@ public class LoginActivity extends AppCompatActivity {
                 .whereEqualTo("UserId", userId)
                 .get()
                 .addOnCompleteListener(task -> {
-                    hideProgressBar(); // Ẩn ProgressBar ngay sau khi task hoàn thành
+                    hideProgressBar();
 
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
                         String userRoleName = null;
@@ -274,12 +290,12 @@ public class LoginActivity extends AppCompatActivity {
         if (progressBar != null) {
             progressBar.setVisibility(View.VISIBLE);
         }
-        btnLogin.setEnabled(false);
-        edEmailLogin.setEnabled(false);
-        edPasswordLogin.setEnabled(false);
-        txtRegister.setEnabled(false);
-        txtForgotPassword.setEnabled(false);
-        cbRememberMe.setEnabled(false);
+        if (btnLogin != null) btnLogin.setEnabled(false);
+        if (edEmailLogin != null) edEmailLogin.setEnabled(false);
+        if (edPasswordLogin != null) edPasswordLogin.setEnabled(false);
+        if (txtRegister != null) txtRegister.setEnabled(false);
+        if (txtForgotPassword != null) txtForgotPassword.setEnabled(false);
+        if (cbRememberMe != null) cbRememberMe.setEnabled(false);
         if (txtGuestMode != null) txtGuestMode.setEnabled(false);
     }
 
@@ -287,12 +303,12 @@ public class LoginActivity extends AppCompatActivity {
         if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
         }
-        btnLogin.setEnabled(true);
-        edEmailLogin.setEnabled(true);
-        edPasswordLogin.setEnabled(true);
-        txtRegister.setEnabled(true);
-        txtForgotPassword.setEnabled(true);
-        cbRememberMe.setEnabled(true);
+        if (btnLogin != null) btnLogin.setEnabled(true);
+        if (edEmailLogin != null) edEmailLogin.setEnabled(true);
+        if (edPasswordLogin != null) edPasswordLogin.setEnabled(true);
+        if (txtRegister != null) txtRegister.setEnabled(true);
+        if (txtForgotPassword != null) txtForgotPassword.setEnabled(true);
+        if (cbRememberMe != null) cbRememberMe.setEnabled(true);
         if (txtGuestMode != null) txtGuestMode.setEnabled(true);
     }
 }
