@@ -2,12 +2,13 @@
 package com.cse441.tluprojectexpo.auth;
 
 import android.content.Intent;
+import android.net.Uri; // Cần thiết để tạo Intent mở ứng dụng email
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar; // Thêm ProgressBar nếu bạn muốn hiển thị trạng thái tải
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +24,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     private Button btnUpdatePW;
     private ImageView imgBackToForgotPWCode;
-    private ProgressBar progressBar; // Thêm ProgressBar
+    private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
 
@@ -35,11 +36,8 @@ public class ResetPasswordActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         // Ánh xạ các View
-        // txtTitle và txtContentResetPW đã được đặt trong XML, không cần ánh xạ nếu không thay đổi text động
         btnUpdatePW = findViewById(R.id.btnUpdatePW);
         imgBackToForgotPWCode = findViewById(R.id.imgBackToForgotPWCode);
-        // Giả định bạn có ProgressBar trong reset_password.xml với id progessBar1 hoặc khác
-        // Nếu không có, bạn có thể bỏ dòng này hoặc thêm ProgressBar vào XML
         progressBar = findViewById(R.id.progessBar1); // Đảm bảo ID này khớp với XML của bạn
 
         // Logic cho nút "Xác nhận đổi mật khẩu" (btnUpdatePW)
@@ -74,16 +72,31 @@ public class ResetPasswordActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "Password reset email sent to: " + email);
                         Toast.makeText(ResetPasswordActivity.this, "Đã gửi link đổi mật khẩu đến email của bạn (" + email + "). Vui lòng kiểm tra email!", Toast.LENGTH_LONG).show();
-                        // Chuyển sang màn hình thông báo thành công
-                        Intent successIntent = new Intent(ResetPasswordActivity.this, ResetPasswordSuccessfullActivity.class);
-                        startActivity(successIntent);
-                        finish(); // Đóng ResetPasswordActivity
+                        // Thay vì chuyển sang ResetPasswordSuccessfullActivity, chúng ta sẽ mở ứng dụng email
+                        openEmailApp();
+                        // Bạn có thể chọn finish() Activity này hoặc để nó chờ người dùng quay lại
+                        // finish();
                     } else {
                         String errorMessage = task.getException() != null ? task.getException().getMessage() : "Lỗi không xác định.";
                         Log.e(TAG, "Failed to send password reset email: " + errorMessage);
                         Toast.makeText(ResetPasswordActivity.this, "Không thể gửi link đổi mật khẩu: " + errorMessage, Toast.LENGTH_LONG).show();
                     }
                 });
+    }
+
+    // --- Phương thức mới để mở ứng dụng email ---
+    private void openEmailApp() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_APP_EMAIL);
+        // Đảm bảo ứng dụng email mở trong một tác vụ mới, ngăn chặn việc quay lại ngay lập tức
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        // Kiểm tra xem có ứng dụng email nào có thể xử lý intent này không
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Không tìm thấy ứng dụng email nào trên thiết bị của bạn.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showProgressBar() {
