@@ -79,6 +79,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         TextView textViewCategory; // THAY ĐỔI: Thêm Category
         TextView textViewAuthor;
         // KHÔNG CÒN: textViewDescription, textViewTechnology
+        ImageView imageViewFeaturedStar;
 
         public ProjectViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,6 +87,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
             textViewProjectName = itemView.findViewById(R.id.textViewProjectName);
             textViewCategory = itemView.findViewById(R.id.textViewCategory); // THAY ĐỔI: Gán ID
             textViewAuthor = itemView.findViewById(R.id.textViewAuthor);
+            imageViewFeaturedStar = itemView.findViewById(R.id.iv_featured_star);
         }
 
         public void bind(final Project project, final OnProjectClickListener listener) {
@@ -114,6 +116,11 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
                 textViewAuthor.setVisibility(View.VISIBLE);
             } else {
                 textViewAuthor.setVisibility(View.GONE);
+            }
+            if (project.isFeatured()) {
+                imageViewFeaturedStar.setVisibility(View.VISIBLE);
+            } else {
+                imageViewFeaturedStar.setVisibility(View.GONE);
             }
 
             // KHÔNG CÒN LOGIC CHO textViewDescription và textViewTechnology

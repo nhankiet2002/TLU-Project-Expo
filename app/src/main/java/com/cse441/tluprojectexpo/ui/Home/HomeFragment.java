@@ -26,10 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.cse441.tluprojectexpo.R;
-// Đảm bảo đường dẫn này đúng, nếu không thì dùng đường dẫn trong câu hỏi của bạn
 import com.cse441.tluprojectexpo.ui.Home.adapter.ProjectAdapter;
-// import com.cse441.tluprojectexpo.ui.createproject.adapter.ProjectAdapter; // Hoặc đường dẫn này
-import com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity;
+import com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity; // Đảm bảo tên package/class này đúng
 import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
 
@@ -46,7 +44,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,7 +60,6 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
 
     private RecyclerView recyclerViewProjects;
     private ProjectAdapter projectAdapter;
-    // projectList sẽ được khởi tạo trong onCreateView
     private List<Project> projectList;
 
     private FirebaseFirestore db;
@@ -86,7 +82,7 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
     private boolean isLastPage = false;
 
     private String currentSearchQuery = "";
-    private String currentSortField = "CreatedAt";
+    private String currentSortField = "CreatedAt"; // Mặc định vẫn là CreatedAt
     private Query.Direction currentSortDirection = Query.Direction.DESCENDING;
 
     private String selectedCategoryId = null;
@@ -97,7 +93,6 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
 
     private List<CategoryItem> categoryListForDialog = new ArrayList<>();
     private List<TechnologyItem> technologyListForDialog = new ArrayList<>();
-    private List<String> featuredProjectIds = new ArrayList<>();
     private String[] statusArrayForDialog;
 
     public HomeFragment() {
@@ -137,7 +132,7 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
         chipCongNghe = view.findViewById(R.id.chip_cong_nghe);
         chipTrangThai = view.findViewById(R.id.chip_trang_thai);
 
-        projectList = new ArrayList<>(); // Khởi tạo projectList ở đây
+        projectList = new ArrayList<>();
         if (getContext() != null) {
             projectAdapter = new ProjectAdapter(getContext(), projectList, this);
             recyclerViewProjects.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -147,40 +142,11 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
             Log.e(TAG, "Context is null in onCreateView, cannot initialize adapter or resources.");
         }
 
-        // --- THÊM MỚI ---
-        // Tải danh sách ID nổi bật ngay từ đầu và giữ nó lại
-        loadFeaturedProjectIds();
-
         setupListeners();
         preloadFilterData();
         reloadData();
 
         return view;
-    }
-
-    // --- THÊM MỚI ---
-    /**
-     * Tải danh sách ID của các dự án nổi bật và lưu vào biến của Fragment.
-     * Việc này chỉ cần làm một lần khi Fragment được tạo.
-     */
-    private void loadFeaturedProjectIds() {
-        if (db == null) return;
-        db.collection("FeaturedProjects").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                featuredProjectIds.clear();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    String projectId = document.getString("ProjectId");
-                    if (projectId != null) {
-                        featuredProjectIds.add(projectId);
-                    }
-                }
-                Log.d(TAG, "Đã tải thành công " + featuredProjectIds.size() + " ID dự án nổi bật.");
-                // Sau khi có danh sách ID nổi bật, có thể làm mới lại dữ liệu nếu cần
-                // Hoặc để reloadData() tự xử lý
-            } else {
-                Log.e(TAG, "Lỗi khi tải danh sách ID dự án nổi bật.", task.getException());
-            }
-        });
     }
 
     private void preloadFilterData() {
@@ -411,7 +377,6 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
         isLastPage = false;
         lastVisibleDocument = null;
         if (projectAdapter != null) projectAdapter.clearProjects();
-        // Update chip UI in case filters were cleared programmatically
         updateChipUI(chipLinhVuc, "Lĩnh vực/ Chủ đề", selectedCategoryId != null);
         updateChipUI(chipCongNghe, "Công nghệ", selectedTechnologyId != null);
         updateChipUI(chipTrangThai, "Trạng thái", selectedStatus != null);
@@ -483,12 +448,18 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
 
             Query query = projectsRef.whereEqualTo("IsApproved", true);
 
+            // Thêm sắp xếp theo IsFeatured LÀM ƯU TIÊN HÀNG ĐẦU
+            // Sau đó mới đến các sắp xếp khác
             if (!currentSearchQuery.isEmpty()) {
-                query = query.orderBy("Title")
+                // Khi tìm kiếm, IsFeatured vẫn là ưu tiên, sau đó đến Title
+                query = query.orderBy("IsFeatured", Query.Direction.DESCENDING)
+                        .orderBy("Title") // Sắp xếp theo Title để whereGreaterThanOrEqualTo hoạt động
                         .whereGreaterThanOrEqualTo("Title", currentSearchQuery)
                         .whereLessThanOrEqualTo("Title", currentSearchQuery + "\uf8ff");
             } else {
-                query = query.orderBy(currentSortField, currentSortDirection);
+                // Khi không tìm kiếm, IsFeatured là ưu tiên, sau đó đến lựa chọn sắp xếp của người dùng
+                query = query.orderBy("IsFeatured", Query.Direction.DESCENDING)
+                        .orderBy(currentSortField, currentSortDirection);
             }
 
             if (selectedStatus != null && !selectedStatus.isEmpty()) {
@@ -504,7 +475,7 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
                     if(getContext() != null && isInitialLoad) Toast.makeText(getContext(), "Không có dự án nào khớp với bộ lọc.", Toast.LENGTH_SHORT).show();
                     return Tasks.forResult(null);
                 }
-                if (finalFilteredProjectIds.size() > 30) {
+                if (finalFilteredProjectIds.size() > 30) { // Firestore `whereIn` limit
                     Log.w(TAG, "Too many project IDs for whereIn clause: " + finalFilteredProjectIds.size() + ". Truncating to 30.");
                     query = query.whereIn(FieldPath.documentId(), finalFilteredProjectIds.subList(0, 30));
                 } else {
@@ -521,12 +492,9 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
         }).addOnCompleteListener(task -> {
             if (!isAdded() || getContext() == null) {
                 Log.w(TAG, "Fragment not attached or context is null in fetchProjects final callback.");
-                hideProgress(isInitialLoad);
-                isLoading = false;
-                return;
+                hideProgress(isInitialLoad); isLoading = false; return;
             }
-            hideProgress(isInitialLoad);
-            isLoading = false;
+            hideProgress(isInitialLoad); isLoading = false;
 
             if (task.isSuccessful() && task.getResult() != null) {
                 QuerySnapshot querySnapshot = task.getResult();
@@ -544,8 +512,7 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
                                     .continueWith(userDocTask -> {
                                         if (userDocTask.isSuccessful() && userDocTask.getResult() != null && userDocTask.getResult().exists()) {
                                             User user = userDocTask.getResult().toObject(User.class);
-                                            if (user != null)
-                                                project.setCreatorFullName(user.getFullName());
+                                            if (user != null) project.setCreatorFullName(user.getFullName());
                                         } else project.setCreatorFullName(null);
                                         return null;
                                     });
@@ -559,12 +526,10 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
                                             List<Task<DocumentSnapshot>> techNameTasks = new ArrayList<>();
                                             for (QueryDocumentSnapshot ptDoc : ptQueryTask.getResult()) {
                                                 String techId = ptDoc.getString("TechnologyId");
-                                                if (techId != null)
-                                                    techNameTasks.add(techRef.document(techId).get());
+                                                if (techId != null) techNameTasks.add(techRef.document(techId).get());
                                             }
                                             return Tasks.whenAllSuccess(techNameTasks);
-                                        }
-                                        return Tasks.forResult(new ArrayList<>());
+                                        } return Tasks.forResult(new ArrayList<>());
                                     }).continueWith(techNameResultsTask -> {
                                         if (techNameResultsTask.isSuccessful() && techNameResultsTask.getResult() != null) {
                                             List<String> techNames = ((List<?>) techNameResultsTask.getResult()).stream()
@@ -588,12 +553,10 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
                                             List<Task<DocumentSnapshot>> catNameTasks = new ArrayList<>();
                                             for (QueryDocumentSnapshot pcDoc : pcQueryTask.getResult()) {
                                                 String catId = pcDoc.getString("CategoryId");
-                                                if (catId != null)
-                                                    catNameTasks.add(categoriesRef.document(catId).get());
+                                                if (catId != null) catNameTasks.add(categoriesRef.document(catId).get());
                                             }
                                             return Tasks.whenAllSuccess(catNameTasks);
-                                        }
-                                        return Tasks.forResult(new ArrayList<>());
+                                        } return Tasks.forResult(new ArrayList<>());
                                     }).continueWith(catNameResultsTask -> {
                                         if (catNameResultsTask.isSuccessful() && catNameResultsTask.getResult() != null) {
                                             List<String> catNames = ((List<?>) catNameResultsTask.getResult()).stream()
@@ -613,47 +576,27 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
 
                     Tasks.whenAll(tasksToCompleteDetails).addOnCompleteListener(allExtraTasks -> {
                         if (!isAdded() || projectAdapter == null) return;
-
-                        // --- THÊM LOGIC SẮP XẾP Ở ĐÂY ---
-                        // Chỉ sắp xếp nếu không có bộ lọc hoặc tìm kiếm nào được áp dụng
-                        if (currentSearchQuery.isEmpty() && selectedCategoryId == null && selectedTechnologyId == null && selectedStatus == null) {
-                            Log.d(TAG, "Không có bộ lọc, tiến hành sắp xếp ưu tiên dự án nổi bật.");
-                            Collections.sort(fetchedProjects, new Comparator<Project>() {
-                                @Override
-                                public int compare(Project p1, Project p2) {
-                                    boolean p1IsFeatured = featuredProjectIds.contains(p1.getProjectId());
-                                    boolean p2IsFeatured = featuredProjectIds.contains(p2.getProjectId());
-
-                                    if (p1IsFeatured && !p2IsFeatured) {
-                                        return -1; // p1 nổi bật, đứng trước
-                                    }
-                                    if (!p1IsFeatured && p2IsFeatured) {
-                                        return 1; // p2 nổi bật, đứng trước (p1 đứng sau)
-                                    }
-                                    // Nếu cả hai cùng trạng thái, giữ nguyên thứ tự sắp xếp từ Firestore (theo ngày)
-                                    return 0;
-                                }
-                            });
-                        } else {
-                            Log.d(TAG, "Có bộ lọc, bỏ qua sắp xếp ưu tiên.");
-                        }
-                        // --- KẾT THÚC LOGIC SẮP XẾP ---
-
-                        if (isInitialLoad) {
-                            projectAdapter.updateProjects(fetchedProjects);
-                        } else {
-                            projectAdapter.addProjects(fetchedProjects);
-                        }
-
-                        if (querySnapshot.size() < PROJECTS_PER_PAGE) {
-                            isLastPage = true;
-                        }
-                        if (!querySnapshot.isEmpty()) {
-                            lastVisibleDocument = querySnapshot.getDocuments().get(querySnapshot.size() - 1);
-                        }
+                        if (isInitialLoad) projectAdapter.updateProjects(fetchedProjects);
+                        else projectAdapter.addProjects(fetchedProjects);
+                        if (querySnapshot.size() < PROJECTS_PER_PAGE) isLastPage = true;
+                        if (!querySnapshot.isEmpty()) lastVisibleDocument = querySnapshot.getDocuments().get(querySnapshot.size() - 1);
                     });
+
+                } else {
+                    if (isInitialLoad && projectAdapter != null) {
+                        projectAdapter.clearProjects();
+                        if (getContext() != null) Toast.makeText(getContext(), "Không có dự án nào.", Toast.LENGTH_SHORT).show();
+                    }
+                    isLastPage = true;
                 }
+            } else {
+                Log.e(TAG, "Error getting projects: ", task.getException());
+                if (getContext() != null) Toast.makeText(getContext(), "Lỗi tải dự án: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), Toast.LENGTH_LONG).show();
             }
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error in pre-fetching IDs for filters: ", e);
+            hideProgress(isInitialLoad); isLoading = false;
+            if (getContext() != null) Toast.makeText(getContext(), "Lỗi khi áp dụng bộ lọc.", Toast.LENGTH_LONG).show();
         });
     }
 
@@ -689,7 +632,7 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
         super.onDestroyView();
         recyclerViewProjects = null;
         projectAdapter = null;
-        projectList = null; // Giải phóng projectList
+        projectList = null;
         swipeRefreshLayout = null;
         progressBarMain = null;
         progressBarLoadMore = null;
@@ -698,10 +641,8 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
         chipLinhVuc = null;
         chipCongNghe = null;
         chipTrangThai = null;
-        // db, và các CollectionReference là singleton hoặc được quản lý bởi Firebase, không cần nullify ở đây.
     }
 
-    // Helper interfaces and classes for filter dialogs
     private interface FilterableItem {
         String getId();
         String getName();

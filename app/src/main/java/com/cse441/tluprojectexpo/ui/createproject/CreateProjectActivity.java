@@ -848,8 +848,9 @@ public class CreateProjectActivity extends AppCompatActivity implements
         projectData.put("CreatedAt", new Timestamp(new Date()));
         projectData.put("UpdatedAt", new Timestamp(new Date()));
         projectData.put("IsApproved", false);
+        projectData.put("IsFeatured", false);
         projectData.put("VoteCount", 0);
-        projectData.put("CourseId", null);
+
         List<Map<String, String>> mediaGalleryForFirestore = new ArrayList<>();
         if (uploadedMediaDetails != null && !uploadedMediaDetails.isEmpty()) {
             mediaGalleryForFirestore.addAll(uploadedMediaDetails);
@@ -905,7 +906,8 @@ public class CreateProjectActivity extends AppCompatActivity implements
         showCreatingProgress(false, null);
         new AlertDialog.Builder(this)
                 .setTitle("Thành công")
-                .setMessage("Dự án đã được tạo thành công!")
+                .setMessage("Dự án đã được tạo thành công!" +
+                        "Vui lòng chờ hệ thống duyệt dự án nhé.")
                 .setPositiveButton("Đóng", (dialog, which) -> {
                     clearForm();
                     updateCreateButtonState();

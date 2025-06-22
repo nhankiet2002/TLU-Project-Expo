@@ -1,24 +1,26 @@
 package com.cse441.tluprojectexpo.service;
 
 import android.util.Log;
-import androidx.annotation.NonNull; // Thêm import này
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 
+import com.cse441.tluprojectexpo.model.Comment;
+import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
 import com.cse441.tluprojectexpo.util.Constants;
-import com.google.android.gms.tasks.Continuation; // Thêm import này
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentReference; // Thêm import này
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class FirestoreService {
 
@@ -29,6 +31,7 @@ public class FirestoreService {
         db = FirebaseFirestore.getInstance();
     }
 
+    // --- CÁC INTERFACE LISTENER (Giữ lại từ file gốc của bạn) ---
     public interface CategoriesFetchListener {
         void onCategoriesFetched(List<String> categoryNames, Map<String, String> nameToIdMap);
         void onError(String errorMessage);
@@ -45,8 +48,9 @@ public class FirestoreService {
         void onError(String errorMessage);
     }
 
+    // --- CÁC PHƯƠNG THỨC FETCH GỐC (Giữ lại từ file gốc của bạn) ---
     public void fetchCategories(CategoriesFetchListener listener) {
-        // ... (Giữ nguyên)
+        // ... (Code gốc của bạn)
         if (listener == null) {
             Log.e(TAG, "CategoriesFetchListener không được null.");
             return;
@@ -77,7 +81,7 @@ public class FirestoreService {
     }
 
     public void fetchUserDetails(String userId, UserDetailsFetchListener listener) {
-        // ... (Giữ nguyên)
+        // ... (Code gốc của bạn)
         if (userId == null || userId.isEmpty()) {
             if (listener != null) listener.onError("User ID không hợp lệ.");
             return;
@@ -109,8 +113,9 @@ public class FirestoreService {
                 });
     }
 
+
     public void fetchTechnologies(TechnologyFetchListener listener) {
-        // ... (Giữ nguyên)
+        // ... (Code gốc của bạn)
         if (listener == null) {
             Log.e(TAG, "TechnologyFetchListener không được null.");
             return;
@@ -143,99 +148,253 @@ public class FirestoreService {
                 });
     }
 
-    /**
-     * Xử lý một công nghệ: tìm kiếm theo tên, nếu không tồn tại thì tạo mới.
-     * Sau đó, liên kết công nghệ này với một dự án.
-     *
-     * @param projectId ID của dự án.
-     * @param techName Tên của công nghệ.
-     * @return Task<String> trả về ID của công nghệ (dù là tìm thấy hay mới tạo) nếu thành công,
-     *         hoặc Task thất bại nếu có lỗi.
-     */
-    public Task<String> findOrCreateTechnologyAndLinkToProject(String projectId, String techName) {
-        // Bước 1: Tìm kiếm công nghệ theo tên
-        return db.collection(Constants.COLLECTION_TECHNOLOGIES)
-                .whereEqualTo(Constants.FIELD_NAME, techName)
-                .limit(1)
-                .get()
-                .continueWithTask(new Continuation<QuerySnapshot, Task<String>>() {
-                    @Override
-                    public Task<String> then(@NonNull Task<QuerySnapshot> task) throws Exception {
-                        if (!task.isSuccessful() || task.getResult() == null) {
-                            Log.e(TAG, "Lỗi khi tìm công nghệ: " + techName, task.getException());
-                            throw Objects.requireNonNull(task.getException(), "Lỗi tìm công nghệ: task exception null");
-                        }
+    // --- CÁC LISTENER VÀ PHƯƠNG THỨC MỚI CHO PROJECT DETAIL ---
+    public interface ProjectDetailsFetchListener {
+        void onProjectFetched(Project project);
+        void onProjectNotFound();
+        void onError(String errorMessage);
+    }
 
-                        if (!task.getResult().isEmpty()) {
-                            // Công nghệ đã tồn tại
-                            String techId = task.getResult().getDocuments().get(0).getId();
-                            Log.d(TAG, "Công nghệ '" + techName + "' đã tồn tại với ID: " + techId);
-                            // Bước 2a: Liên kết công nghệ đã có với dự án và trả về techId
-                            return addProjectTechnologyLink(projectId, techId, techName)
-                                    .continueWithTask(new Continuation<Void, Task<String>>() {
-                                        @Override
-                                        public Task<String> then(@NonNull Task<Void> linkTask) throws Exception {
-                                            if (!linkTask.isSuccessful()) {
-                                                throw Objects.requireNonNull(linkTask.getException(), "Lỗi liên kết công nghệ đã có: linkTask exception null");
-                                            }
-                                            return Tasks.forResult(techId); // Thành công, trả về techId
-                                        }
-                                    });
-                        } else {
-                            // Công nghệ chưa tồn tại, tạo mới
-                            Log.d(TAG, "Công nghệ '" + techName + "' chưa tồn tại, đang tạo mới...");
-                            Map<String, Object> newTechData = new HashMap<>();
-                            newTechData.put(Constants.FIELD_NAME, techName);
-                            return db.collection(Constants.COLLECTION_TECHNOLOGIES).add(newTechData)
-                                    .continueWithTask(new Continuation<DocumentReference, Task<String>>() {
-                                        @Override
-                                        public Task<String> then(@NonNull Task<DocumentReference> creationTask) throws Exception {
-                                            if (!creationTask.isSuccessful() || creationTask.getResult() == null) {
-                                                Log.e(TAG, "Lỗi khi tạo công nghệ mới: " + techName, creationTask.getException());
-                                                throw Objects.requireNonNull(creationTask.getException(), "Lỗi tạo công nghệ mới: creationTask exception null");
-                                            }
-                                            String newTechId = creationTask.getResult().getId();
-                                            Log.d(TAG, "Đã tạo công nghệ mới '" + techName + "' với ID: " + newTechId);
-                                            // Bước 2b: Liên kết công nghệ mới tạo với dự án và trả về newTechId
-                                            return addProjectTechnologyLink(projectId, newTechId, techName)
-                                                    .continueWithTask(new Continuation<Void, Task<String>>() {
-                                                        @Override
-                                                        public Task<String> then(@NonNull Task<Void> linkTask) throws Exception {
-                                                            if (!linkTask.isSuccessful()) {
-                                                                throw Objects.requireNonNull(linkTask.getException(), "Lỗi liên kết công nghệ mới: linkTask exception null");
-                                                            }
-                                                            return Tasks.forResult(newTechId); // Thành công, trả về newTechId
-                                                        }
-                                                    });
-                                        }
-                                    });
-                        }
-                    }
-                });
+    public interface CourseDetailsListener {
+        void onCourseFetched(String courseName);
+        void onCourseNotFound();
+        void onError(String errorMessage);
+    }
+
+    public interface ProjectRelatedListListener<T> {
+        void onListFetched(List<T> items);
+        void onListEmpty();
+        void onError(String errorMessage);
     }
 
 
-    /**
-     * Tạo một bản ghi liên kết giữa một dự án và một công nghệ trong collection "ProjectTechnologies".
-     *
-     * @param projectId ID của dự án.
-     * @param technologyId ID của công nghệ.
-     * @param techNameForLog Tên công nghệ (chỉ dùng để log).
-     * @return Task<Void> cho biết thao tác set dữ liệu đã hoàn thành (hoặc thất bại).
-     */
-    private Task<Void> addProjectTechnologyLink(String projectId, String technologyId, String techNameForLog) {
-        Map<String, Object> projectTechData = new HashMap<>();
-        projectTechData.put(Constants.FIELD_PROJECT_ID, projectId);
-        projectTechData.put(Constants.FIELD_TECHNOLOGY_ID, technologyId);
+    public void fetchProjectDetails(String projectId, ProjectDetailsFetchListener listener) {
+        if (projectId == null || projectId.isEmpty()) {
+            if (listener != null) listener.onError("Project ID không hợp lệ.");
+            return;
+        }
+        db.collection(Constants.COLLECTION_PROJECTS).document(projectId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Project project = documentSnapshot.toObject(Project.class);
+                        if (project != null) {
+                            project.setProjectId(documentSnapshot.getId());
+                            if (listener != null) listener.onProjectFetched(project);
+                        } else {
+                            if (listener != null) listener.onError("Lỗi khi đọc dữ liệu dự án.");
+                        }
+                    } else {
+                        if (listener != null) listener.onProjectNotFound();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onError("Lỗi tải dự án: " + e.getMessage());
+                });
+    }
 
-        // Tạo ID document duy nhất cho liên kết, ví dụ: "projectId_technologyId"
-        // Điều này giúp tránh việc tạo nhiều liên kết trùng lặp cho cùng một cặp project-technology
-        // và dễ dàng kiểm tra hoặc cập nhật nếu cần.
-        String documentId = projectId + "_" + technologyId;
-        DocumentReference docRef = db.collection(Constants.COLLECTION_PROJECT_TECHNOLOGIES).document(documentId);
+    public void fetchCourseDetails(String courseId, CourseDetailsListener listener) {
+        if (courseId == null || courseId.isEmpty()) {
+            if (listener != null) listener.onCourseNotFound(); // Hoặc onError
+            return;
+        }
+        db.collection(Constants.COLLECTION_COURSES).document(courseId).get()
+                .addOnSuccessListener(courseDoc -> {
+                    if (courseDoc.exists() && courseDoc.getString(Constants.FIELD_COURSE_NAME) != null) {
+                        if (listener != null) listener.onCourseFetched(courseDoc.getString(Constants.FIELD_COURSE_NAME));
+                    } else {
+                        if (listener != null) listener.onCourseNotFound();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onError("Lỗi tải môn học: " + e.getMessage());
+                });
+    }
 
-        return docRef.set(projectTechData) // Sử dụng set() để ghi đè nếu document đã tồn tại (hoặc tạo mới nếu chưa)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Đã thêm/cập nhật liên kết ProjectTechnology cho dự án " + projectId + " và công nghệ " + techNameForLog + " (ID: " + technologyId + ") với docID: " + documentId))
-                .addOnFailureListener(e -> Log.e(TAG, "Lỗi khi thêm/cập nhật liên kết ProjectTechnology cho: " + techNameForLog + " với docID: " + documentId, e));
+    public void fetchCategoriesForProject(String projectId, ProjectRelatedListListener<String> listener) {
+        db.collection(Constants.COLLECTION_PROJECT_CATEGORIES)
+                .whereEqualTo(Constants.FIELD_PROJECT_ID, projectId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        if (listener != null) listener.onListEmpty();
+                        return;
+                    }
+                    List<Task<DocumentSnapshot>> categoryTasks = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String categoryId = doc.getString(Constants.FIELD_CATEGORY_ID);
+                        if (categoryId != null) {
+                            categoryTasks.add(db.collection(Constants.COLLECTION_CATEGORIES).document(categoryId).get());
+                        }
+                    }
+                    if (categoryTasks.isEmpty()) {
+                        if (listener != null) listener.onListEmpty();
+                        return;
+                    }
+                    Tasks.whenAllSuccess(categoryTasks).addOnSuccessListener(list -> {
+                        List<String> categoryNames = new ArrayList<>();
+                        for (Object snapshot : list) {
+                            DocumentSnapshot catSnap = (DocumentSnapshot) snapshot;
+                            if (catSnap.exists() && catSnap.getString(Constants.FIELD_NAME) != null) {
+                                categoryNames.add(catSnap.getString(Constants.FIELD_NAME));
+                            }
+                        }
+                        if (listener != null) listener.onListFetched(categoryNames);
+                    }).addOnFailureListener(e -> {
+                        if (listener != null) listener.onError("Lỗi lấy chi tiết lĩnh vực: " + e.getMessage());
+                    });
+                }).addOnFailureListener(e -> {
+                    if (listener != null) listener.onError("Lỗi tải lĩnh vực của dự án: " + e.getMessage());
+                });
+    }
+
+    public void fetchTechnologiesForProject(String projectId, ProjectRelatedListListener<String> listener) {
+        db.collection(Constants.COLLECTION_PROJECT_TECHNOLOGIES)
+                .whereEqualTo(Constants.FIELD_PROJECT_ID, projectId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        if (listener != null) listener.onListEmpty();
+                        return;
+                    }
+                    List<Task<DocumentSnapshot>> techTasks = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String technologyId = doc.getString(Constants.FIELD_TECHNOLOGY_ID);
+                        if (technologyId != null) {
+                            techTasks.add(db.collection(Constants.COLLECTION_TECHNOLOGIES).document(technologyId).get());
+                        }
+                    }
+                    if (techTasks.isEmpty()) {
+                        if (listener != null) listener.onListEmpty();
+                        return;
+                    }
+                    Tasks.whenAllSuccess(techTasks).addOnSuccessListener(list -> {
+                        List<String> techNames = new ArrayList<>();
+                        for (Object snapshot : list) {
+                            DocumentSnapshot techSnap = (DocumentSnapshot) snapshot;
+                            if (techSnap.exists() && techSnap.getString(Constants.FIELD_NAME) != null) {
+                                techNames.add(techSnap.getString(Constants.FIELD_NAME));
+                            }
+                        }
+                        if (listener != null) listener.onListFetched(techNames);
+                    }).addOnFailureListener(e -> {
+                        if (listener != null) listener.onError("Lỗi lấy chi tiết công nghệ: " + e.getMessage());
+                    });
+                }).addOnFailureListener(e -> {
+                    if (listener != null) listener.onError("Lỗi tải công nghệ của dự án: " + e.getMessage());
+                });
+    }
+
+    public void fetchProjectMembers(String projectId, ProjectRelatedListListener<Project.UserShortInfo> listener) {
+        db.collection(Constants.COLLECTION_PROJECT_MEMBERS)
+                .whereEqualTo(Constants.FIELD_PROJECT_ID, projectId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        if (listener != null) listener.onListEmpty();
+                        return;
+                    }
+                    List<Task<DocumentSnapshot>> userTasks = new ArrayList<>();
+                    List<String> roles = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String userId = doc.getString(Constants.FIELD_USER_ID);
+                        String role = doc.getString(Constants.FIELD_ROLE_IN_PROJECT);
+                        if (userId != null) {
+                            userTasks.add(db.collection(Constants.COLLECTION_USERS).document(userId).get());
+                            roles.add(role != null ? role : Constants.DEFAULT_MEMBER_ROLE);
+                        }
+                    }
+                    if (userTasks.isEmpty()) {
+                        if (listener != null) listener.onListEmpty();
+                        return;
+                    }
+                    Tasks.whenAllSuccess(userTasks).addOnSuccessListener(list -> {
+                        List<Project.UserShortInfo> memberInfos = new ArrayList<>();
+                        for (int i = 0; i < list.size(); i++) {
+                            DocumentSnapshot userSnap = (DocumentSnapshot) list.get(i);
+                            if (userSnap.exists()) {
+                                User user = userSnap.toObject(User.class);
+                                if (user != null) {
+                                    memberInfos.add(new Project.UserShortInfo(
+                                            userSnap.getId(),
+                                            user.getFullName(),
+                                            user.getAvatarUrl(),
+                                            roles.get(i)
+                                    ));
+                                }
+                            }
+                        }
+                        if (listener != null) listener.onListFetched(memberInfos);
+                    }).addOnFailureListener(e -> {
+                        if (listener != null) listener.onError("Lỗi lấy chi tiết thành viên: " + e.getMessage());
+                    });
+                }).addOnFailureListener(e -> {
+                    if (listener != null) listener.onError("Lỗi tải thành viên dự án: " + e.getMessage());
+                });
+    }
+
+    public void fetchProjectComments(String projectId, ProjectRelatedListListener<Comment> listener) {
+        db.collection(Constants.COLLECTION_COMMENTS)
+                .whereEqualTo(Constants.FIELD_PROJECT_ID, projectId)
+                .orderBy(Constants.FIELD_CREATED_AT, Query.Direction.DESCENDING)
+                .limit(50)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        if (listener != null) listener.onListEmpty();
+                        return;
+                    }
+                    List<Comment> fetchedComments = new ArrayList<>();
+                    List<Task<Void>> userLoadTasks = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Comment comment = doc.toObject(Comment.class);
+                        comment.setCommentId(doc.getId());
+                        fetchedComments.add(comment);
+
+                        if (comment.getUserId() != null && !comment.getUserId().isEmpty()) {
+                            Task<Void> userTask = db.collection(Constants.COLLECTION_USERS).document(comment.getUserId()).get()
+                                    .continueWithTask(task -> {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot userDoc = task.getResult();
+                                            if (userDoc != null && userDoc.exists()) {
+                                                User user = userDoc.toObject(User.class);
+                                                if (user != null) {
+                                                    comment.setUserName(user.getFullName());
+                                                    comment.setUserAvatarUrl(user.getAvatarUrl());
+                                                }
+                                            }
+                                        } else {
+                                            Log.e(TAG, "Lỗi tải user cho comment: " + comment.getUserId(), task.getException());
+                                        }
+                                        return Tasks.forResult(null);
+                                    });
+                            userLoadTasks.add(userTask);
+                        }
+                    }
+                    Tasks.whenAllComplete(userLoadTasks).addOnCompleteListener(allTasks -> {
+                        if (listener != null) listener.onListFetched(fetchedComments);
+                    });
+                }).addOnFailureListener(e -> {
+                    if (listener != null) listener.onError("Lỗi tải bình luận: " + e.getMessage());
+                });
+    }
+
+    public void checkIfUserUpvoted(String projectId, String userId, @NonNull UpvoteStatusListener listener) {
+        if (projectId == null || userId == null) {
+            listener.onStatusChecked(false);
+            return;
+        }
+        db.collection(Constants.COLLECTION_PROJECT_VOTES).document(projectId)
+                .collection(Constants.SUB_COLLECTION_VOTERS).document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> listener.onStatusChecked(documentSnapshot.exists()))
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Lỗi kiểm tra trạng thái upvote", e);
+                    listener.onStatusChecked(false); // Default to false on error
+                });
+    }
+
+    public interface UpvoteStatusListener {
+        void onStatusChecked(boolean hasVoted);
     }
 }
