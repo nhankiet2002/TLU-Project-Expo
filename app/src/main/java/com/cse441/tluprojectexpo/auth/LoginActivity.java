@@ -220,7 +220,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void checkUserRoleAndNavigate(String userId) {
         db.collection("UserRoles")
-                .whereEqualTo("userId", userId)
+                .whereEqualTo("UserId", userId)
                 .get()
                 .addOnCompleteListener(task -> {
                     hideProgressBar(); // Ẩn ProgressBar ngay sau khi task hoàn thành
