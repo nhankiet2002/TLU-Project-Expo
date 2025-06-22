@@ -7,8 +7,11 @@
 
     <ImageView
         android:id="@+id/imgTLU"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="416dp"
+        android:layout_height="364dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logo_tlu_photoroom1"
         tools:ignore="MissingConstraints" />
 
