@@ -9,6 +9,13 @@ public class FeaturedProjectUIModel {
 
     public FeaturedProjectUIModel() {}
 
+    public FeaturedProjectUIModel(String projectId, String title, String authorName, String categoryName, String thumbnailUrl, int voteCount) {
+        this.projectId = projectId;
+        this.projectTitle = title;
+        this.creatorName = authorName;
+        this.categoryName = categoryName;
+    }
+
     // Getters
     public String getProjectId() { return projectId; }
     public String getProjectTitle() { return projectTitle; }

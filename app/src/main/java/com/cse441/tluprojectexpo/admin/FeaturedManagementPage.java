@@ -1,6 +1,7 @@
 package com.cse441.tluprojectexpo.admin;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -29,6 +30,7 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Đảm bảo tên file layout của bạn là "activity_featured_management_page"
         setContentView(R.layout.activity_featured_management_page);
 
         recyclerView = findViewById(R.id.hold_featured_projects);
@@ -36,6 +38,8 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
         btnBackToDashboard = findViewById(R.id.back_to_dashboard);
 
         projectRepository = new ProjectRepository();
+        // Adapter được khởi tạo với uiModelList. Mọi thay đổi trên list này
+        // sẽ được adapter nhận biết sau khi gọi notifyDataSetChanged().
         adapter = new FeaturedProjectAdapter(this, uiModelList, this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -48,30 +52,35 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
 
     private void loadFeaturedProjects() {
         progressBar.setVisibility(View.VISIBLE);
-        // Phương thức này trong repository đã được sửa để lấy các project có IsFeatured == true
+        recyclerView.setVisibility(View.GONE);
+
         projectRepository.getFeaturedProjectsForManagement().observe(this, featuredProjects -> {
             progressBar.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+
             if (featuredProjects != null) {
-                adapter.updateData(featuredProjects);
+                Log.d("FeaturedPage", "Số dự án nổi bật lấy về: " + featuredProjects.size());
+
+                // Cập nhật danh sách mà adapter đang giữ tham chiếu
+                this.uiModelList.clear();
+                this.uiModelList.addAll(featuredProjects);
+
+                // Thông báo cho adapter rằng dữ liệu đã thay đổi và cần vẽ lại UI.
+                adapter.notifyDataSetChanged();
+
             } else {
                 Toast.makeText(this, "Lỗi khi tải dự án nổi bật.", Toast.LENGTH_SHORT).show();
+                Log.e("FeaturedPage", "Danh sách dự án nổi bật trả về là null.");
             }
         });
     }
 
-    // --- SỬA LẠI HOÀN TOÀN PHƯƠNG THỨC NÀY ---
-    /**
-     * Được gọi khi người dùng gạt TẮT switch "Nổi bật".
-     * @param item Dữ liệu của item được tương tác.
-     * @param isChecked Trạng thái mới của switch (luôn là false trong trường hợp này).
-     */
     @Override
     public void onSwitchChanged(FeaturedProjectUIModel item, boolean isChecked) {
         // Logic này chỉ chạy khi người dùng gạt TẮT switch (isChecked == false)
         if (!isChecked) {
             Toast.makeText(this, "Đang bỏ nổi bật...", Toast.LENGTH_SHORT).show();
 
-            // Gọi phương thức mới trong repository để đặt IsFeatured = false
             projectRepository.setProjectFeaturedStatus(item.getProjectId(), false, new ProjectRepository.OnTaskCompleteListener() {
                 @Override
                 public void onSuccess() {
@@ -86,13 +95,14 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
                         }
                     }
                     if (positionToRemove != -1) {
+                        // Gọi phương thức removeItem từ adapter
                         adapter.removeItem(positionToRemove);
                     }
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-                    Toast.makeText(FeaturedManagementPage.this, "Lỗi khi bỏ nổi bật", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(FeaturedManagementPage.this, "Lỗi khi bỏ nổi bật: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     // Nếu lỗi, tải lại toàn bộ danh sách để đảm bảo dữ liệu đồng bộ
                     loadFeaturedProjects();
                 }
@@ -100,13 +110,9 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
         }
     }
 
-    /**
-     * Được gọi khi người dùng nhấn vào "Xem chi tiết".
-     * @param item Dữ liệu của item được nhấn.
-     */
     @Override
     public void onViewMoreClicked(FeaturedProjectUIModel item) {
-        // Logic chuyển trang của bạn ở đây
+        // Logic chuyển sang trang chi tiết của bạn ở đây
         Toast.makeText(this, "Xem chi tiết: " + item.getProjectTitle(), Toast.LENGTH_SHORT).show();
     }
 }
