@@ -26,7 +26,7 @@ public class ProjectRepository {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     /**
-     * PHƯƠNG THỨC CHO TRANG ADMIN HOMEPAGE (LẤY TẤT CẢ) - GIỮ NGUYÊN
+     * PHƯƠNG THỨC CHO TRANG ADMIN HOMEPAGE (LẤY TẤT CẢ)
      */
     public MutableLiveData<List<Project>> getAllProjectsForAdmin() {
         MutableLiveData<List<Project>> liveData = new MutableLiveData<>();
@@ -98,7 +98,7 @@ public class ProjectRepository {
     }
 
     /**
-     * PHƯƠNG THỨC CHO TRANG FEATURED MANAGEMENT PAGE - SỬA LẠI HOÀN CHỈNH
+     * PHƯƠNG THỨC CHO TRANG FEATURED MANAGEMENT PAGE
      */
     public MutableLiveData<List<FeaturedProjectUIModel>> getFeaturedProjectsForManagement() {
         MutableLiveData<List<FeaturedProjectUIModel>> liveData = new MutableLiveData<>();
@@ -158,7 +158,7 @@ public class ProjectRepository {
 
 
     /**
-     * PHƯƠNG THỨC CẬP NHẬT TRẠNG THÁI NỔI BẬT - GIỮ NGUYÊN
+     * PHƯƠNG THỨC CẬP NHẬT TRẠNG THÁI NỔI BẬT
      */
     public void setProjectFeaturedStatus(String projectId, boolean isFeatured, @NonNull OnTaskCompleteListener listener) {
         if (projectId == null || projectId.isEmpty()) {
