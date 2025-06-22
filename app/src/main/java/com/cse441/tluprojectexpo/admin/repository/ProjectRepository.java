@@ -184,20 +184,19 @@ public class ProjectRepository {
 
     /**
      * Hàm tổng hợp cho việc lọc và tìm kiếm.
-     * Đây là hàm chính mà bạn sẽ gọi từ ViewModel hoặc Activity.
      * @param searchQuery Chuỗi tìm kiếm theo tên (nếu rỗng hoặc null, sẽ bỏ qua tìm kiếm).
      * @param categoryId ID của lĩnh vực cần lọc (nếu rỗng hoặc null, sẽ bỏ qua lọc theo lĩnh vực).
      * @param technologyId ID của công nghệ cần lọc (nếu rỗng hoặc null, sẽ bỏ qua lọc theo công nghệ).
+     * @param status Trạng thái cần lọc (nếu rỗng hoặc null, sẽ bỏ qua lọc theo trạng thái).
      */
-    public MutableLiveData<List<Project>> getFilteredProjects(String searchQuery, String categoryId, String technologyId) {
+    public MutableLiveData<List<Project>> getFilteredProjects(String searchQuery, String categoryId, String technologyId, String status) {
         MutableLiveData<List<Project>> liveData = new MutableLiveData<>();
 
         // --- STAGE 1: Xây dựng câu truy vấn cơ sở cho Collection "Projects" ---
-        Query projectsQuery = buildProjectsQuery(searchQuery);
+        Query projectsQuery = buildProjectsQuery(searchQuery, status);
 
         // --- STAGE 2: Lấy tất cả dữ liệu cần thiết từ Firestore ---
         Task<QuerySnapshot> projectsTask = projectsQuery.get();
-        // Vẫn cần các thông tin phụ khác để kết hợp
         Task<QuerySnapshot> usersTask = db.collection("Users").get();
         Task<QuerySnapshot> categoriesTask = db.collection("Categories").get();
         Task<QuerySnapshot> technologiesTask = db.collection("Technologies").get();
@@ -208,7 +207,6 @@ public class ProjectRepository {
                         projectCategoriesTask, projectTechnologiesTask)
                 .addOnSuccessListener(results -> {
                     // --- STAGE 3: Chuyển đổi dữ liệu thô sang các Map để dễ tra cứu ---
-                    // Lấy kết quả từ các task
                     QuerySnapshot projectsSnapshot = (QuerySnapshot) results.get(0);
                     Map<String, User> userMap = ((QuerySnapshot) results.get(1)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.toObject(User.class)));
                     Map<String, String> categoryMap = ((QuerySnapshot) results.get(2)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
@@ -226,13 +224,12 @@ public class ProjectRepository {
                         if (p != null) {
                             p.setProjectId(doc.getId());
 
-                            // Bắt đầu lọc
+                            // Lọc phía client cho category và technology
                             boolean categoryMatch = (categoryId == null || categoryId.isEmpty()) || categoryId.equals(projectToCategoryMap.get(p.getProjectId()));
                             boolean technologyMatch = (technologyId == null || technologyId.isEmpty()) || (projectToTechsMap.get(p.getProjectId()) != null && projectToTechsMap.get(p.getProjectId()).contains(technologyId));
 
                             // Chỉ thêm vào danh sách nếu thỏa mãn tất cả các điều kiện lọc
                             if (categoryMatch && technologyMatch) {
-                                // Kết hợp dữ liệu phụ (tên tác giả, công nghệ, lĩnh vực)
                                 populateProjectDetails(p, userMap, categoryMap, technologyMap, projectToCategoryMap, projectToTechsMap);
                                 filteredProjects.add(p);
                             }
@@ -251,16 +248,23 @@ public class ProjectRepository {
     }
 
     /**
-     * Hàm phụ để xây dựng câu query cho collection "Projects" dựa trên chuỗi tìm kiếm.
+     * Hàm phụ để xây dựng câu query cho collection "Projects".
+     * Lọc theo searchQuery và status trực tiếp trên Firestore để giảm tải.
      */
-    private Query buildProjectsQuery(String searchQuery) {
+    private Query buildProjectsQuery(String searchQuery, String status) {
         Query query = db.collection("Projects");
+
+        // Áp dụng bộ lọc trạng thái
+        if (status != null && !status.isEmpty()) {
+            query = query.whereEqualTo("Status", status);
+        }
+
+        // Áp dụng bộ lọc tìm kiếm theo tên
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            // Tìm kiếm các project có Title bắt đầu bằng chuỗi tìm kiếm
-            // Firestore yêu cầu một range query để thực hiện tìm kiếm kiểu "starts with"
             query = query.whereGreaterThanOrEqualTo("Title", searchQuery)
                     .whereLessThanOrEqualTo("Title", searchQuery + "\uf8ff");
         }
+
         return query;
     }
 
@@ -270,18 +274,26 @@ public class ProjectRepository {
     private void populateProjectDetails(Project project, Map<String, User> userMap, Map<String, String> categoryMap,
                                         Map<String, String> technologyMap, Map<String, String> projectToCategoryMap,
                                         Map<String, List<String>> projectToTechsMap) {
+        // Lấy tên người tạo
         User creator = userMap.get(project.getCreatorUserId());
-        if (creator != null) project.setCreatorFullName(creator.getFullName());
+        if (creator != null) {
+            project.setCreatorFullName(creator.getFullName());
+        }
 
+        // Lấy tên lĩnh vực
         String categoryId = projectToCategoryMap.get(project.getProjectId());
         if (categoryId != null) {
             String categoryName = categoryMap.get(categoryId);
             project.setCategoryNames(new ArrayList<>(List.of(categoryName != null ? categoryName : "")));
         }
 
+        // Lấy danh sách tên công nghệ
         List<String> techIds = projectToTechsMap.get(project.getProjectId());
         if (techIds != null) {
-            List<String> techNames = techIds.stream().map(technologyMap::get).filter(Objects::nonNull).collect(Collectors.toList());
+            List<String> techNames = techIds.stream()
+                    .map(technologyMap::get)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
             project.setTechnologyNames(techNames);
         }
     }
@@ -298,7 +310,7 @@ public class ProjectRepository {
 
             // Nếu cả hai cùng nổi bật hoặc cùng không nổi bật, sắp xếp theo ngày tạo mới nhất
             if (p1.getCreatedAt() != null && p2.getCreatedAt() != null) {
-                return p2.getCreatedAt().compareTo(p1.getCreatedAt()); // Sắp xếp giảm dần
+                return p2.getCreatedAt().compareTo(p1.getCreatedAt()); // Sắp xếp giảm dần (mới nhất lên đầu)
             }
             return 0; // Không thay đổi thứ tự nếu không có ngày tạo
         });
