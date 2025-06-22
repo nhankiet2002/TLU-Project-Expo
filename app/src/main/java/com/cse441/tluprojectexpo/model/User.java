@@ -131,7 +131,7 @@ public class User implements Serializable {
 
     @PropertyName("AvatarUrl")
     public void setAvatarUrl(String avatarUrl){
-        avatarUrl = avatarUrl;
+        this.avatarUrl = avatarUrl;
     }
 
     @PropertyName("AvatarUrl")
