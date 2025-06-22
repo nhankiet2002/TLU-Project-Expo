@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.cse441.tluprojectexpo"> {/*  Đảm bảo package name này khớp với package của bạn */}
 
     <!-- Quyền Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -66,13 +67,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".auth.RegisterActivity" />
-        <activity android:name=".auth.CheckEmailActivity" />
-        <activity android:name=".auth.LoginActivity" />
-        <activity android:name=".auth.ForgotPasswordActivity" />
+        <activity android:name=".auth.RegisterActivity"
+            android:exported="false"/> {/* Thêm exported="false" nếu không có intent-filter và target API 31+ */}
+        <activity android:name=".auth.CheckEmailActivity"
+            android:exported="false"/> {/* Thêm exported="false" */}
+        <activity android:name=".auth.LoginActivity"
+            android:exported="false"/> {/* Thêm exported="false" */}
+        <activity android:name=".auth.ForgotPasswordActivity"
+            android:exported="false"/> {/* Thêm exported="false" */}
 
         <!-- Main App Activity -->
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity"
+            android:exported="false"/> {/* Thêm exported="false" */}
+
+        <!-- KHAI BÁO ACTIVITY TẠO DỰ ÁN MỚI TẠI ĐÂY -->
+        <activity
+            android:name=".ui.createproject.CreateProjectActivity"
+            android:exported="false"
+            android:label="Tạo dự án" />
+
 
     </application>
 
