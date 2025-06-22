@@ -14,7 +14,6 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,19 +21,24 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.ui.Home.adapter.ProjectAdapter;
-import com.cse441.tluprojectexpo.ui.Home.data.FilterDataProvider;
-import com.cse441.tluprojectexpo.ui.Home.data.ProjectListFetcher;
-import com.cse441.tluprojectexpo.ui.Home.data.model.CategoryFilterItem;
-import com.cse441.tluprojectexpo.ui.Home.data.model.TechnologyFilterItem;
+// Import Repositories
+import com.cse441.tluprojectexpo.repository.CategoryRepository;
+import com.cse441.tluprojectexpo.repository.ProjectRepository;
+import com.cse441.tluprojectexpo.repository.TechnologyRepository;
+// Import Models và UI Managers/Listeners đã có
+import com.cse441.tluprojectexpo.ui.Home.model.CategoryFilterItem;
+import com.cse441.tluprojectexpo.ui.Home.model.TechnologyFilterItem;
 import com.cse441.tluprojectexpo.ui.Home.listener.OnScrollInteractionListener;
 import com.cse441.tluprojectexpo.ui.Home.ui.HomeFilterManager;
 import com.cse441.tluprojectexpo.ui.Home.ui.HomeSortManager;
 import com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity;
 import com.cse441.tluprojectexpo.model.Project;
+import com.cse441.tluprojectexpo.utils.Constants;
+import com.cse441.tluprojectexpo.utils.UiHelper;
+
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,15 +61,22 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
     private ImageButton buttonSort;
     private Chip chipLinhVuc, chipCongNghe, chipTrangThai;
 
-    private ProjectListFetcher projectListFetcher;
-    private FilterDataProvider filterDataProvider;
+    // Repositories
+    private ProjectRepository projectRepository;
+    private CategoryRepository categoryRepository;
+    private TechnologyRepository technologyRepository;
+
+    // UI Managers
     private HomeFilterManager homeFilterManager;
     private HomeSortManager homeSortManager;
 
     private boolean isLoading = false;
     private String currentSearchQuery = "";
+    private DocumentSnapshot lastVisibleDocumentForPagination = null;
+    private boolean isLastPageLoaded = false;
 
-    public HomeFragment() { /* Required empty public constructor */ }
+
+    public HomeFragment() { /* Required */ }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -76,20 +87,24 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        projectListFetcher = new ProjectListFetcher();
-        filterDataProvider = new FilterDataProvider();
-        homeSortManager = new HomeSortManager(requireContext(), this); // Pass 'this' as listener
+        // Khởi tạo Repositories
+        projectRepository = new ProjectRepository();
+        categoryRepository = new CategoryRepository();
+        technologyRepository = new TechnologyRepository();
 
-        initViews(view);
-        setupRecyclerView();
+        // Khởi tạo UI Managers
+        homeSortManager = new HomeSortManager(requireContext(), this);
+
+        initViews(view); // Khởi tạo views trước khi dùng trong HomeFilterManager
         homeFilterManager = new HomeFilterManager(requireContext(), chipLinhVuc, chipCongNghe, chipTrangThai, this);
+
+        setupRecyclerView();
         setupEventListeners();
         preloadFilterDataForDialogs();
-        reloadData();
+        reloadData(); // Tải dữ liệu lần đầu
 
         return view;
     }
@@ -97,7 +112,7 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
     private void initViews(View view) {
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         recyclerViewProjects = view.findViewById(R.id.recyclerViewProjects);
-        progressBarMain = view.findViewById(R.id.progressBarMain);
+
         progressBarLoadMore = view.findViewById(R.id.progressBarLoadMore);
         searchEditText = view.findViewById(R.id.searchEditText);
         buttonSort = view.findViewById(R.id.button_sort);
@@ -115,27 +130,28 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
     }
 
     private void preloadFilterDataForDialogs() {
-        filterDataProvider.loadCategories(new FilterDataProvider.CategoriesLoadListener() {
+        categoryRepository.fetchAllCategories(new CategoryRepository.CategoriesLoadListener() {
             @Override
             public void onCategoriesLoaded(List<CategoryFilterItem> categories) {
                 if (homeFilterManager != null) homeFilterManager.setCategoryDataSource(categories);
             }
             @Override
             public void onError(String message) {
-                if (getContext()!= null) Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                if (getContext()!= null) UiHelper.showToast(getContext(), message, Toast.LENGTH_SHORT);
             }
         });
 
-        filterDataProvider.loadTechnologies(new FilterDataProvider.TechnologiesLoadListener() {
+        technologyRepository.fetchAllTechnologies(new TechnologyRepository.TechnologiesLoadListener() {
             @Override
             public void onTechnologiesLoaded(List<TechnologyFilterItem> technologies) {
                 if (homeFilterManager != null) homeFilterManager.setTechnologyDataSource(technologies);
             }
             @Override
             public void onError(String message) {
-                if (getContext()!= null) Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                if (getContext()!= null) UiHelper.showToast(getContext(), message, Toast.LENGTH_SHORT);
             }
         });
+
         if (homeFilterManager != null && getContext() != null) {
             homeFilterManager.setStatusDataSource(getResources().getStringArray(R.array.project_statuses));
         }
@@ -144,7 +160,7 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
     private void setupEventListeners() {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             reloadData();
-            if (scrollListener != null) scrollListener.onScrollDown();
+            if (scrollListener != null) scrollListener.onScrollDown(); // Hoặc logic bạn muốn khi refresh
         });
 
         recyclerViewProjects.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -154,7 +170,7 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (layoutManager != null && projectAdapter != null && projectAdapter.getItemCount() > 0 &&
                         layoutManager.findLastCompletelyVisibleItemPosition() == projectAdapter.getItemCount() - 1) {
-                    if (!isLoading && !projectListFetcher.isLastPage()) {
+                    if (!isLoading && !isLastPageLoaded) {
                         loadMoreProjects();
                     }
                 }
@@ -177,98 +193,87 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
         buttonSort.setOnClickListener(v -> {
             if (homeSortManager != null) homeSortManager.showSortMenu(v);
         });
-        // Chip click listeners are handled by HomeFilterManager
+        // Chip click listeners đã được HomeFilterManager xử lý
     }
 
     private void reloadData() {
-        isLoading = false; // Reset loading state
-        if (projectListFetcher != null) projectListFetcher.resetPagination();
+        isLoading = false;
+        isLastPageLoaded = false;
+        lastVisibleDocumentForPagination = null;
         if (projectAdapter != null) projectAdapter.clearProjects();
-        if (homeFilterManager != null) homeFilterManager.updateAllChipUI(); // Cập nhật UI chip
-        loadInitialProjects();
+        if (homeFilterManager != null) homeFilterManager.updateAllChipUI();
+        loadProjects(true);
     }
 
-    private void loadInitialProjects() {
-        if (isLoading || projectListFetcher == null) return;
+    private void loadProjects(boolean isInitialLoad) {
+        if (isLoading || projectRepository == null) return;
         isLoading = true;
-        if (progressBarMain != null) progressBarMain.setVisibility(View.VISIBLE);
+        showProgress(isInitialLoad, true);
 
-        projectListFetcher.fetchProjects(
-                currentSearchQuery,
-                homeSortManager.getCurrentSortField(),
-                homeSortManager.getCurrentSortDirection(),
-                homeFilterManager.getSelectedCategoryId(),
-                homeFilterManager.getSelectedTechnologyId(),
-                homeFilterManager.getSelectedStatus(),
-                true, // isInitialLoad
-                projectsFetchListener
-        );
+        String categoryId = homeFilterManager != null ? homeFilterManager.getSelectedCategoryId() : null;
+        String technologyId = homeFilterManager != null ? homeFilterManager.getSelectedTechnologyId() : null;
+        String status = homeFilterManager != null ? homeFilterManager.getSelectedStatus() : null;
+        String sortField = homeSortManager != null ? homeSortManager.getCurrentSortField() : Constants.FIELD_CREATED_AT;
+        Query.Direction sortDirection = homeSortManager != null ? homeSortManager.getCurrentSortDirection() : Query.Direction.DESCENDING;
+        DocumentSnapshot lastVisibleForQuery = isInitialLoad ? null : lastVisibleDocumentForPagination;
+
+
+        projectRepository.fetchProjectsList(currentSearchQuery, sortField, sortDirection,
+                categoryId, technologyId, status, lastVisibleForQuery,
+                new ProjectRepository.ProjectsListFetchListener() {
+                    @Override
+                    public void onProjectsFetched(ProjectRepository.ProjectListResult result) {
+                        if (!isAdded() || projectAdapter == null) return;
+                        isLoading = false;
+                        showProgress(isInitialLoad, false);
+
+                        if (isInitialLoad) {
+                            projectList.clear();
+                        }
+                        projectList.addAll(result.projects);
+                        projectAdapter.notifyDataSetChanged(); // Hoặc dùng các notify cụ thể hơn
+
+                        lastVisibleDocumentForPagination = result.newLastVisible;
+                        isLastPageLoaded = result.isLastPage;
+
+                        if (isInitialLoad && projectList.isEmpty()) {
+                            // onNoProjectsFound(); // Sẽ được gọi từ repository nếu cần
+                        }
+                    }
+
+                    @Override
+                    public void onFetchFailed(String errorMessage) {
+                        if (!isAdded()) return;
+                        isLoading = false;
+                        showProgress(isInitialLoad, false);
+                        if (getContext() != null) UiHelper.showToast(getContext(), errorMessage, Toast.LENGTH_LONG);
+                    }
+
+                    @Override
+                    public void onNoProjectsFound() {
+                        if (!isAdded() || projectAdapter == null) return;
+                        isLoading = false;
+                        showProgress(isInitialLoad, false);
+                        if (isInitialLoad) { // Chỉ clear và hiển thị toast nếu là lần tải đầu
+                            projectAdapter.clearProjects();
+                            if (getContext() != null) UiHelper.showToast(getContext(), "Không có dự án nào khớp.", Toast.LENGTH_SHORT);
+                        }
+                        isLastPageLoaded = true; // Đánh dấu là trang cuối
+                    }
+                });
     }
 
     private void loadMoreProjects() {
-        if (isLoading || projectListFetcher == null || projectListFetcher.isLastPage()) return;
-        isLoading = true;
-        if (progressBarLoadMore != null) progressBarLoadMore.setVisibility(View.VISIBLE);
-
-        projectListFetcher.fetchProjects(
-                currentSearchQuery,
-                homeSortManager.getCurrentSortField(),
-                homeSortManager.getCurrentSortDirection(),
-                homeFilterManager.getSelectedCategoryId(),
-                homeFilterManager.getSelectedTechnologyId(),
-                homeFilterManager.getSelectedStatus(),
-                false, // not initialLoad
-                projectsFetchListener
-        );
+        loadProjects(false);
     }
 
-    private ProjectListFetcher.ProjectsFetchListener projectsFetchListener = new ProjectListFetcher.ProjectsFetchListener() {
-        @Override
-        public void onProjectsFetched(List<Project> projects, boolean isNowLastPage, @Nullable DocumentSnapshot newLastVisible) {
-            if (!isAdded() || projectAdapter == null) return; // Fragment not attached or adapter null
-            hideProgress(projectListFetcher.isLastPage() && projects.isEmpty()); // Hide progress based on combined state
-
-            if (projectListFetcher.isLastPage() && projectList.isEmpty() && projects.isEmpty()){ // True if was initial load and no projects
-                // Handled by onNoProjectsFound
-            } else if (projects.isEmpty() && !projectListFetcher.isLastPage()){
-                // This case should ideally not happen if fetchProjects logic is correct (empty list but not last page)
-                // but good to handle. Could mean an issue or just end of current filtered set.
-            } else {
-                if (projectList.isEmpty() && projects.isEmpty() && isNowLastPage) { // First load, no results, is last page
-                    // onNoProjectsFound() will be called by fetcher if it's an initial load and no projects.
-                    // If it's a "load more" and no projects, then it's truly the end.
-                } else {
-                    projectAdapter.addProjects(projects);
-                }
+    private void showProgress(boolean isInitial, boolean show) {
+        if (isInitial) {
+            if (!show && swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+                swipeRefreshLayout.setRefreshing(false);
             }
-            isLoading = false;
-        }
-
-
-        @Override
-        public void onFetchFailed(String errorMessage) {
-            if (!isAdded()) return;
-            hideProgress(true); // Hide all progress on failure
-            isLoading = false;
-            if (getContext() != null) Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onNoProjectsFound() {
-            if (!isAdded() || projectAdapter == null) return;
-            hideProgress(true); // Hide all progress
-            isLoading = false;
-            projectAdapter.clearProjects(); // Đảm bảo danh sách trống
-            if (getContext() != null) Toast.makeText(getContext(), "Không có dự án nào khớp.", Toast.LENGTH_SHORT).show();
-        }
-    };
-
-
-    private void hideProgress(boolean isInitialLoadOrNoMore) {
-        if (progressBarMain != null) progressBarMain.setVisibility(View.GONE);
-        if (progressBarLoadMore != null) progressBarLoadMore.setVisibility(View.GONE);
-        if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
-            swipeRefreshLayout.setRefreshing(false);
+        } else {
+            if (progressBarLoadMore != null) progressBarLoadMore.setVisibility(show ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -279,18 +284,18 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
             intent.putExtra(ProjectDetailActivity.EXTRA_PROJECT_ID, project.getProjectId());
             startActivity(intent);
         } else {
-            if (getContext() != null) Toast.makeText(getContext(), "Không thể mở chi tiết.", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) UiHelper.showToast(getContext(), "Không thể mở chi tiết dự án.", Toast.LENGTH_SHORT);
         }
     }
 
     @Override
     public void onFilterChanged() {
-        reloadData(); // Khi bộ lọc thay đổi, tải lại dữ liệu
+        reloadData();
     }
 
     @Override
     public void onSortChanged(String newSortField, Query.Direction newSortDirection) {
-        reloadData(); // Khi sắp xếp thay đổi, tải lại dữ liệu
+        reloadData();
     }
 
     @Override
@@ -302,11 +307,11 @@ public class HomeFragment extends Fragment implements ProjectAdapter.OnProjectCl
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Nullify views to avoid memory leaks
         recyclerViewProjects = null; projectAdapter = null; swipeRefreshLayout = null;
-        progressBarMain = null; progressBarLoadMore = null; searchEditText = null;
+        progressBarLoadMore = null; searchEditText = null;
         buttonSort = null; chipLinhVuc = null; chipCongNghe = null; chipTrangThai = null;
-        projectListFetcher = null; filterDataProvider = null; homeFilterManager = null; homeSortManager = null;
-        projectList.clear();
+        projectRepository = null; categoryRepository = null; technologyRepository = null;
+        homeFilterManager = null; homeSortManager = null;
+        if(projectList != null) projectList.clear();
     }
 }

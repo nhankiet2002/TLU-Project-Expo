@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.ui.detailproject.repository;
+package com.cse441.tluprojectexpo.repository;
 
 
 import android.util.Log;

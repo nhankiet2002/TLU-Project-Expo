@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.ui.detailproject.repository; // Hoặc package con .comment
+package com.cse441.tluprojectexpo.repository; // Hoặc package con .comment
 
 import android.util.Log;
 

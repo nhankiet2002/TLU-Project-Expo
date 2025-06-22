@@ -13,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,13 +24,12 @@ import com.cse441.tluprojectexpo.model.Comment;
 import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
 // Repositories
-import com.cse441.tluprojectexpo.ui.detailproject.repository.CommentRepository;
-import com.cse441.tluprojectexpo.ui.detailproject.repository.CourseRepository;
-import com.cse441.tluprojectexpo.ui.detailproject.repository.ProjectRepository;
-import com.cse441.tluprojectexpo.ui.detailproject.repository.UserRepository;
-import com.cse441.tluprojectexpo.ui.detailproject.repository.VoteRepository;
+import com.cse441.tluprojectexpo.repository.CommentRepository;
+import com.cse441.tluprojectexpo.repository.CourseRepository;
+import com.cse441.tluprojectexpo.repository.ProjectRepository;
+import com.cse441.tluprojectexpo.repository.UserRepository;
+import com.cse441.tluprojectexpo.repository.VoteRepository;
 // Utils
-import com.cse441.tluprojectexpo.utils.Constants;
 import com.cse441.tluprojectexpo.utils.UiHelper;
 // Adapters
 import com.cse441.tluprojectexpo.ui.detailproject.adapter.CommentAdapter;
