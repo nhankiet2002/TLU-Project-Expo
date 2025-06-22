@@ -53,9 +53,7 @@
     <string name="app_name">TLUProjectExpo</string>
     <string name="no_projects_for_this_user">Người dùng này chưa có dự án nào.</string>
     <string name="error_loading_projects">Lỗi khi tải danh sách dự án.</string>
-<<<<<<< HEAD
-</resources>
-=======
+
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -67,4 +65,3 @@
     <string name="login_failed">"Login failed"</string>
     <!-- Bạn có thể thêm các string khác ở đây nếu cần -->
 </resources>
->>>>>>> 261ac75ad10d403d967faaf3d4d31f6e9bf1d791

@@ -30,24 +30,17 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
-import com.cse441.tluprojectexpo.Project.fragment.AddMemberDialogFragment;
-import com.cse441.tluprojectexpo.Project.responsibility.ui.AddedLinksUiManager;
-import com.cse441.tluprojectexpo.Project.responsibility.ui.MediaGalleryUiManager;
-import com.cse441.tluprojectexpo.Project.responsibility.ui.SelectedMembersUiManager;
-import com.cse441.tluprojectexpo.Project.responsibility.util.UiHelper;
-import com.cse441.tluprojectexpo.Project.responsibility.util.CloudinaryUploadService;
-import com.cse441.tluprojectexpo.Project.responsibility.util.FirestoreFetchService;
-import com.cse441.tluprojectexpo.Project.responsibility.util.ImagePickerDelegate;
-import com.cse441.tluprojectexpo.Project.responsibility.util.PermissionManager;
-import com.cse441.tluprojectexpo.Project.responsibility.util.ProjectCreationService;
-import com.cse441.tluprojectexpo.Project.responsibility.form.ProjectFormUiManager;
-import com.cse441.tluprojectexpo.Project.responsibility.form.ProjectFormDelegate;
+
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.LinkItem;
 import com.cse441.tluprojectexpo.model.User;
 
 
-
+import com.cse441.tluprojectexpo.repository.project.ProjectCreationService;
+import com.cse441.tluprojectexpo.ui.createproject.AddMemberDialogFragment;
+import com.cse441.tluprojectexpo.ui.createproject.uimanager.AddedLinksUiManager;
+import com.cse441.tluprojectexpo.ui.createproject.uimanager.MediaGalleryUiManager;
+import com.cse441.tluprojectexpo.ui.createproject.uimanager.SelectedMembersUiManager;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
