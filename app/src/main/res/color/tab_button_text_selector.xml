@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Màu chữ này được sử dụng khi view có trạng thái selected="true" -->
+    <item android:state_selected="true"
+        android:color="@android:color/black"/>
+
+    <!-- Màu chữ này là mặc định khi view KHÔNG có trạng thái selected="true" (ví dụ: màu xám) -->
+    <item android:color="#FFFFFF"/>
+</selector>

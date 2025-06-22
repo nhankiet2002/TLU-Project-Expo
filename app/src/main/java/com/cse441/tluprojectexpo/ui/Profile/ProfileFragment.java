@@ -25,7 +25,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 
 import com.bumptech.glide.Glide;
-import com.cse441.tluprojectexpo.ui.LoginActivity; // GIẢ SỬ BẠN CÓ LoginActivity
+import com.cse441.tluprojectexpo.auth.LoginActivity; // GIẢ SỬ BẠN CÓ LoginActivity
 import com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.ui.createproject.adapter.UserProjectsAdapter;
@@ -295,7 +295,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                         User user = documentSnapshot.toObject(User.class);
                         if (user != null && avatarImageView != null && textViewUserName != null && textViewUserClass != null) {
                             textViewUserName.setText(user.getFullName());
-                            textViewUserClass.setText(user.getUserClass());
+                            textViewUserClass.setText(user.getClassName());
                             if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
                                 Glide.with(this)
                                         .load(user.getAvatarUrl())

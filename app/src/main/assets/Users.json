@@ -1,0 +1,82 @@
+[
+  {
+    "fullName": "Admin 1",
+    "email": "admin@tlu.edu.vn",
+    "passwordHash": "hash_cua_mat_khau_123",
+    "className": "63CNTT4",
+    "facultyName": "Công nghệ thông tin",
+    "role": "ADMIN",
+    "status": true,
+    "avatarUrl": null
+  },
+  {
+    "fullName": "Trần Thị Hài",
+    "email": "giangvien.tt@tlu.edu.vn",
+    "passwordHash": "hash_cua_mat_khau_456",
+    "className": "63CNTT1",
+    "facultyName": "Công nghệ thông tin",
+    "role": "LECTURER",
+    "status": true,
+    "avatarUrl": null
+  },
+  {
+    "fullName": "Lê Văn Hước",
+    "email": "sinhvien@e.tlu.edu.vn",
+    "passwordHash": "hash_cua_mat_khau_789",
+    "className": "62TMĐT3",
+    "facultyName": "Kinh tế",
+    "role": "STUDENT",
+    "status": true,
+    "avatarUrl": null
+  },
+  {
+    "fullName": "Phạm Văn Đồng",
+    "email": "sinhvien2@e.tlu.edu.vn",
+    "passwordHash": "hash_cua_mat_khau_789",
+    "className": "62TMĐT3",
+    "facultyName": "Kinh tế",
+    "role": "STUDENT",
+    "status": true,
+    "avatarUrl": null
+  },
+  {
+    "fullName": "Tào Mạnh Dũng",
+    "email": "sinhvien3@e.tlu.edu.vn",
+    "passwordHash": "hash_cua_mat_khau_789",
+    "className": "64TMĐT1",
+    "facultyName": "Kinh tế",
+    "role": "STUDENT",
+    "status": true,
+    "avatarUrl": null
+  },
+  {
+    "fullName": "Lê Văn Tài",
+    "email": "sinhvien4@e.tlu.edu.vn",
+    "passwordHash": "hash_cua_mat_khau_789",
+    "className": "62KT3",
+    "facultyName": "Kinh tế",
+    "role": "STUDENT",
+    "status": false,
+    "avatarUrl": null
+  },
+  {
+    "fullName": "Mai Chiến Thắng",
+    "email": "sinhvien5@e.tlu.edu.vn",
+    "passwordHash": "hash_cua_mat_khau_789",
+    "className": "64KTPM1",
+    "facultyName": "Công nghệ thông tin",
+    "role": "STUDENT",
+    "status": true,
+    "avatarUrl": null
+  },
+  {
+    "fullName": "Mai Văn Long",
+    "email": "sinhvien6@e.tlu.edu.vn",
+    "passwordHash": "hash_cua_mat_khau_789",
+    "className": "65C1",
+    "facultyName": "Công trình",
+    "role": "STUDENT",
+    "status": true,
+    "avatarUrl": null
+  }
+]

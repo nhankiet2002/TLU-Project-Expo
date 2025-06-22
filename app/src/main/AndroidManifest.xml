@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Quyền Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Quyền đọc/ghi storage tuỳ theo phiên bản Android -->
     <!-- Dành cho thiết bị chạy Android 12L (API 32) trở xuống -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" /> <!-- Chỉ cần thiết cho API 28 trở xuống nếu bạn lưu tệp -->
+        android:maxSdkVersion="28" />
 
-
-    <!-- Dành cho thiết bị chạy Android 13 (API 33) trở lên -->
+    <!-- Dành cho Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <!-- <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> --> <!-- Nếu bạn cần âm thanh -->
+    <!-- <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> Nếu dùng âm thanh -->
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -23,24 +27,53 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TLUProjectExpo"
         tools:targetApi="31"
-        android:name=".MyApplication"
-        >
+        android:name=".MyApplication">
+
+        <!-- Debug Activities -->
         <activity
-            android:name=".MainActivity"
+            android:name=".DebugMenu"
+            android:exported="false" />
+        <activity
+            android:name=".ProjectDetail"
+            android:exported="false" />
+
+        <!-- Admin Activities -->
+        <activity
+            android:name=".admin.UserDetailManagementPage"
+            android:exported="false" />
+        <activity
+            android:name=".admin.FeaturedManagementPage"
+            android:exported="false" />
+        <activity
+            android:name=".admin.CensorManagementPage"
+            android:exported="false" />
+        <activity
+            android:name=".admin.CatalogManagementPage"
+            android:exported="false" />
+        <activity
+            android:name=".admin.Dashboard"
+            android:exported="false" />
+        <activity
+            android:name=".admin.UserManagementPage"
+            android:exported="false" />
+
+        <!-- Auth Activities -->
+        <activity
+            android:name=".auth.OpenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.createproject.CreateProjectActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.detailproject.ProjectDetailActivity"
-            android:exported="false">
-        </activity>
+        <activity android:name=".auth.RegisterActivity" />
+        <activity android:name=".auth.CheckEmailActivity" />
+        <activity android:name=".auth.LoginActivity" />
+        <activity android:name=".auth.ForgotPasswordActivity" />
+
+        <!-- Main App Activity -->
+        <activity android:name=".MainActivity" />
+
     </application>
 
 </manifest>

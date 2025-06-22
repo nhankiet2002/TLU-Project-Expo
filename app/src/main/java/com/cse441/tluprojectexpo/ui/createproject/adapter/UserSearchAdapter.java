@@ -51,7 +51,7 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = userListFiltered.get(position); // THAY ĐỔI
         holder.tvMemberName.setText(user.getFullName()); // Sử dụng getFullName()
-        holder.tvMemberClass.setText(user.getUserClass()); // Sử dụng getUserClass()
+        holder.tvMemberClass.setText(user.getClassName()); // Sử dụng getUserClass()
 
         Glide.with(context)
                 .load(user.getAvatarUrl()) // Sử dụng getAvatarUrl()
@@ -80,7 +80,7 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
             for (User user : userListFull) { // THAY ĐỔI
                 // Tìm kiếm theo tên hoặc lớp
                 if ((user.getFullName() != null && user.getFullName().toLowerCase().contains(filterPattern)) ||
-                        (user.getUserClass() != null && user.getUserClass().toLowerCase().contains(filterPattern))) {
+                        (user.getClassName() != null && user.getClassName().toLowerCase().contains(filterPattern))) {
                     userListFiltered.add(user);
                 }
             }
