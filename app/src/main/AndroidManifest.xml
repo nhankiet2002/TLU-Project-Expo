@@ -86,6 +86,12 @@
             android:exported="false"
             android:label="Tạo dự án" />
 
+        <!-- KHAI BÁO ACTIVITY TẠO DỰ ÁN MỚI TẠI ĐÂY -->
+        <activity
+            android:name=".ui.detailproject.ProjectDetailActivity"
+            android:exported="false"
+            android:label="Chi tiết dự án" />
+
 
     </application>
 

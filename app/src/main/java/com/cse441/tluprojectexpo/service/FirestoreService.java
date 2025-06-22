@@ -2,13 +2,12 @@ package com.cse441.tluprojectexpo.service;
 
 import android.util.Log;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 // Giả sử model Comment của bạn nằm ở đây và tên là Comment
 import com.cse441.tluprojectexpo.model.Comment;
 import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
-import com.cse441.tluprojectexpo.util.Constants; // Sử dụng Constants của bạn
+import com.cse441.tluprojectexpo.utils.Constants; // Sử dụng Constants của bạn
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;

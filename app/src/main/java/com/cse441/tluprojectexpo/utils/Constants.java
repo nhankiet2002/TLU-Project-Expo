@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.util;
+package com.cse441.tluprojectexpo.utils;
 
 public class Constants {
 

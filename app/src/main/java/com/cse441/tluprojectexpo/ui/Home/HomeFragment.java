@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,6 @@ import com.cse441.tluprojectexpo.ui.Home.ui.HomeFilterManager;
 import com.cse441.tluprojectexpo.ui.Home.ui.HomeSortManager;
 import com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity;
 import com.cse441.tluprojectexpo.model.Project;
-import com.cse441.tluprojectexpo.util.Constants; // Sử dụng Constants
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;

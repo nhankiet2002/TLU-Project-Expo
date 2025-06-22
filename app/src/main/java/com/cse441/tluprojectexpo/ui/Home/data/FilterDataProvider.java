@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.cse441.tluprojectexpo.ui.Home.data.model.CategoryFilterItem;
 import com.cse441.tluprojectexpo.ui.Home.data.model.TechnologyFilterItem;
-import com.cse441.tluprojectexpo.util.Constants; // Sử dụng Constants
+import com.cse441.tluprojectexpo.utils.Constants; // Sử dụng Constants
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 

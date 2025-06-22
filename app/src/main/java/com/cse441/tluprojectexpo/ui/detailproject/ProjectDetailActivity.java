@@ -24,8 +24,7 @@ import com.cse441.tluprojectexpo.model.User;
 // Các service và util đã tạo/chỉnh sửa
 import com.cse441.tluprojectexpo.service.FirestoreService;
 import com.cse441.tluprojectexpo.service.ProjectInteractionHandler;
-import com.cse441.tluprojectexpo.util.Constants;
-import com.cse441.tluprojectexpo.util.UiHelper;
+import com.cse441.tluprojectexpo.utils.UiHelper;
 // Import các Adapter đã tách file
 import com.cse441.tluprojectexpo.ui.detailproject.adapter.CommentAdapter;
 import com.cse441.tluprojectexpo.ui.detailproject.adapter.MediaGalleryAdapter;

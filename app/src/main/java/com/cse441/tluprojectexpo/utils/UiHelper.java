@@ -1,5 +1,5 @@
 //Các hàm tiện ích liên quan đến UI.
-package com.cse441.tluprojectexpo.util;
+package com.cse441.tluprojectexpo.utils;
 
 import android.app.AlertDialog;
 import android.content.Context;

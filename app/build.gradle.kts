@@ -66,6 +66,9 @@ dependencies {
     // CircleImageView (rounded images)
     implementation("de.hdodenhof:circleimageview:3.1.0")
 
+
+    // Thêm Gson
+    implementation ("com.google.code.gson:gson:2.10.1")
     // Other libraries (from libs.versions.toml)
     implementation(libs.appcompat)
     implementation(libs.material)

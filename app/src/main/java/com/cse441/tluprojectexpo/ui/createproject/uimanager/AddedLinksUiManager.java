@@ -10,7 +10,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.cse441.tluprojectexpo.util.UiHelper;
+import com.cse441.tluprojectexpo.utils.UiHelper;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.LinkItem;
 import com.google.android.material.textfield.TextInputEditText;

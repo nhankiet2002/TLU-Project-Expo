@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.cse441.tluprojectexpo.model.Comment; // Sử dụng model Comment của bạn
 import com.cse441.tluprojectexpo.model.User;    // Sử dụng model User của bạn
-import com.cse441.tluprojectexpo.util.Constants;
+import com.cse441.tluprojectexpo.utils.Constants;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
