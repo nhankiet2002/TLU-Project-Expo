@@ -25,15 +25,16 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 
 import com.bumptech.glide.Glide;
+import com.cse441.tluprojectexpo.ui.LoginActivity; // GIẢ SỬ BẠN CÓ LoginActivity
 import com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.ui.createproject.adapter.UserProjectsAdapter;
 import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
 
-// KHÔNG CẦN FirebaseAuth cho việc giả lập
-// import com.google.firebase.auth.FirebaseAuth;
-// import com.google.firebase.auth.FirebaseUser;
+// Khôi phục Firebase Auth
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -54,14 +55,8 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
     private static final String TAG = "ProfileFragment";
 
-    // --- GIẢ LẬP ĐĂNG NHẬP VỚI USER_ID CỤ THỂ ---
-    // Đảm bảo rằng trong collection "Users" của bạn có document với ID là "user_001"
-    // và trong collection "Projects" có các dự án với CreatorUserId là "user_001"
-    private static final String SIMULATED_USER_ID = "user_002";
-    // --- KẾT THÚC PHẦN GIẢ LẬP ---
-
     private CircleImageView avatarImageView;
-    private TextView textViewUserName, textViewUserClass;
+    private TextView textViewUserName, textViewUserClass, textViewNotLoggedIn;
     private RelativeLayout profileLayout, logoutLayout;
     private EditText searchEditText;
     private RecyclerView projectsRecyclerView;
@@ -70,9 +65,10 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     private ProgressBar progressBarProfile;
     private SwipeRefreshLayout swipeRefreshLayoutProfile;
 
-    // Không cần FirebaseAuth và FirebaseUser cho giả lập
-    // private FirebaseAuth mAuth;
-    // private FirebaseUser firebaseCurrentUser;
+    // Firebase Auth
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseUser firebaseCurrentUser;
 
     private FirebaseFirestore db;
     private CollectionReference projectsRef;
@@ -80,7 +76,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     private CollectionReference techRef;
     private CollectionReference projectTechRef;
 
-    private String currentUserId; // Sẽ được gán giá trị của SIMULATED_USER_ID
+    private String currentUserId;
     private boolean isLoadingProjects = false;
     private String currentUserProjectSearchQuery = "";
 
@@ -93,17 +89,15 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Không khởi tạo FirebaseAuth
-        // mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         projectsRef = db.collection("Projects");
         usersRef = db.collection("Users");
         techRef = db.collection("Technologies");
         projectTechRef = db.collection("ProjectTechnologies");
 
-        // Gán trực tiếp UserID giả lập
-        currentUserId = SIMULATED_USER_ID;
-        Log.d(TAG, "ProfileFragment created. SIMULATING UserID: " + currentUserId);
+        setupAuthListener();
+        Log.d(TAG, "ProfileFragment created.");
     }
 
     @Override
@@ -120,16 +114,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         projectsRecyclerView = view.findViewById(R.id.projectsRecyclerView);
         progressBarProfile = view.findViewById(R.id.progressBarProfile);
         swipeRefreshLayoutProfile = view.findViewById(R.id.swipeRefreshLayoutProfile);
-
-        // Xử lý logoutLayout cho trường hợp giả lập
-        if (logoutLayout != null) {
-            // Có thể ẩn đi hoàn toàn, hoặc cho nó một hành động khác nếu muốn
-            logoutLayout.setVisibility(View.GONE); // Ẩn đi khi giả lập
-            // Hoặc nếu muốn giữ lại và thông báo:
-            // logoutLayout.setOnClickListener(v -> {
-            // if (getContext() != null) Toast.makeText(getContext(), "Đang ở chế độ giả lập người dùng.", Toast.LENGTH_SHORT).show();
-            // });
-        }
+        textViewNotLoggedIn = view.findViewById(R.id.textViewNotLoggedIn); // Thêm TextView này vào layout của bạn
 
         userProjectList = new ArrayList<>();
         if (getContext() != null) {
@@ -145,33 +130,117 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         }
 
         setupListeners();
-
-        // Vì đã giả lập currentUserId, trực tiếp tải thông tin
-        // Không cần kiểm tra currentUserId != null nữa vì nó luôn được gán
-        loadUserProfile();
-        loadUserProjects(true);
-
+        // Việc tải dữ liệu sẽ được kích hoạt bởi AuthStateListener
         return view;
     }
 
-    // Bỏ phương thức showNotLoggedInUI() vì không cần thiết khi giả lập
+    private void setupAuthListener() {
+        mAuthListener = firebaseAuth -> {
+            firebaseCurrentUser = firebaseAuth.getCurrentUser();
+            if (firebaseCurrentUser != null) {
+                currentUserId = firebaseCurrentUser.getUid();
+                Log.d(TAG, "User signed in: " + currentUserId);
+                updateUIForLoggedInUser();
+            } else {
+                currentUserId = null;
+                Log.d(TAG, "User signed out.");
+                updateUIForLoggedOutUser();
+            }
+        };
+    }
+
+    private void updateUIForLoggedInUser() {
+        if (!isAdded()) return; // Fragment not attached
+
+        if (textViewNotLoggedIn != null) textViewNotLoggedIn.setVisibility(View.GONE);
+        if (profileLayout != null) profileLayout.setVisibility(View.VISIBLE);
+        if (logoutLayout != null) logoutLayout.setVisibility(View.VISIBLE);
+        if (searchEditText != null) searchEditText.setVisibility(View.VISIBLE);
+        if (projectsRecyclerView != null) projectsRecyclerView.setVisibility(View.VISIBLE);
+        if (swipeRefreshLayoutProfile != null) swipeRefreshLayoutProfile.setEnabled(true);
+
+
+        loadUserProfile();
+        loadUserProjects(true);
+    }
+
+    private void updateUIForLoggedOutUser() {
+        if (!isAdded()) return; // Fragment not attached
+
+        if (avatarImageView != null) avatarImageView.setImageResource(R.mipmap.ic_launcher_round);
+        if (textViewUserName != null) textViewUserName.setText("Khách");
+        if (textViewUserClass != null) textViewUserClass.setText("Vui lòng đăng nhập");
+        if (profileLayout != null) profileLayout.setVisibility(View.GONE); // Hoặc điều chỉnh click listener
+        if (logoutLayout != null) logoutLayout.setVisibility(View.GONE);
+        if (searchEditText != null) {
+            searchEditText.setText("");
+            searchEditText.setVisibility(View.GONE);
+        }
+        if (projectsRecyclerView != null) projectsRecyclerView.setVisibility(View.GONE);
+        if (userProjectsAdapter != null) userProjectsAdapter.clearProjects();
+        if (progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
+        if (swipeRefreshLayoutProfile != null) {
+            swipeRefreshLayoutProfile.setRefreshing(false);
+            swipeRefreshLayoutProfile.setEnabled(false);
+        }
+
+        if (textViewNotLoggedIn != null) {
+            textViewNotLoggedIn.setVisibility(View.VISIBLE);
+            textViewNotLoggedIn.setText("Bạn chưa đăng nhập. Nhấn để đăng nhập.");
+            textViewNotLoggedIn.setOnClickListener(v -> {
+                // Điều hướng đến LoginActivity
+                if (getActivity() != null) {
+                    Intent intent = new Intent(getActivity(), LoginActivity.class); // Đảm bảo bạn có LoginActivity
+                    // Xóa các activity trước đó khỏi stack để người dùng không quay lại màn hình profile khi chưa đăng nhập
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    // getActivity().finish(); // Cân nhắc nếu đây là activity chính sau đăng nhập
+                }
+            });
+        }
+    }
+
 
     private void setupListeners() {
         if (profileLayout != null) {
             profileLayout.setOnClickListener(v -> {
-                // Không cần kiểm tra currentUserId == null vì đã giả lập
-                if (getContext() != null)
+                if (currentUserId != null && getContext() != null) {
                     Toast.makeText(getContext(), "Chức năng xem/sửa profile chi tiết (chưa code)", Toast.LENGTH_SHORT).show();
+                    // Ví dụ: Intent intent = new Intent(getActivity(), EditProfileActivity.class);
+                    // startActivity(intent);
+                } else if (getContext() != null) {
+                    Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+                }
             });
         }
 
-        // logoutLayout đã được xử lý ở onCreateView
+        if (logoutLayout != null) {
+            logoutLayout.setOnClickListener(v -> {
+                if (getContext() != null) {
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Đăng xuất")
+                            .setMessage("Bạn có chắc chắn muốn đăng xuất?")
+                            .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                                mAuth.signOut();
+                                // AuthStateListener sẽ xử lý việc cập nhật UI và điều hướng nếu cần
+                                Toast.makeText(getContext(), "Đã đăng xuất", Toast.LENGTH_SHORT).show();
+                            })
+                            .setNegativeButton("Hủy", null)
+                            .show();
+                }
+            });
+        }
 
         if (swipeRefreshLayoutProfile != null) {
             swipeRefreshLayoutProfile.setOnRefreshListener(() -> {
-                Log.d(TAG, "Swipe to refresh initiated for SIMULATED user: " + currentUserId);
-                loadUserProfile();
-                loadUserProjects(true);
+                if (currentUserId != null) {
+                    Log.d(TAG, "Swipe to refresh initiated for user: " + currentUserId);
+                    loadUserProfile();
+                    loadUserProjects(true);
+                } else {
+                    swipeRefreshLayoutProfile.setRefreshing(false); // Không làm gì nếu chưa đăng nhập
+                    if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+                }
             });
         }
 
@@ -182,8 +251,10 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    currentUserProjectSearchQuery = s.toString().trim();
-                    loadUserProjects(true);
+                    if (currentUserId != null) {
+                        currentUserProjectSearchQuery = s.toString().trim();
+                        loadUserProjects(true); // Tải lại với query mới
+                    }
                 }
 
                 @Override
@@ -193,7 +264,16 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     }
 
     private void loadUserProfile() {
-        // Không cần kiểm tra currentUserId == null vì đã giả lập
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.w(TAG, "Cannot load user profile, currentUserId is null or empty.");
+            if (progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
+            if (swipeRefreshLayoutProfile != null && swipeRefreshLayoutProfile.isRefreshing()) {
+                swipeRefreshLayoutProfile.setRefreshing(false);
+            }
+            // AuthStateListener đã xử lý việc hiển thị UI cho trạng thái chưa đăng nhập
+            return;
+        }
+
         if (!isAdded() || getContext() == null) {
             Log.w(TAG, "Fragment not ready or context null in loadUserProfile.");
             if (progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
@@ -207,7 +287,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
             progressBarProfile.setVisibility(View.VISIBLE);
         }
 
-        usersRef.document(currentUserId).get() // Sử dụng currentUserId là SIMULATED_USER_ID
+        usersRef.document(currentUserId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!isAdded() || getContext() == null) return;
 
@@ -227,25 +307,36 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                             }
                         }
                     } else {
-                        Log.d(TAG, "User document does not exist for SIMULATED UserID: " + currentUserId);
-                        if(textViewUserName != null) textViewUserName.setText("Không tìm thấy user " + currentUserId);
+                        Log.d(TAG, "User document does not exist for UserID: " + currentUserId);
+                        if(textViewUserName != null) textViewUserName.setText("Không tìm thấy user");
                         if(textViewUserClass != null) textViewUserClass.setText("Kiểm tra Firestore");
                         if(avatarImageView != null) avatarImageView.setImageResource(R.mipmap.ic_launcher_round);
                     }
                 })
                 .addOnFailureListener(e -> {
                     if (!isAdded() || getContext() == null) return;
+                    Log.e(TAG, "Error loading user profile for UserID: "+currentUserId, e);
+                    if (getContext() != null) Toast.makeText(getContext(), "Lỗi tải thông tin cá nhân: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                })
+                .addOnCompleteListener(task -> { // Luôn ẩn progress bar khi hoàn tất (dù thành công hay thất bại)
                     if (progressBarProfile != null && !isLoadingProjects) progressBarProfile.setVisibility(View.GONE);
                     if (swipeRefreshLayoutProfile != null && swipeRefreshLayoutProfile.isRefreshing()) {
                         swipeRefreshLayoutProfile.setRefreshing(false);
                     }
-                    Log.e(TAG, "Error loading user profile for SIMULATED UserID: "+currentUserId, e);
-                    Toast.makeText(getContext(), "Lỗi tải thông tin cá nhân: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void loadUserProjects(boolean isInitialLoadOrRefresh) {
-        // Không cần kiểm tra currentUserId == null vì đã giả lập
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.w(TAG, "Cannot load user projects, currentUserId is null or empty.");
+            if (userProjectsAdapter != null) userProjectsAdapter.clearProjects();
+            if (progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
+            if (swipeRefreshLayoutProfile != null && swipeRefreshLayoutProfile.isRefreshing()) {
+                swipeRefreshLayoutProfile.setRefreshing(false);
+            }
+            return;
+        }
+
         if (isLoadingProjects && !isInitialLoadOrRefresh) return;
         isLoadingProjects = true;
 
@@ -256,14 +347,14 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         Query query;
         if (!currentUserProjectSearchQuery.isEmpty()) {
             query = projectsRef
-                    .whereEqualTo("CreatorUserId", currentUserId) // currentUserId là SIMULATED_USER_ID
-                    .orderBy("Title")
-                    .whereGreaterThanOrEqualTo("Title", currentUserProjectSearchQuery)
-                    .whereLessThanOrEqualTo("Title", currentUserProjectSearchQuery + "\uf8ff");
+                    .whereEqualTo("CreatorUserId", currentUserId)
+                    .orderBy("Title") // Cần index composite: (CreatorUserId, Title)
+                    .startAt(currentUserProjectSearchQuery)
+                    .endAt(currentUserProjectSearchQuery + "\uf8ff");
         } else {
             query = projectsRef
-                    .whereEqualTo("CreatorUserId", currentUserId) // currentUserId là SIMULATED_USER_ID
-                    .orderBy("CreatedAt", Query.Direction.DESCENDING);
+                    .whereEqualTo("CreatorUserId", currentUserId)
+                    .orderBy("CreatedAt", Query.Direction.DESCENDING); // Cần index: (CreatorUserId, CreatedAt DESC)
         }
 
         fetchUserProjectsFromQuery(query, isInitialLoadOrRefresh);
@@ -272,8 +363,9 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
     private void fetchUserProjectsFromQuery(Query query, boolean isInitialLoadOrRefresh) {
         query.get().addOnCompleteListener(task -> {
+            isLoadingProjects = false; // Luôn đặt lại isLoadingProjects ở đây
+
             if (!isAdded() || getContext() == null) {
-                isLoadingProjects = false;
                 if (progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
                 if (swipeRefreshLayoutProfile != null && swipeRefreshLayoutProfile.isRefreshing()) {
                     swipeRefreshLayoutProfile.setRefreshing(false);
@@ -281,7 +373,6 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                 return;
             }
 
-            isLoadingProjects = false;
             if (progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
             if (swipeRefreshLayoutProfile != null && swipeRefreshLayoutProfile.isRefreshing()) {
                 swipeRefreshLayoutProfile.setRefreshing(false);
@@ -297,41 +388,46 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                         try {
                             Project project = document.toObject(Project.class);
                             project.setProjectId(document.getId());
-                            fetchedProjects.add(project);
+                            // Chỉ thêm dự án nếu CreatorUserId khớp với currentUserId (dù query đã làm điều này, đây là một lớp bảo vệ)
+                            if (currentUserId.equals(project.getCreatorUserId())) {
+                                fetchedProjects.add(project);
 
-                            Task<Void> techTask = projectTechRef.whereEqualTo("ProjectId", project.getProjectId()).get()
-                                    .continueWithTask(projectTechQueryTask -> {
-                                        if (projectTechQueryTask.isSuccessful() && projectTechQueryTask.getResult() != null) {
-                                            List<Task<DocumentSnapshot>> techNameTasks = new ArrayList<>();
-                                            for (QueryDocumentSnapshot ptDoc : projectTechQueryTask.getResult()) {
-                                                String techId = ptDoc.getString("TechnologyId");
-                                                if (techId != null && !techId.isEmpty()) {
-                                                    techNameTasks.add(techRef.document(techId).get());
-                                                }
-                                            }
-                                            return Tasks.whenAllSuccess(techNameTasks);
-                                        }
-                                        return Tasks.forResult(new ArrayList<>());
-                                    }).continueWith(techNameResultsTask -> {
-                                        if (techNameResultsTask.isSuccessful() && techNameResultsTask.getResult() != null) {
-                                            List<?> results = (List<?>) techNameResultsTask.getResult();
-                                            List<String> techNames = new ArrayList<>();
-                                            for (Object resultItem : results) {
-                                                if (resultItem instanceof DocumentSnapshot) {
-                                                    DocumentSnapshot techDoc = (DocumentSnapshot) resultItem;
-                                                    if (techDoc.exists()) {
-                                                        techNames.add(techDoc.getString("Name"));
+                                Task<Void> techTask = projectTechRef.whereEqualTo("ProjectId", project.getProjectId()).get()
+                                        .continueWithTask(projectTechQueryTask -> {
+                                            if (projectTechQueryTask.isSuccessful() && projectTechQueryTask.getResult() != null) {
+                                                List<Task<DocumentSnapshot>> techNameTasks = new ArrayList<>();
+                                                for (QueryDocumentSnapshot ptDoc : projectTechQueryTask.getResult()) {
+                                                    String techId = ptDoc.getString("TechnologyId");
+                                                    if (techId != null && !techId.isEmpty()) {
+                                                        techNameTasks.add(techRef.document(techId).get());
                                                     }
                                                 }
+                                                return Tasks.whenAllSuccess(techNameTasks);
                                             }
-                                            project.setTechnologyNames(techNames);
-                                        } else {
-                                            Log.w(TAG, "Error getting tech names for project " + project.getProjectId(), techNameResultsTask.getException());
-                                            project.setTechnologyNames(new ArrayList<>());
-                                        }
-                                        return null;
-                                    });
-                            tasksToComplete.add(techTask);
+                                            return Tasks.forResult(new ArrayList<>());
+                                        }).continueWith(techNameResultsTask -> {
+                                            if (techNameResultsTask.isSuccessful() && techNameResultsTask.getResult() != null) {
+                                                List<?> results = (List<?>) techNameResultsTask.getResult();
+                                                List<String> techNames = new ArrayList<>();
+                                                for (Object resultItem : results) {
+                                                    if (resultItem instanceof DocumentSnapshot) {
+                                                        DocumentSnapshot techDoc = (DocumentSnapshot) resultItem;
+                                                        if (techDoc.exists()) {
+                                                            techNames.add(techDoc.getString("Name"));
+                                                        }
+                                                    }
+                                                }
+                                                project.setTechnologyNames(techNames);
+                                            } else {
+                                                Log.w(TAG, "Error getting tech names for project " + project.getProjectId(), techNameResultsTask.getException());
+                                                project.setTechnologyNames(new ArrayList<>());
+                                            }
+                                            return null;
+                                        });
+                                tasksToComplete.add(techTask);
+                            } else {
+                                Log.w(TAG, "Project " + project.getProjectId() + " fetched but CreatorUserId " + project.getCreatorUserId() + " does not match currentUserId " + currentUserId);
+                            }
                         } catch (Exception e) {
                             Log.e(TAG, "Error converting document to Project: " + document.getId(), e);
                         }
@@ -342,6 +438,13 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                         if (isInitialLoadOrRefresh) {
                             userProjectsAdapter.updateProjects(fetchedProjects);
                         }
+                        if (fetchedProjects.isEmpty() && isInitialLoadOrRefresh) {
+                            if (currentUserProjectSearchQuery == null || currentUserProjectSearchQuery.isEmpty()){
+                                //  Toast.makeText(getContext(), "Bạn chưa có dự án nào.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "Không tìm thấy dự án nào khớp với tìm kiếm.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     });
 
                 } else {
@@ -349,13 +452,13 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                         userProjectsAdapter.clearProjects();
                     }
                     if (getContext() != null && isInitialLoadOrRefresh && (currentUserProjectSearchQuery == null || currentUserProjectSearchQuery.isEmpty())) {
-                        // Toast.makeText(getContext(), "User " + currentUserId + " chưa có dự án nào.", Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(getContext(), "Bạn chưa có dự án nào.", Toast.LENGTH_SHORT).show();
                     } else if (getContext() != null && isInitialLoadOrRefresh && !currentUserProjectSearchQuery.isEmpty()){
-                        Toast.makeText(getContext(), "Không tìm thấy dự án nào khớp với tìm kiếm cho user " + currentUserId + ".", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Không tìm thấy dự án nào khớp với tìm kiếm.", Toast.LENGTH_SHORT).show();
                     }
                 }
             } else {
-                Log.e(TAG, "Error getting user projects for SIMULATED UserID: "+currentUserId, task.getException());
+                Log.e(TAG, "Error getting user projects for UserID: "+currentUserId, task.getException());
                 if (getContext() != null) {
                     Toast.makeText(getContext(), "Lỗi tải danh sách dự án: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                 }
@@ -366,26 +469,40 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         });
     }
 
-    // Các phương thức onEditClick, onDeleteClick, deleteProjectFromFirestore, onItemClick giữ nguyên
-    // nhưng không cần kiểm tra currentUserId == null vì đã giả lập
 
     @Override
     public void onEditClick(Project project) {
-        if (getContext() != null && project != null)
-            Toast.makeText(getContext(), "Sửa dự án: " + project.getTitle() + " (user: " + currentUserId + ") (chưa code)", Toast.LENGTH_SHORT).show();
+        if (currentUserId == null) {
+            if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (getContext() != null && project != null) {
+            // Kiểm tra chủ sở hữu trước khi cho phép sửa
+            if (currentUserId.equals(project.getCreatorUserId())) {
+                Toast.makeText(getContext(), "Sửa dự án: " + project.getTitle() + " (chưa code)", Toast.LENGTH_SHORT).show();
+                // Intent intent = new Intent(getActivity(), EditProjectActivity.class);
+                // intent.putExtra("PROJECT_ID", project.getProjectId());
+                // startActivity(intent);
+            } else {
+                Toast.makeText(getContext(), "Bạn không có quyền sửa dự án này.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
     public void onDeleteClick(final Project project) {
+        if (currentUserId == null) {
+            if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (getContext() != null && project != null) {
-            // Kiểm tra xem simulated user có phải là chủ dự án không (dù đang giả lập)
             if (!currentUserId.equals(project.getCreatorUserId())) {
-                Toast.makeText(getContext(), "User giả lập ("+currentUserId+") không phải chủ dự án này ("+project.getCreatorUserId()+").", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Bạn không phải chủ dự án này.", Toast.LENGTH_LONG).show();
                 return;
             }
             new AlertDialog.Builder(getContext())
                     .setTitle("Xóa dự án")
-                    .setMessage("Bạn có chắc chắn muốn xóa dự án '" + project.getTitle() + "' của user " + currentUserId + "?")
+                    .setMessage("Bạn có chắc chắn muốn xóa dự án '" + project.getTitle() + "'?")
                     .setPositiveButton("Xóa", (dialog, which) -> deleteProjectFromFirestore(project))
                     .setNegativeButton("Hủy", null)
                     .show();
@@ -393,33 +510,53 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     }
 
     private void deleteProjectFromFirestore(final Project project) {
+        if (currentUserId == null) {
+            if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (project.getProjectId() == null || project.getProjectId().isEmpty()) {
             if (getContext() != null) Toast.makeText(getContext(), "ID dự án không hợp lệ.", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Double check ownership, even in simulation
         if (!currentUserId.equals(project.getCreatorUserId())) {
-            if (getContext() != null) Toast.makeText(getContext(), "Lỗi: User giả lập ("+currentUserId+") không khớp chủ dự án ("+project.getCreatorUserId()+").", Toast.LENGTH_LONG).show();
+            if (getContext() != null) Toast.makeText(getContext(), "Lỗi: Bạn không phải chủ dự án.", Toast.LENGTH_LONG).show();
             return;
         }
 
         if (!isAdded() || getContext() == null || userProjectsAdapter == null) return;
         if(progressBarProfile != null) progressBarProfile.setVisibility(View.VISIBLE);
 
-        projectsRef.document(project.getProjectId()).delete()
-                .addOnSuccessListener(aVoid -> {
-                    if (!isAdded() || getContext() == null || userProjectsAdapter == null) return;
-                    if(progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Đã xóa dự án: " + project.getTitle(), Toast.LENGTH_SHORT).show();
-                    userProjectsAdapter.removeProject(project);
-                    Log.i(TAG, "Project " + project.getProjectId() + " deleted for SIMULATED user " + currentUserId + ". REMEMBER TO DELETE RELATED DATA.");
-                })
-                .addOnFailureListener(e -> {
-                    if (!isAdded() || getContext() == null) return;
-                    if(progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
-                    Log.e(TAG, "Error deleting project: " + project.getProjectId() + " for SIMULATED user " + currentUserId, e);
-                    Toast.makeText(getContext(), "Lỗi xóa dự án: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        // TODO: Xóa các bản ghi liên quan trong ProjectTechnologies trước hoặc sau khi xóa project
+        // Ví dụ: Xóa ProjectTechnologies liên quan
+        Task<Void> deleteProjectTechTask = projectTechRef.whereEqualTo("ProjectId", project.getProjectId()).get()
+                .onSuccessTask(queryDocumentSnapshots -> {
+                    List<Task<Void>> deleteTasks = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        deleteTasks.add(doc.getReference().delete());
+                    }
+                    return Tasks.whenAll(deleteTasks);
                 });
+
+        deleteProjectTechTask.continueWithTask(task -> {
+            if (!task.isSuccessful()) {
+                Log.e(TAG, "Error deleting related ProjectTechnologies for " + project.getProjectId(), task.getException());
+                // Có thể quyết định dừng lại hoặc tiếp tục xóa project chính
+            }
+            return projectsRef.document(project.getProjectId()).delete();
+        }).addOnSuccessListener(aVoid -> {
+            if (!isAdded() || getContext() == null || userProjectsAdapter == null) return;
+            if(progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
+            Toast.makeText(getContext(), "Đã xóa dự án: " + project.getTitle(), Toast.LENGTH_SHORT).show();
+            userProjectsAdapter.removeProject(project);
+            Log.i(TAG, "Project " + project.getProjectId() + " and related data deleted for user " + currentUserId);
+            // Có thể cần tải lại danh sách dự án nếu có thay đổi ngoài dự án này
+            // loadUserProjects(true); // Cân nhắc
+        }).addOnFailureListener(e -> {
+            if (!isAdded() || getContext() == null) return;
+            if(progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
+            Log.e(TAG, "Error deleting project: " + project.getProjectId() + " for user " + currentUserId, e);
+            Toast.makeText(getContext(), "Lỗi xóa dự án: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override
@@ -437,33 +574,55 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener); // Đăng ký listener
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener); // Hủy đăng ký listener
+        }
+    }
+
+    // onResume không cần gọi loadUserProfile và loadUserProjects nữa
+    // vì AuthStateListener sẽ xử lý khi trạng thái auth thay đổi (ví dụ sau khi đăng nhập/đăng xuất)
+    // và onStart sẽ kích hoạt listener lần đầu.
+    // Nếu bạn muốn reload dữ liệu mỗi khi fragment resume (ví dụ, dữ liệu có thể thay đổi từ nơi khác),
+    // bạn có thể thêm lại logic load ở đây, nhưng kiểm tra currentUserId != null.
+    @Override
     public void onResume() {
         super.onResume();
-        // Khi giả lập, currentUserId không thay đổi, chỉ cần tải lại dữ liệu nếu cần
-        Log.d(TAG, "ProfileFragment onResume (SIMULATED User: " + currentUserId + "). Reloading data.");
-        loadUserProfile();
-        loadUserProjects(true);
+        // Nếu currentUserId != null, có thể bạn muốn refresh dữ liệu ở đây
+        // Ví dụ: if (currentUserId != null) { loadUserProfile(); loadUserProjects(false); }
+        // Tuy nhiên, việc này có thể gây load dữ liệu nhiều lần không cần thiết.
+        // AuthStateListener và SwipeRefresh đã xử lý hầu hết các trường hợp.
+        Log.d(TAG, "ProfileFragment onResume. Current user: " + (currentUserId != null ? currentUserId : "null"));
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(TAG, "ProfileFragment onDestroyView.");
+        // Giải phóng các view references
         avatarImageView = null;
         textViewUserName = null;
         textViewUserClass = null;
         profileLayout = null;
         logoutLayout = null;
         searchEditText = null;
+        textViewNotLoggedIn = null;
         if (projectsRecyclerView != null) {
-            projectsRecyclerView.setAdapter(null);
+            projectsRecyclerView.setAdapter(null); // Quan trọng để tránh leak adapter/context
         }
         projectsRecyclerView = null;
-        userProjectsAdapter = null;
+        userProjectsAdapter = null; // Adapter sẽ được giải phóng bởi RecyclerView
         if (userProjectList != null) {
             userProjectList.clear();
         }
-        userProjectList = null;
+        // userProjectList = null; // Để lại cho GC
         progressBarProfile = null;
         swipeRefreshLayoutProfile = null;
     }

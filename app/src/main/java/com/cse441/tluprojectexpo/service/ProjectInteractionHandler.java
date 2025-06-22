@@ -1,10 +1,9 @@
-package com.cse441.tluprojectexpo.service;
-
+package com.cse441.tluprojectexpo.service; // Hoặc package bạn đã chọn
 
 import android.util.Log;
 
-import com.cse441.tluprojectexpo.model.Comment;
-import com.cse441.tluprojectexpo.model.User;
+import com.cse441.tluprojectexpo.model.Comment; // Sử dụng model Comment của bạn
+import com.cse441.tluprojectexpo.model.User;    // Sử dụng model User của bạn
 import com.cse441.tluprojectexpo.util.Constants;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
@@ -13,7 +12,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,15 +24,19 @@ public class ProjectInteractionHandler {
         this.db = dbInstance;
     }
 
+    // Interface chung cho kết quả tương tác
     public interface InteractionListener<T> {
         void onSuccess(T result);
         void onFailure(String errorMessage);
     }
+
+    // Interface cụ thể cho kết quả upvote
     public interface UpvoteResult {
         long getNewVoteCount();
         boolean didUserUpvoteNow(); // true nếu user vừa upvote, false nếu vừa hủy upvote
     }
 
+    // Lớp triển khai UpvoteResult
     private static class UpvoteResultImpl implements UpvoteResult {
         private final long newVoteCount;
         private final boolean didUserUpvoteNow;
@@ -43,10 +45,8 @@ public class ProjectInteractionHandler {
             this.newVoteCount = newVoteCount;
             this.didUserUpvoteNow = didUserUpvoteNow;
         }
-        @Override
-        public long getNewVoteCount() { return newVoteCount; }
-        @Override
-        public boolean didUserUpvoteNow() { return didUserUpvoteNow; }
+        @Override public long getNewVoteCount() { return newVoteCount; }
+        @Override public boolean didUserUpvoteNow() { return didUserUpvoteNow; }
     }
 
 
@@ -67,6 +67,8 @@ public class ProjectInteractionHandler {
             if (!projectSnapshot.exists()) {
                 throw new FirebaseFirestoreException("Dự án không tồn tại.", FirebaseFirestoreException.Code.NOT_FOUND);
             }
+            // Giả sử Project model có getVoteCount() hoặc VoteCount là public
+            // Nếu không, bạn cần lấy trực tiếp từ projectSnapshot.getLong(Constants.FIELD_VOTE_COUNT)
             long currentDBVoteCount = projectSnapshot.getLong(Constants.FIELD_VOTE_COUNT) != null ? projectSnapshot.getLong(Constants.FIELD_VOTE_COUNT) : 0;
             boolean newActionIsUpvote;
 
@@ -84,8 +86,10 @@ public class ProjectInteractionHandler {
                 return new UpvoteResultImpl(currentDBVoteCount + 1, newActionIsUpvote);
             }
         }).addOnSuccessListener(result -> {
-            if (listener != null && result instanceof UpvoteResult) {
+            if (listener != null && result instanceof UpvoteResult) { // result ở đây đã là UpvoteResultImpl
                 listener.onSuccess((UpvoteResult) result);
+            } else if (listener != null) {
+                listener.onFailure("Kết quả giao dịch không hợp lệ.");
             }
         }).addOnFailureListener(e -> {
             Log.e(TAG, "Lỗi giao dịch bình chọn: ", e);
@@ -99,26 +103,38 @@ public class ProjectInteractionHandler {
             return;
         }
 
-        // Lấy thông tin người dùng hiện tại (tên, avatar) để hiển thị ngay
         db.collection(Constants.COLLECTION_USERS).document(currentUser.getUid()).get()
                 .addOnSuccessListener(userSnapshot -> {
                     if (userSnapshot.exists()) {
-                        User user = userSnapshot.toObject(User.class);
+                        User user = userSnapshot.toObject(User.class); // Sử dụng User model của bạn
                         if (user != null) {
+                            // Giả sử User model của bạn có getFullName() và getAvatarUrl()
                             String userName = user.getFullName() != null ? user.getFullName() : "Người dùng ẩn danh";
                             String userAvatarUrl = user.getAvatarUrl();
 
+                            // Sử dụng constructor của Comment model của bạn
+                            // Đảm bảo Comment model của bạn có constructor phù hợp và các setter nếu cần
                             Comment newCommentObject = new Comment(
                                     projectId,
                                     currentUser.getUid(), // AuthorUserId
-                                    userName,             // Dùng để hiển thị ngay
-                                    userAvatarUrl,        // Dùng để hiển thị ngay
+                                    userName,             // Dùng để hiển thị ngay, không lưu vào DB (do @Exclude trong model)
+                                    userAvatarUrl,        // Dùng để hiển thị ngay, không lưu vào DB (do @Exclude trong model)
                                     commentText.trim(),
                                     Timestamp.now()
                             );
+                            // Nếu model Comment của bạn không có constructor như trên, bạn cần tạo đối tượng
+                            // và set từng trường một:
+                            // Comment newCommentObject = new Comment();
+                            // newCommentObject.setProjectId(projectId);
+                            // newCommentObject.setUserId(currentUser.getUid()); // Đảm bảo setter này map tới AuthorUserId
+                            // newCommentObject.setUserName(userName); // Trường này có @Exclude
+                            // newCommentObject.setUserAvatarUrl(userAvatarUrl); // Trường này có @Exclude
+                            // newCommentObject.setText(commentText.trim()); // Đảm bảo setter này map tới Content
+                            // newCommentObject.setTimestamp(Timestamp.now()); // Đảm bảo setter này map tới CreatedAt
 
-                            db.collection(Constants.COLLECTION_COMMENTS).add(newCommentObject) // newCommentObject chứa các PropertyName đúng
+                            db.collection(Constants.COLLECTION_COMMENTS).add(newCommentObject)
                                     .addOnSuccessListener(documentReference -> {
+                                        // Giả sử Comment model có setCommentId()
                                         newCommentObject.setCommentId(documentReference.getId());
                                         if (listener != null) listener.onSuccess(newCommentObject);
                                     })

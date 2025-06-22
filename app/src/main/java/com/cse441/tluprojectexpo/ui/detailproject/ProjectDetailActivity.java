@@ -1,33 +1,35 @@
 package com.cse441.tluprojectexpo.ui.detailproject;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
-import com.cse441.tluprojectexpo.model.Comment; // Model
-import com.cse441.tluprojectexpo.model.Project; // Model
-import com.cse441.tluprojectexpo.model.User;    // Model
-import com.cse441.tluprojectexpo.service.FirestoreService; // Service
-import com.cse441.tluprojectexpo.service.ProjectInteractionHandler; // Service
-import com.cse441.tluprojectexpo.util.UiHelper;   // Utils
+// Sử dụng model Comment, Project, User của bạn
+import com.cse441.tluprojectexpo.model.Comment;
+import com.cse441.tluprojectexpo.model.Project;
+import com.cse441.tluprojectexpo.model.User;
+// Các service và util đã tạo/chỉnh sửa
+import com.cse441.tluprojectexpo.service.FirestoreService;
+import com.cse441.tluprojectexpo.service.ProjectInteractionHandler;
+import com.cse441.tluprojectexpo.util.Constants;
+import com.cse441.tluprojectexpo.util.UiHelper;
+// Import các Adapter đã tách file
+import com.cse441.tluprojectexpo.ui.detailproject.adapter.CommentAdapter;
+import com.cse441.tluprojectexpo.ui.detailproject.adapter.MediaGalleryAdapter;
+import com.cse441.tluprojectexpo.ui.detailproject.adapter.ProjectMemberAdapter;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
@@ -35,15 +37,13 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-
+import com.google.firebase.firestore.FirebaseFirestore; // Chỉ cần cho khởi tạo dbInstance
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
 
 public class ProjectDetailActivity extends AppCompatActivity {
 
@@ -74,7 +74,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
     private RecyclerView recyclerViewComments;
 
     // Services and Handlers
-    private FirebaseFirestore dbInstance; // Chỉ để truyền vào handler
+    private FirebaseFirestore dbInstance;
     private FirestoreService firestoreService;
     private ProjectInteractionHandler interactionHandler;
 
@@ -84,27 +84,28 @@ public class ProjectDetailActivity extends AppCompatActivity {
 
     // Data
     private String projectId;
-    private Project currentProject;
+    private Project currentProject; // Sử dụng model Project của bạn
     private ProjectMemberAdapter memberAdapter;
     private MediaGalleryAdapter mediaGalleryAdapter;
     private CommentAdapter commentAdapter;
-    private List<Project.UserShortInfo> memberList = new ArrayList<>();
-    private List<Project.MediaItem> mediaList = new ArrayList<>();
-    private List<Comment> commentList = new ArrayList<>();
+    private List<Project.UserShortInfo> memberList = new ArrayList<>(); // UserShortInfo là inner class của Project
+    private List<Project.MediaItem> mediaList = new ArrayList<>();   // MediaItem là inner class của Project
+    private List<Comment> commentList = new ArrayList<>();             // Sử dụng model Comment của bạn
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_project_detail);
+        setContentView(R.layout.activity_project_detail);
 
-        dbInstance = FirebaseFirestore.getInstance(); // Khởi tạo instance
+        dbInstance = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
-        firestoreService = new FirestoreService();
-        interactionHandler = new ProjectInteractionHandler(dbInstance);
+        firestoreService = new FirestoreService(); // Khởi tạo service
+        interactionHandler = new ProjectInteractionHandler(dbInstance); // Khởi tạo handler
 
         initViews();
+        setupRecyclerViews(); // Tách riêng setup RecyclerViews
         setupListeners();
 
         projectId = getIntent().getStringExtra(EXTRA_PROJECT_ID);
@@ -121,7 +122,6 @@ public class ProjectDetailActivity extends AppCompatActivity {
         tvToolbarTitle = findViewById(R.id.tv_title);
         imageViewProjectThumbnail = findViewById(R.id.imageViewProjectThumbnail);
         textViewProjectTitle = findViewById(R.id.textViewProjectTitle);
-        // ... (các findViewById khác giữ nguyên) ...
         textViewProjectCreator = findViewById(R.id.textViewProjectCreator);
         textViewProjectStatus = findViewById(R.id.textViewProjectStatus);
         textViewProjectDescription = findViewById(R.id.textViewProjectDescription);
@@ -139,22 +139,27 @@ public class ProjectDetailActivity extends AppCompatActivity {
         editTextNewComment = findViewById(R.id.editTextNewComment);
         buttonPostComment = findViewById(R.id.buttonPostComment);
         recyclerViewComments = findViewById(R.id.recyclerViewComments);
+    }
 
-
+    private void setupRecyclerViews() {
+        // Member Adapter
         recyclerViewMembers.setLayoutManager(new LinearLayoutManager(this));
         memberAdapter = new ProjectMemberAdapter(this, memberList);
         recyclerViewMembers.setAdapter(memberAdapter);
         recyclerViewMembers.setNestedScrollingEnabled(false);
 
+        // Media Gallery Adapter
         recyclerViewMediaGallery.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mediaGalleryAdapter = new MediaGalleryAdapter(this, mediaList);
         recyclerViewMediaGallery.setAdapter(mediaGalleryAdapter);
 
+        // Comment Adapter
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
-        commentAdapter = new CommentAdapter(this, commentList);
+        commentAdapter = new CommentAdapter(this, commentList); // Sử dụng Comment model của bạn
         recyclerViewComments.setAdapter(commentAdapter);
         recyclerViewComments.setNestedScrollingEnabled(false);
     }
+
 
     private void setupListeners() {
         ivBackArrow.setOnClickListener(v -> finish());
@@ -200,24 +205,15 @@ public class ProjectDetailActivity extends AppCompatActivity {
                 loadAdditionalProjectData();
                 checkInitialUpvoteStatus();
             }
-
             @Override
-            public void onProjectNotFound() {
-                showError("Dự án không tồn tại.");
-                finish();
-            }
-
+            public void onProjectNotFound() { showErrorAndFinish("Dự án không tồn tại."); }
             @Override
-            public void onError(String errorMessage) {
-                showError("Lỗi tải dự án: " + errorMessage);
-                finish();
-            }
+            public void onError(String errorMessage) { showErrorAndFinish("Lỗi tải dự án: " + errorMessage); }
         });
     }
 
     private void populateBaseUI() {
         if (currentProject == null) return;
-
         tvToolbarTitle.setText(currentProject.getTitle() != null ? currentProject.getTitle() : "Chi tiết dự án");
         textViewProjectTitle.setText(currentProject.getTitle());
         textViewProjectDescription.setText(currentProject.getDescription());
@@ -230,20 +226,9 @@ public class ProjectDetailActivity extends AppCompatActivity {
             imageViewProjectThumbnail.setImageResource(R.drawable.ic_placeholder_image);
         }
         setStatusUI(currentProject.getStatus());
-        // ... (cập nhật các TextView links, vote count ban đầu, media gallery)
-        if (currentProject.getProjectUrl() != null && !currentProject.getProjectUrl().isEmpty()) {
-            textViewProjectLinkSourceCode.setText("Mã nguồn: " + currentProject.getProjectUrl());
-            textViewProjectLinkSourceCode.setVisibility(View.VISIBLE);
-        } else {
-            textViewProjectLinkSourceCode.setVisibility(View.GONE);
-        }
 
-        if (currentProject.getDemoUrl() != null && !currentProject.getDemoUrl().isEmpty()) {
-            textViewProjectLinkDemo.setText("Demo: " + currentProject.getDemoUrl());
-            textViewProjectLinkDemo.setVisibility(View.VISIBLE);
-        } else {
-            textViewProjectLinkDemo.setVisibility(View.GONE);
-        }
+        updateLinkUI(textViewProjectLinkSourceCode, "Mã nguồn: ", currentProject.getProjectUrl());
+        updateLinkUI(textViewProjectLinkDemo, "Demo: ", currentProject.getDemoUrl());
 
         textViewVoteCount.setText(String.format(Locale.getDefault(), "%d lượt bình chọn", currentProject.getVoteCount()));
 
@@ -259,10 +244,18 @@ public class ProjectDetailActivity extends AppCompatActivity {
         }
     }
 
+    private void updateLinkUI(TextView textView, String prefix, String url) {
+        if (url != null && !url.isEmpty()) {
+            textView.setText(prefix + url);
+            textView.setVisibility(View.VISIBLE);
+        } else {
+            textView.setVisibility(View.GONE);
+        }
+    }
+
     private void setStatusUI(String status) {
         if (status == null) status = "Không rõ";
         textViewProjectStatus.setText(status);
-        // ... (logic set background cho status TextView)
         switch (status.toLowerCase().trim()) {
             case "hoàn thành": case "completed":
                 textViewProjectStatus.setBackgroundResource(R.drawable.status_background_completed);
@@ -280,18 +273,28 @@ public class ProjectDetailActivity extends AppCompatActivity {
     }
 
     private void loadAdditionalProjectData() {
-        if (currentProject == null) return;
+        if (currentProject == null || projectId == null) return;
 
         // Load Creator Info
         if (currentProject.getCreatorUserId() != null && !currentProject.getCreatorUserId().isEmpty()) {
+            // SỬA Ở ĐÂY: Đổi fetchCreatorDetails thành fetchUserDetails
             firestoreService.fetchUserDetails(currentProject.getCreatorUserId(), new FirestoreService.UserDetailsFetchListener() {
                 @Override
                 public void onUserDetailsFetched(User user) {
-                    currentProject.setCreatorFullName(user.getFullName());
-                    updateCreatorInfoUI(user.getFullName());
+                    // Giả sử Project model có setCreatorFullName và User model có getFullName
+                    if (currentProject != null && user != null) { // Thêm kiểm tra null
+                        currentProject.setCreatorFullName(user.getFullName());
+                        updateCreatorInfoUI(user.getFullName());
+                    } else if (user == null) {
+                        Log.e(TAG, "User object is null after fetching details for creator.");
+                        updateCreatorInfoUI("Lỗi dữ liệu người tạo");
+                    }
                 }
                 @Override public void onUserNotFound() { updateCreatorInfoUI("Người tạo không tồn tại"); }
-                @Override public void onError(String errorMessage) { updateCreatorInfoUI("Lỗi tải người tạo"); }
+                @Override public void onError(String errorMessage) {
+                    Log.e(TAG, "Error loading creator: " + errorMessage);
+                    updateCreatorInfoUI("Lỗi tải người tạo");
+                }
             });
         } else {
             updateCreatorInfoUI("N/A");
@@ -306,7 +309,10 @@ public class ProjectDetailActivity extends AppCompatActivity {
                     layoutProjectCourse.setVisibility(View.VISIBLE);
                 }
                 @Override public void onCourseNotFound() { layoutProjectCourse.setVisibility(View.GONE); }
-                @Override public void onError(String errorMessage) { layoutProjectCourse.setVisibility(View.GONE); }
+                @Override public void onError(String errorMessage) {
+                    Log.e(TAG, "Error loading course: " + errorMessage);
+                    layoutProjectCourse.setVisibility(View.GONE);
+                }
             });
         } else {
             layoutProjectCourse.setVisibility(View.GONE);
@@ -318,7 +324,10 @@ public class ProjectDetailActivity extends AppCompatActivity {
                 currentProject.setCategoryNames(items); updateChipGroupUI(chipGroupCategories, items);
             }
             @Override public void onListEmpty() { updateChipGroupUI(chipGroupCategories, new ArrayList<>()); }
-            @Override public void onError(String errorMessage) { updateChipGroupUI(chipGroupCategories, new ArrayList<>()); }
+            @Override public void onError(String errorMessage) {
+                Log.e(TAG, "Error loading categories: " + errorMessage);
+                updateChipGroupUI(chipGroupCategories, new ArrayList<>());
+            }
         });
 
         // Load Technologies
@@ -327,7 +336,10 @@ public class ProjectDetailActivity extends AppCompatActivity {
                 currentProject.setTechnologyNames(items); updateChipGroupUI(chipGroupTechnologies, items);
             }
             @Override public void onListEmpty() { updateChipGroupUI(chipGroupTechnologies, new ArrayList<>()); }
-            @Override public void onError(String errorMessage) { updateChipGroupUI(chipGroupTechnologies, new ArrayList<>()); }
+            @Override public void onError(String errorMessage) {
+                Log.e(TAG, "Error loading technologies: " + errorMessage);
+                updateChipGroupUI(chipGroupTechnologies, new ArrayList<>());
+            }
         });
 
         // Load Members
@@ -340,6 +352,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
                 memberList.clear(); currentProject.setProjectMembersInfo(new ArrayList<>()); memberAdapter.notifyDataSetChanged();
             }
             @Override public void onError(String errorMessage) {
+                Log.e(TAG, "Error loading members: " + errorMessage);
                 memberList.clear(); currentProject.setProjectMembersInfo(new ArrayList<>()); memberAdapter.notifyDataSetChanged();
             }
         });
@@ -350,7 +363,10 @@ public class ProjectDetailActivity extends AppCompatActivity {
                 commentList.clear(); commentList.addAll(items); commentAdapter.notifyDataSetChanged();
             }
             @Override public void onListEmpty() { commentList.clear(); commentAdapter.notifyDataSetChanged(); }
-            @Override public void onError(String errorMessage) { commentList.clear(); commentAdapter.notifyDataSetChanged(); }
+            @Override public void onError(String errorMessage) {
+                Log.e(TAG, "Error loading comments: " + errorMessage);
+                commentList.clear(); commentAdapter.notifyDataSetChanged();
+            }
         });
     }
 
@@ -385,7 +401,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
         if (buttonUpvote == null) return;
         if (hasVoted) {
             buttonUpvote.setText("Đã bình chọn");
-            buttonUpvote.setIconResource(R.drawable.ic_thumb_up); // Cân nhắc dùng icon khác (ic_thumb_up_filled)
+            buttonUpvote.setIconResource(R.drawable.ic_thumb_up_filled); // Nên có icon filled
         } else {
             buttonUpvote.setText("Bình chọn");
             buttonUpvote.setIconResource(R.drawable.ic_thumb_up);
@@ -399,7 +415,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
         if (projectId == null) {
             UiHelper.showToast(this, "Lỗi: Không tìm thấy dự án.", Toast.LENGTH_SHORT); return;
         }
-        buttonUpvote.setEnabled(false); // Vô hiệu hóa nút tạm thời
+        buttonUpvote.setEnabled(false);
         interactionHandler.handleUpvote(currentUser, projectId, new ProjectInteractionHandler.InteractionListener<ProjectInteractionHandler.UpvoteResult>() {
             @Override
             public void onSuccess(ProjectInteractionHandler.UpvoteResult result) {
@@ -411,8 +427,9 @@ public class ProjectDetailActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(String errorMessage) {
-                UiHelper.showToast(ProjectDetailActivity.this, errorMessage, Toast.LENGTH_SHORT);
+                UiHelper.showToast(ProjectDetailActivity.this, "Lỗi bình chọn: " + errorMessage, Toast.LENGTH_SHORT);
                 buttonUpvote.setEnabled(true);
+                checkInitialUpvoteStatus(); // Kiểm tra lại trạng thái vote từ DB khi có lỗi
             }
         });
     }
@@ -432,131 +449,32 @@ public class ProjectDetailActivity extends AppCompatActivity {
         buttonPostComment.setEnabled(false);
         interactionHandler.postComment(currentUser, projectId, commentText, new ProjectInteractionHandler.InteractionListener<Comment>() {
             @Override
-            public void onSuccess(Comment newPostedComment) {
+            public void onSuccess(Comment newPostedComment) { // newPostedComment là đối tượng từ model của bạn
                 UiHelper.showToast(ProjectDetailActivity.this, "Đã gửi bình luận.", Toast.LENGTH_SHORT);
                 editTextNewComment.setText("");
-                commentList.add(0, newPostedComment); // newPostedComment đã có ID và thông tin user
+                commentList.add(0, newPostedComment);
                 commentAdapter.notifyItemInserted(0);
                 if(recyclerViewComments.getLayoutManager() != null) recyclerViewComments.scrollToPosition(0);
                 buttonPostComment.setEnabled(true);
             }
             @Override
             public void onFailure(String errorMessage) {
-                UiHelper.showToast(ProjectDetailActivity.this, errorMessage, Toast.LENGTH_SHORT);
+                UiHelper.showToast(ProjectDetailActivity.this, "Lỗi gửi bình luận: " + errorMessage, Toast.LENGTH_SHORT);
                 buttonPostComment.setEnabled(true);
             }
         });
     }
 
-
     private String formatDate(Timestamp timestamp) {
         if (timestamp == null) return "N/A";
         Date date = timestamp.toDate();
+        // SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()); // Kèm giờ phút
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         return sdf.format(date);
     }
 
-    private void showError(String message) {
+    private void showErrorAndFinish(String message) {
         UiHelper.showToast(this, message, Toast.LENGTH_LONG);
-    }
-
-    // --- ADAPTERS (Giữ nguyên như đã sửa ở lần trước, có thể tách ra file riêng) ---
-    // ProjectMemberAdapter, MediaGalleryAdapter, CommentAdapter
-    public static class ProjectMemberAdapter extends RecyclerView.Adapter<ProjectMemberAdapter.ViewHolder> {
-        private Context context;
-        private List<Project.UserShortInfo> members;
-
-        public ProjectMemberAdapter(Context context, List<Project.UserShortInfo> members) {
-            this.context = context;
-            this.members = members;
-        }
-
-        @NonNull @Override public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_member, parent, false));
-        }
-        @Override public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Project.UserShortInfo member = members.get(position);
-            holder.textViewMemberName.setText(member.getFullName());
-            holder.textViewMemberRole.setText(member.getRoleInProject());
-            Glide.with(context).load(member.getAvatarUrl()).placeholder(R.drawable.ic_default_avatar)
-                    .error(R.drawable.ic_default_avatar).circleCrop().into(holder.imageViewMemberAvatar);
-        }
-        @Override public int getItemCount() { return members.size(); }
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            ImageView imageViewMemberAvatar; TextView textViewMemberName, textViewMemberRole;
-            ViewHolder(View itemView) {
-                super(itemView);
-                imageViewMemberAvatar = itemView.findViewById(R.id.imageViewMemberAvatar);
-                textViewMemberName = itemView.findViewById(R.id.textViewMemberName);
-                textViewMemberRole = itemView.findViewById(R.id.textViewMemberRole);
-            }
-        }
-    }
-
-    public static class MediaGalleryAdapter extends RecyclerView.Adapter<MediaGalleryAdapter.ViewHolder> {
-        private Context context; private List<Project.MediaItem> mediaItems;
-        public MediaGalleryAdapter(Context context, List<Project.MediaItem> mediaItems) {
-            this.context = context; this.mediaItems = mediaItems;
-        }
-        @NonNull @Override public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_media_gallery, parent, false));
-        }
-        @Override public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Project.MediaItem mediaItem = mediaItems.get(position);
-            Glide.with(context).load(mediaItem.getUrl()).placeholder(R.drawable.ic_placeholder_image)
-                    .error(R.drawable.ic_image_error).centerCrop().into(holder.imageViewMediaItem);
-            holder.imageViewPlayIcon.setVisibility("video".equalsIgnoreCase(mediaItem.getType()) ? View.VISIBLE : View.GONE);
-            holder.itemView.setOnClickListener(v -> { /* Code mở media */
-                String url = mediaItem.getUrl();
-                if (url == null || url.isEmpty()) { UiHelper.showToast(context, "Link media không hợp lệ", Toast.LENGTH_SHORT); return; }
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse(url), "video".equalsIgnoreCase(mediaItem.getType()) ? "video/*" : "image/*");
-                try {
-                    if (intent.resolveActivity(context.getPackageManager()) != null) context.startActivity(intent);
-                    else UiHelper.showToast(context, "Không tìm thấy ứng dụng để mở media", Toast.LENGTH_SHORT);
-                } catch (Exception e) { UiHelper.showToast(context, "Lỗi mở media", Toast.LENGTH_SHORT); }
-            });
-        }
-        @Override public int getItemCount() { return mediaItems.size(); }
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            ImageView imageViewMediaItem, imageViewPlayIcon;
-            ViewHolder(View itemView) {
-                super(itemView);
-                imageViewMediaItem = itemView.findViewById(R.id.imageViewMediaItem);
-                imageViewPlayIcon = itemView.findViewById(R.id.imageViewPlayIcon);
-            }
-        }
-    }
-
-    public static class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
-        private Context context; private List<Comment> comments;
-        public CommentAdapter(Context context, List<Comment> comments) {
-            this.context = context; this.comments = comments;
-        }
-        @NonNull @Override public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_comment, parent, false));
-        }
-        @Override public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Comment comment = comments.get(position);
-            holder.textViewCommenterName.setText(comment.getUserName());
-            holder.textViewCommentContent.setText(comment.getText());
-            if (comment.getTimestamp() != null) {
-                holder.textViewCommentDate.setText(DateUtils.getRelativeTimeSpanString(
-                        comment.getTimestamp().toDate().getTime(), System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
-            } else { holder.textViewCommentDate.setText(""); }
-            Glide.with(context).load(comment.getUserAvatarUrl()).placeholder(R.drawable.ic_default_avatar)
-                    .error(R.drawable.ic_default_avatar).circleCrop().into(holder.imageViewCommenterAvatar);
-        }
-        @Override public int getItemCount() { return comments.size(); }
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            ImageView imageViewCommenterAvatar; TextView textViewCommenterName, textViewCommentContent, textViewCommentDate;
-            ViewHolder(View itemView) {
-                super(itemView);
-                imageViewCommenterAvatar = itemView.findViewById(R.id.imageViewCommenterAvatar);
-                textViewCommenterName = itemView.findViewById(R.id.textViewCommenterName);
-                textViewCommentContent = itemView.findViewById(R.id.textViewCommentContent);
-                textViewCommentDate = itemView.findViewById(R.id.textViewCommentDate);
-            }
-        }
+        finish();
     }
 }

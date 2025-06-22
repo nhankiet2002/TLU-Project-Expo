@@ -2,23 +2,22 @@ package com.cse441.tluprojectexpo.service;
 
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+// Giả sử model Comment của bạn nằm ở đây và tên là Comment
 import com.cse441.tluprojectexpo.model.Comment;
 import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
-import com.cse441.tluprojectexpo.util.Constants;
+import com.cse441.tluprojectexpo.util.Constants; // Sử dụng Constants của bạn
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashMap; // Cần cho các hàm fetchCategories/Technologies gốc
 import java.util.List;
 import java.util.Map;
 
@@ -31,13 +30,13 @@ public class FirestoreService {
         db = FirebaseFirestore.getInstance();
     }
 
-    // --- CÁC INTERFACE LISTENER (Giữ lại từ file gốc của bạn) ---
+    // --- INTERFACES CHO CreateProjectActivity (PHẢI GIỮ NGUYÊN CHỮ KÝ) ---
     public interface CategoriesFetchListener {
         void onCategoriesFetched(List<String> categoryNames, Map<String, String> nameToIdMap);
         void onError(String errorMessage);
     }
 
-    public interface UserDetailsFetchListener {
+    public interface UserDetailsFetchListener { // Cũng được dùng bởi ProjectDetailActivity
         void onUserDetailsFetched(User user);
         void onUserNotFound();
         void onError(String errorMessage);
@@ -47,10 +46,11 @@ public class FirestoreService {
         void onTechnologiesFetched(List<String> technologyNames, Map<String, String> technologyNameToIdMap);
         void onError(String errorMessage);
     }
+    // --- KẾT THÚC INTERFACES CHO CreateProjectActivity ---
 
-    // --- CÁC PHƯƠNG THỨC FETCH GỐC (Giữ lại từ file gốc của bạn) ---
+
+    // --- PHƯƠNG THỨC CHO CreateProjectActivity (PHẢI GIỮ NGUYÊN CHỮ KÝ VÀ LOGIC) ---
     public void fetchCategories(CategoriesFetchListener listener) {
-        // ... (Code gốc của bạn)
         if (listener == null) {
             Log.e(TAG, "CategoriesFetchListener không được null.");
             return;
@@ -58,7 +58,7 @@ public class FirestoreService {
         db.collection(Constants.COLLECTION_CATEGORIES).orderBy(Constants.FIELD_NAME).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        QuerySnapshot querySnapshot = task.getResult();
+                        com.google.firebase.firestore.QuerySnapshot querySnapshot = task.getResult();
                         List<String> names = new ArrayList<>();
                         Map<String, String> nameToId = new HashMap<>();
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
@@ -71,17 +71,16 @@ public class FirestoreService {
                                 }
                             }
                         }
-                        Log.d(TAG, "Categories fetched: " + names.size());
+                        Log.d(TAG, "Categories fetched (for CreateProject): " + names.size());
                         listener.onCategoriesFetched(names, nameToId);
                     } else {
-                        Log.w(TAG, "Lỗi khi lấy categories: ", task.getException());
+                        Log.w(TAG, "Lỗi khi lấy categories (for CreateProject): ", task.getException());
                         listener.onError("Lỗi tải lĩnh vực: " + (task.getException() != null ? task.getException().getMessage() : "Lỗi không xác định"));
                     }
                 });
     }
 
-    public void fetchUserDetails(String userId, UserDetailsFetchListener listener) {
-        // ... (Code gốc của bạn)
+    public void fetchUserDetails(String userId, UserDetailsFetchListener listener) { // Dùng chung
         if (userId == null || userId.isEmpty()) {
             if (listener != null) listener.onError("User ID không hợp lệ.");
             return;
@@ -100,22 +99,20 @@ public class FirestoreService {
                             listener.onUserDetailsFetched(user);
                         } else {
                             Log.e(TAG, "Không thể phân tích đối tượng User cho: " + userId);
-                            listener.onError("Lỗi phân tích dữ liệu người dùng.");
+                            if (listener != null) listener.onError("Lỗi phân tích dữ liệu người dùng.");
                         }
                     } else {
                         Log.w(TAG, "Không tìm thấy document User với ID: " + userId);
-                        listener.onUserNotFound();
+                        if (listener != null) listener.onUserNotFound();
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Lỗi khi lấy chi tiết User cho ID: " + userId, e);
-                    listener.onError("Lỗi tải thông tin người dùng: " + e.getMessage());
+                    if (listener != null) listener.onError("Lỗi tải thông tin người dùng: " + e.getMessage());
                 });
     }
 
-
     public void fetchTechnologies(TechnologyFetchListener listener) {
-        // ... (Code gốc của bạn)
         if (listener == null) {
             Log.e(TAG, "TechnologyFetchListener không được null.");
             return;
@@ -127,7 +124,7 @@ public class FirestoreService {
                     List<String> names = new ArrayList<>();
                     Map<String, String> nameToIdMap = new HashMap<>();
                     if (queryDocumentSnapshots.isEmpty()) {
-                        Log.d(TAG, "Collection " + Constants.COLLECTION_TECHNOLOGIES + " rỗng hoặc không tìm thấy.");
+                        Log.d(TAG, "Collection " + Constants.COLLECTION_TECHNOLOGIES + " rỗng hoặc không tìm thấy (for CreateProject).");
                     }
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         String name = document.getString(Constants.FIELD_NAME);
@@ -136,19 +133,25 @@ public class FirestoreService {
                             names.add(name);
                             nameToIdMap.put(name, id);
                         } else {
-                            Log.w(TAG, "Document " + document.getId() + " trong " + Constants.COLLECTION_TECHNOLOGIES + " có trường Name null hoặc rỗng, hoặc id null.");
+                            Log.w(TAG, "Document " + document.getId() + " trong " + Constants.COLLECTION_TECHNOLOGIES + " có trường Name null hoặc rỗng, hoặc id null (for CreateProject).");
                         }
                     }
-                    Log.d(TAG, "Technologies fetched: " + names.size() + ". Names: " + names.toString());
+                    Log.d(TAG, "Technologies fetched (for CreateProject): " + names.size());
                     listener.onTechnologiesFetched(names, nameToIdMap);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Lỗi khi lấy tên công nghệ", e);
+                    Log.e(TAG, "Lỗi khi lấy tên công nghệ (for CreateProject)", e);
                     listener.onError("Lỗi tải danh sách công nghệ: " + e.getMessage());
                 });
     }
+    // --- KẾT THÚC PHƯƠNG THỨC CHO CreateProjectActivity ---
+
 
     // --- CÁC LISTENER VÀ PHƯƠNG THỨC MỚI CHO PROJECT DETAIL ---
+    // (Các interface và phương thức như ProjectDetailsFetchListener, fetchProjectDetails,
+    // fetchCreatorDetails (sử dụng UserDetailsFetchListener đã có), fetchCourseDetails,
+    // fetchCategoriesForProject, fetchTechnologiesForProject, fetchProjectMembers,
+    // fetchProjectComments, checkIfUserUpvoted sẽ nằm ở đây, như đã cung cấp ở câu trả lời trước)
     public interface ProjectDetailsFetchListener {
         void onProjectFetched(Project project);
         void onProjectNotFound();
@@ -167,6 +170,9 @@ public class FirestoreService {
         void onError(String errorMessage);
     }
 
+    public interface UpvoteStatusListener {
+        void onStatusChecked(boolean hasVoted);
+    }
 
     public void fetchProjectDetails(String projectId, ProjectDetailsFetchListener listener) {
         if (projectId == null || projectId.isEmpty()) {
@@ -188,13 +194,18 @@ public class FirestoreService {
                     }
                 })
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi tải dự án: " + projectId, e);
                     if (listener != null) listener.onError("Lỗi tải dự án: " + e.getMessage());
                 });
     }
 
+    // fetchCreatorDetails sẽ dùng chung UserDetailsFetchListener
+    // public void fetchCreatorDetails(String creatorId, UserDetailsFetchListener listener) { ... } // Đã có ở trên là fetchUserDetails
+
+
     public void fetchCourseDetails(String courseId, CourseDetailsListener listener) {
         if (courseId == null || courseId.isEmpty()) {
-            if (listener != null) listener.onCourseNotFound(); // Hoặc onError
+            if (listener != null) listener.onCourseNotFound();
             return;
         }
         db.collection(Constants.COLLECTION_COURSES).document(courseId).get()
@@ -206,6 +217,7 @@ public class FirestoreService {
                     }
                 })
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi tải môn học: " + courseId, e);
                     if (listener != null) listener.onError("Lỗi tải môn học: " + e.getMessage());
                 });
     }
@@ -227,8 +239,7 @@ public class FirestoreService {
                         }
                     }
                     if (categoryTasks.isEmpty()) {
-                        if (listener != null) listener.onListEmpty();
-                        return;
+                        if (listener != null) listener.onListEmpty(); return;
                     }
                     Tasks.whenAllSuccess(categoryTasks).addOnSuccessListener(list -> {
                         List<String> categoryNames = new ArrayList<>();
@@ -243,6 +254,7 @@ public class FirestoreService {
                         if (listener != null) listener.onError("Lỗi lấy chi tiết lĩnh vực: " + e.getMessage());
                     });
                 }).addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi tải lĩnh vực của dự án: " + projectId, e);
                     if (listener != null) listener.onError("Lỗi tải lĩnh vực của dự án: " + e.getMessage());
                 });
     }
@@ -264,8 +276,7 @@ public class FirestoreService {
                         }
                     }
                     if (techTasks.isEmpty()) {
-                        if (listener != null) listener.onListEmpty();
-                        return;
+                        if (listener != null) listener.onListEmpty(); return;
                     }
                     Tasks.whenAllSuccess(techTasks).addOnSuccessListener(list -> {
                         List<String> techNames = new ArrayList<>();
@@ -280,6 +291,7 @@ public class FirestoreService {
                         if (listener != null) listener.onError("Lỗi lấy chi tiết công nghệ: " + e.getMessage());
                     });
                 }).addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi tải công nghệ của dự án: " + projectId, e);
                     if (listener != null) listener.onError("Lỗi tải công nghệ của dự án: " + e.getMessage());
                 });
     }
@@ -304,8 +316,7 @@ public class FirestoreService {
                         }
                     }
                     if (userTasks.isEmpty()) {
-                        if (listener != null) listener.onListEmpty();
-                        return;
+                        if (listener != null) listener.onListEmpty(); return;
                     }
                     Tasks.whenAllSuccess(userTasks).addOnSuccessListener(list -> {
                         List<Project.UserShortInfo> memberInfos = new ArrayList<>();
@@ -316,8 +327,8 @@ public class FirestoreService {
                                 if (user != null) {
                                     memberInfos.add(new Project.UserShortInfo(
                                             userSnap.getId(),
-                                            user.getFullName(),
-                                            user.getAvatarUrl(),
+                                            user.getFullName(), // Giả sử User model có getFullName()
+                                            user.getAvatarUrl(), // Giả sử User model có getAvatarUrl()
                                             roles.get(i)
                                     ));
                                 }
@@ -328,6 +339,7 @@ public class FirestoreService {
                         if (listener != null) listener.onError("Lỗi lấy chi tiết thành viên: " + e.getMessage());
                     });
                 }).addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi tải thành viên dự án: " + projectId, e);
                     if (listener != null) listener.onError("Lỗi tải thành viên dự án: " + e.getMessage());
                 });
     }
@@ -347,10 +359,14 @@ public class FirestoreService {
                     List<Task<Void>> userLoadTasks = new ArrayList<>();
 
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Comment comment = doc.toObject(Comment.class);
+                        Comment comment = doc.toObject(Comment.class); // Sử dụng model Comment của bạn
+                        if (comment == null) continue;
+
+                        // Giả sử model Comment có các setter này
                         comment.setCommentId(doc.getId());
                         fetchedComments.add(comment);
 
+                        // Giả sử model Comment có getUserId() trả về AuthorUserId
                         if (comment.getUserId() != null && !comment.getUserId().isEmpty()) {
                             Task<Void> userTask = db.collection(Constants.COLLECTION_USERS).document(comment.getUserId()).get()
                                     .continueWithTask(task -> {
@@ -375,6 +391,7 @@ public class FirestoreService {
                         if (listener != null) listener.onListFetched(fetchedComments);
                     });
                 }).addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi tải bình luận cho dự án: " + projectId, e);
                     if (listener != null) listener.onError("Lỗi tải bình luận: " + e.getMessage());
                 });
     }
@@ -389,12 +406,9 @@ public class FirestoreService {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> listener.onStatusChecked(documentSnapshot.exists()))
                 .addOnFailureListener(e -> {
-                    Log.w(TAG, "Lỗi kiểm tra trạng thái upvote", e);
-                    listener.onStatusChecked(false); // Default to false on error
+                    Log.w(TAG, "Lỗi kiểm tra trạng thái upvote cho dự án: " + projectId, e);
+                    listener.onStatusChecked(false);
                 });
     }
-
-    public interface UpvoteStatusListener {
-        void onStatusChecked(boolean hasVoted);
-    }
+    // --- KẾT THÚC CÁC PHƯƠNG THỨC MỚI ---
 }
