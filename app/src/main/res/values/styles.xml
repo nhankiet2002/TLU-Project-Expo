@@ -34,6 +34,10 @@
         <item name="android:textSize">14sp</item>
         <item name="android:gravity">start|center_vertical</item>
     </style>
+    <!-- Thêm Style cho PopupMenu -->
+    <style name="App.PopupMenu" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@drawable/popup_background</item>
+    </style>
     <!-- Define colorPrimary, colorPrimaryDark, colorAccent in your colors.xml if not already present -->
     <!-- For example:
     <color name="colorPrimary">#6200EE</color>

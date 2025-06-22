@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/status_all"
+        android:title="Tất cả trạng thái" />
+    <item android:id="@+id/status_in_progress"
+        android:title="Đang thực hiện" />
+    <item android:id="@+id/status_completed"
+        android:title="Đã hoàn thành" />
+    <item android:id="@+id/status_stopped"
+        android:title="Tạm dừng" />
+</menu>
