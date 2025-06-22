@@ -32,6 +32,7 @@ public class User implements Serializable {
     @PropertyName("PasswordHash")
     private String passwordHash;
 
+
     public User() {
         this.role = new Role("User");
     }

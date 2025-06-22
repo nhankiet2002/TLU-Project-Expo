@@ -17,11 +17,8 @@ import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-// ĐÂY LÀ KHAI BÁO LỚP CHÍNH, KHÔNG CÓ LỚP NÀO LỒNG BÊN TRONG
-// Activity này sẽ implement interface từ Adapter để lắng nghe các sự kiện click
 public class FeaturedManagementPage extends AppCompatActivity implements FeaturedProjectAdapter.OnProjectInteractionListener {
 
-    // Khai báo các thành phần UI và logic
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private FeaturedProjectAdapter adapter;
@@ -32,63 +29,50 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Đảm bảo tên file layout của bạn là chính xác
         setContentView(R.layout.activity_featured_management_page);
 
-        // 1. Ánh xạ các View từ layout
-        // Hãy chắc chắn rằng bạn có RecyclerView và ProgressBar với các ID này trong file XML
         recyclerView = findViewById(R.id.hold_featured_projects);
         progressBar = findViewById(R.id.progress_bar_loading);
+        btnBackToDashboard = findViewById(R.id.back_to_dashboard);
 
-        // 2. Khởi tạo các đối tượng logic
         projectRepository = new ProjectRepository();
-
-        // 3. Khởi tạo Adapter và truyền 'this' vì Activity này đã implement interface listener
         adapter = new FeaturedProjectAdapter(this, uiModelList, this);
 
-        // 4. Thiết lập cho RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // 5. Bắt đầu tải dữ liệu
         loadFeaturedProjects();
 
-        btnBackToDashboard = (ImageButton) findViewById(R.id.back_to_dashboard);
-        btnBackToDashboard.setOnClickListener(v -> {finish();});
+        btnBackToDashboard.setOnClickListener(v -> finish());
     }
 
-    /**
-     * Gọi Repository để lấy dữ liệu các dự án nổi bật đã được xử lý.
-     * Sử dụng LiveData để lắng nghe kết quả một cách an toàn.
-     */
     private void loadFeaturedProjects() {
         progressBar.setVisibility(View.VISIBLE);
-        projectRepository.getFeaturedProjectsWithDetails().observe(this, featuredProjects -> {
+        // Phương thức này trong repository đã được sửa để lấy các project có IsFeatured == true
+        projectRepository.getFeaturedProjectsForManagement().observe(this, featuredProjects -> {
             progressBar.setVisibility(View.GONE);
             if (featuredProjects != null) {
-                // Cập nhật dữ liệu cho adapter khi có kết quả
                 adapter.updateData(featuredProjects);
             } else {
-                //Toast.makeText(this, "Lỗi khi tải dự án nổi bật.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Lỗi khi tải dự án nổi bật.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // --- Các phương thức được implement từ OnProjectInteractionListener của Adapter ---
-
+    // --- SỬA LẠI HOÀN TOÀN PHƯƠNG THỨC NÀY ---
     /**
-     * Được gọi khi người dùng gạt switch trên một item.
+     * Được gọi khi người dùng gạt TẮT switch "Nổi bật".
      * @param item Dữ liệu của item được tương tác.
-     * @param isChecked Trạng thái mới của switch.
+     * @param isChecked Trạng thái mới của switch (luôn là false trong trường hợp này).
      */
     @Override
     public void onSwitchChanged(FeaturedProjectUIModel item, boolean isChecked) {
-        // Vì đây là màn hình "Nổi bật", nên switch luôn bật.
-        // Logic này chỉ chạy khi người dùng gạt TẮT switch.
+        // Logic này chỉ chạy khi người dùng gạt TẮT switch (isChecked == false)
         if (!isChecked) {
             Toast.makeText(this, "Đang bỏ nổi bật...", Toast.LENGTH_SHORT).show();
 
-            projectRepository.removeFeaturedProject(item.getProjectId(), new ProjectRepository.OnTaskCompleteListener() {
+            // Gọi phương thức mới trong repository để đặt IsFeatured = false
+            projectRepository.setProjectFeaturedStatus(item.getProjectId(), false, new ProjectRepository.OnTaskCompleteListener() {
                 @Override
                 public void onSuccess() {
                     Toast.makeText(FeaturedManagementPage.this, "Đã bỏ nổi bật: " + item.getProjectTitle(), Toast.LENGTH_SHORT).show();
@@ -122,12 +106,7 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
      */
     @Override
     public void onViewMoreClicked(FeaturedProjectUIModel item) {
-        // Viết logic để chuyển sang trang chi tiết dự án tại đây
-        // Ví dụ:
-        // Intent intent = new Intent(this, ProjectDetailActivity.class);
-        // intent.putExtra("PROJECT_ID", item.getProjectId());
-        // startActivity(intent);
-
+        // Logic chuyển trang của bạn ở đây
         Toast.makeText(this, "Xem chi tiết: " + item.getProjectTitle(), Toast.LENGTH_SHORT).show();
     }
 }

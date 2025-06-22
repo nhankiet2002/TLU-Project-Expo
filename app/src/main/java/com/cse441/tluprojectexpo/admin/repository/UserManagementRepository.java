@@ -95,7 +95,7 @@ public class UserManagementRepository {
         // Map<userId, List<roleId>>
         Map<String, String> userToRoleIdMap = new HashMap<>();
         for (UserRole userRole : userRolesSnapshot.toObjects(UserRole.class)) {
-            userToRoleIdMap.put(userRole.getUserId(), userRole.getRole());
+            userToRoleIdMap.put(userRole.getUserId(), userRole.getRoleId());
         }
         // --- THÊM DÒNG LOG NÀY ---
         Log.d("DEBUG_ROLE", "userToRoleIdMap được tạo với " + userToRoleIdMap.size() + " phần tử.");

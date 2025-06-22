@@ -12,7 +12,11 @@ public class Role implements Serializable {
     @PropertyName("RoleName")
     private String roleName;
 
-    public Role(String user){}
+    public Role(){}
+
+    public Role(String roleName) {
+        this.roleName = roleName;
+    }
 
     public String getRoleId() {
         return roleId;

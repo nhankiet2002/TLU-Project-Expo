@@ -2,296 +2,106 @@ package com.cse441.tluprojectexpo.model;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
-import com.google.firebase.firestore.PropertyName;
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.PropertyName;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Project implements Serializable {
-
-    // --- CÁC TRƯỜNG LƯU TRỮ TRỰC TIẾP TRONG DOCUMENT 'Projects' TRÊN FIRESTORE ---
     @DocumentId
     private String projectId;
 
     @PropertyName("Title")
-    private String Title;
-
-    @PropertyName("Description")
-    private String Description;
-
-    @PropertyName("ThumbnailUrl")
-    private String ThumbnailUrl;
-
-    @PropertyName("MediaGalleryUrls")
-    private List<MediaItem> MediaGalleryUrls;
-
-    @PropertyName("ProjectUrl")
-    private String ProjectUrl;
-
-    @PropertyName("DemoUrl")
-    private String DemoUrl;
-
-    @PropertyName("Status")
-    private String Status;
-
-    @PropertyName("CourseId")
-    private String CourseId;
+    private String title;
 
     @PropertyName("CreatorUserId")
-    private String CreatorUserId;
-
-    @PropertyName("CreatedAt")
-    private Timestamp CreatedAt;
-
-    @PropertyName("UpdatedAt")
-    private Timestamp UpdatedAt;
+    private String creatorUserId;
 
     @PropertyName("IsApproved")
-    private boolean IsApproved;
+    private boolean isApproved;
 
-    @PropertyName("VoteCount")
-    private int VoteCount;
+    @PropertyName("IsFeatured")
+    private boolean isFeatured;
 
-    // --- CÁC TRƯỜNG THÔNG TIN BỔ SUNG (KHÔNG LƯU TRỰC TIẾP) ---
+    @PropertyName("CreatedAt")
+    private Timestamp createdAt;
+
+    @PropertyName("Description")
+    private String description;
+
+    @PropertyName("ThumbnailUrl")
+    private String thumbnailUrl;
+
+    @PropertyName("Status")
+    private String status;
+
     @Exclude
     private String creatorFullName;
     @Exclude
-    private List<String> technologyNames;
+    private List<String> technologyNames = new ArrayList<>();
     @Exclude
-    private List<String> categoryNames;
-    @Exclude
-    private List<UserShortInfo> projectMembersInfo;
-    @Exclude
-    private boolean isFeatured = false;
+    private List<String> categoryNames = new ArrayList<>();
 
-    public Project() {
-        this.MediaGalleryUrls = new ArrayList<>();
-        this.technologyNames = new ArrayList<>();
-        this.categoryNames = new ArrayList<>();
-        this.projectMembersInfo = new ArrayList<>();
-    }
+    public Project() {}
 
-    // --- GETTERS AND SETTERS CHO PROJECT ---
+    // Getters and Setters chuẩn hóa
     public String getProjectId() { return projectId; }
     public void setProjectId(String projectId) { this.projectId = projectId; }
 
-    public String getTitle() { return Title; }
-    public void setTitle(String title) { this.Title = title; }
-
-    public String getDescription() { return Description; }
-    public void setDescription(String description) { this.Description = description; }
-
-    public String getThumbnailUrl() { return ThumbnailUrl; }
-    public void setThumbnailUrl(String thumbnailUrl) { this.ThumbnailUrl = thumbnailUrl; }
-
-    public List<MediaItem> getMediaGalleryUrls() { return MediaGalleryUrls; }
-    public void setMediaGalleryUrls(List<MediaItem> mediaGalleryUrls) { this.MediaGalleryUrls = mediaGalleryUrls; }
-
-    public String getProjectUrl() { return ProjectUrl; }
-    public void setProjectUrl(String projectUrl) { this.ProjectUrl = projectUrl; }
-
-    public String getDemoUrl() { return DemoUrl; }
-    public void setDemoUrl(String demoUrl) { this.DemoUrl = demoUrl; }
-
-    @PropertyName("Status")
-    public String getStatus() { return Status; }
-    @PropertyName("Status")
-    public void setStatus(String status) { this.Status = status; }
-
-    public String getCourseId() { return CourseId; }
-    public void setCourseId(String courseId) { this.CourseId = courseId; }
+    @PropertyName("Title")
+    public String getTitle() { return title; }
+    @PropertyName("Title")
+    public void setTitle(String title) { this.title = title; }
 
     @PropertyName("CreatorUserId")
-    public String getCreatorUserId() { return CreatorUserId; }
-
+    public String getCreatorUserId() { return creatorUserId; }
     @PropertyName("CreatorUserId")
+    public void setCreatorUserId(String creatorUserId) { this.creatorUserId = creatorUserId; }
 
-    public void setCreatorUserId(String creatorUserId) { this.CreatorUserId = creatorUserId; }
+    @PropertyName("IsApproved")
+    public boolean isApproved() { return isApproved; }
+    @PropertyName("IsApproved")
+    public void setApproved(boolean approved) { isApproved = approved; }
 
-    public Timestamp getCreatedAt() { return CreatedAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.CreatedAt = createdAt; }
+    @PropertyName("IsFeatured")
+    public boolean isFeatured() { return isFeatured; }
+    @PropertyName("IsFeatured")
+    public void setFeatured(boolean featured) { this.isFeatured = featured; }
 
-    public Timestamp getUpdatedAt() { return UpdatedAt; }
-    public void setUpdatedAt(Timestamp updatedAt) { this.UpdatedAt = updatedAt; }
+    @PropertyName("CreatedAt")
+    public Timestamp getCreatedAt() { return createdAt; }
+    @PropertyName("CreatedAt")
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    public boolean isApproved() { return IsApproved; }
-    public void setApproved(boolean approved) { this.IsApproved = approved; }
+    @PropertyName("Description")
+    public String getDescription() { return description; }
+    @PropertyName("Description")
+    public void setDescription(String description) { this.description = description; }
 
-    public int getVoteCount() { return VoteCount; }
-    public void setVoteCount(int voteCount) { this.VoteCount = voteCount; }
+    @PropertyName("ThumbnailUrl")
+    public String getThumbnailUrl() { return thumbnailUrl; }
+    @PropertyName("ThumbnailUrl")
+    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
 
+    @PropertyName("Status")
+    public String getStatus() { return status; }
+    @PropertyName("Status")
+    public void setStatus(String status) { this.status = status; }
+
+    @Exclude
     public String getCreatorFullName() { return creatorFullName; }
-
+    @Exclude
     public void setCreatorFullName(String creatorFullName) { this.creatorFullName = creatorFullName; }
 
+    @Exclude
     public List<String> getTechnologyNames() { return technologyNames; }
+    @Exclude
     public void setTechnologyNames(List<String> technologyNames) { this.technologyNames = technologyNames; }
 
+    @Exclude
     public List<String> getCategoryNames() { return categoryNames; }
+    @Exclude
     public void setCategoryNames(List<String> categoryNames) { this.categoryNames = categoryNames; }
-
-    public List<UserShortInfo> getProjectMembersInfo() { return projectMembersInfo; }
-    public void setProjectMembersInfo(List<UserShortInfo> projectMembersInfo) { this.projectMembersInfo = projectMembersInfo; }
-
-
-    // --- INNER STATIC CLASS CHO MediaItem ---
-    public static class MediaItem {
-        @PropertyName("url")
-        private String url;
-        @PropertyName("type")
-        private String type;
-
-        public MediaItem() {}
-        public MediaItem(String url, String type) {
-            this.url = url;
-            this.type = type;
-        }
-        public String getUrl() { return url; }
-        public void setUrl(String url) { this.url = url; }
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
-    }
-
-    // --- INNER STATIC CLASS CHO UserShortInfo ---
-    public static class UserShortInfo {
-        private String userId;
-        private String fullName;
-        private String avatarUrl;
-        private String roleInProject;
-
-        public UserShortInfo() {}
-        public UserShortInfo(String userId, String fullName, String avatarUrl, String roleInProject) {
-            this.userId = userId;
-            this.fullName = fullName;
-            this.avatarUrl = avatarUrl;
-            this.roleInProject = roleInProject;
-        }
-        public String getUserId() { return userId; }
-        public void setUserId(String userId) { this.userId = userId; }
-        public String getFullName() { return fullName; }
-        public void setFullName(String fullName) { this.fullName = fullName; }
-        public String getAvatarUrl() { return avatarUrl; }
-        public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
-        public String getRoleInProject() { return roleInProject; }
-        public void setRoleInProject(String roleInProject) { this.roleInProject = roleInProject; }
-    }
-
-    // --- INNER STATIC CLASS CHO Comment ---
-    // Model này được thiết kế để phù hợp với cấu trúc dữ liệu comment trên Firestore
-    // ví dụ: "comment_014": { "ProjectId": "project_001", "AuthorUserId": "user_002",
-    //                        "Content": "...", "CreatedAt": "2023-08-04T15:00:00Z",
-    //                        "ParentCommentId": "comment_013" }
-    public static class Comment {
-        @Exclude // ID của document comment, sẽ được gán sau khi đọc
-        private String commentId;
-
-        @PropertyName("ProjectId")
-        private String projectId;
-
-        @PropertyName("AuthorUserId") // Ánh xạ với AuthorUserId trong Firestore
-        private String userId; // Tên biến trong Java là userId
-
-        @PropertyName("Content") // Ánh xạ với Content trong Firestore
-        private String text; // Tên biến trong Java là text
-
-        @PropertyName("CreatedAt") // Ánh xạ với CreatedAt trong Firestore
-        private Timestamp timestamp; // QUAN TRỌNG: Firestore nên lưu trường này dưới dạng Timestamp.
-        // Nếu Firestore lưu là String (ví dụ: "2023-08-04T15:00:00Z"),
-        // bạn cần đổi kiểu ở đây thành String và tự parse,
-        // hoặc đảm bảo dữ liệu được lưu đúng kiểu Timestamp khi ghi vào Firestore.
-        // Với ví dụ JSON bạn đưa, nó là String. Nếu dữ liệu thực sự là String,
-        // bạn nên đổi `Timestamp timestamp;` thành `String createdAtString;`
-        // và có thể thêm getter để parse nó thành Date/Timestamp nếu cần.
-        // Tạm thời, tôi giả định bạn sẽ lưu nó dạng Timestamp trong Firestore.
-
-        @PropertyName("ParentCommentId") // Ánh xạ với ParentCommentId trong Firestore
-        private String parentCommentId;  // Có thể là null nếu không phải comment trả lời
-
-        // Các trường này sẽ được load riêng sau khi có userId (AuthorUserId)
-        @Exclude
-        private String userName;
-        @Exclude
-        private String userAvatarUrl;
-
-        // Firestore cần constructor rỗng
-        public Comment() {}
-
-        // Constructor để tạo comment mới (khi post)
-// Lưu ý: userName và userAvatarUrl không nhất thiết phải có trong constructor này
-        // nếu chúng chỉ dùng để hiển thị và được lấy sau.
-        // Tuy nhiên, nếu bạn muốn truyền chúng khi tạo comment mới (ví dụ, để hiển thị ngay lập tức
-        // mà không cần truy vấn lại user), thì có thể giữ chúng.
-        public Comment(String projectId, String userId, String text, Timestamp timestamp, String parentCommentId) {
-            this.projectId = projectId;
-            this.userId = userId;
-            this.text = text;
-            this.timestamp = timestamp;
-            this.parentCommentId = parentCommentId;
-            // userName và userAvatarUrl sẽ được set riêng
-        }
-
-        // Constructor đầy đủ hơn nếu bạn muốn truyền cả thông tin user khi tạo
-        public Comment(String projectId, String userId, String userName, String userAvatarUrl, String text, Timestamp timestamp, String parentCommentId) {
-            this.projectId = projectId;
-            this.userId = userId;
-            this.userName = userName;
-            this.userAvatarUrl = userAvatarUrl;
-            this.text = text;
-            this.timestamp = timestamp;
-            this.parentCommentId = parentCommentId;
-        }
-
-
-        // Getters and Setters
-        @Exclude
-        public String getCommentId() { return commentId; }
-        @Exclude
-        public void setCommentId(String commentId) { this.commentId = commentId; }
-
-        @PropertyName("ProjectId")
-        public String getProjectId() { return projectId; }
-        @PropertyName("ProjectId")
-        public void setProjectId(String projectId) { this.projectId = projectId; }
-
-        @PropertyName("AuthorUserId")
-        public String getUserId() { return userId; }
-        @PropertyName("AuthorUserId")
-        public void setUserId(String userId) { this.userId = userId; }
-
-        @PropertyName("Content")
-        public String getText() { return text; }
-        @PropertyName("Content")
-        public void setText(String text) { this.text = text; }
-
-        @PropertyName("CreatedAt")
-        public Timestamp getTimestamp() { return timestamp; }
-        @PropertyName("CreatedAt")
-        public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
-
-        @PropertyName("ParentCommentId")
-        public String getParentCommentId() { return parentCommentId; }
-        @PropertyName("ParentCommentId")
-        public void setParentCommentId(String parentCommentId) { this.parentCommentId = parentCommentId; }
-
-        @Exclude
-        public String getUserName() { return userName; }
-        @Exclude
-        public void setUserName(String userName) { this.userName = userName; }
-
-        @Exclude
-        public String getUserAvatarUrl() { return userAvatarUrl; }
-        @Exclude
-        public void setUserAvatarUrl(String userAvatarUrl) { this.userAvatarUrl = userAvatarUrl; }
-    }
-    @Exclude
-    public boolean isFeatured() {
-        return isFeatured;
-    }
-
-    @Exclude
-    public void setFeatured(boolean featured) {
-        isFeatured = featured;
-    }
 }
