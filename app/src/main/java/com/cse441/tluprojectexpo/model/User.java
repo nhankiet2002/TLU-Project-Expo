@@ -47,6 +47,17 @@ public class User implements Serializable {
         this.role = new Role("User");
     }
 
+    public User(String finalUserIdToUse, String nameToUse, String finalEmailForFallback, String s, String s1) {
+        this.userId = finalUserIdToUse;
+        this.fullName = nameToUse;
+        this.email = finalEmailForFallback;
+        this.className = s;
+        this.avatarUrl = s1;
+        this.isLocked = false; // Mặc định không khóa
+        this.passwordHash = ""; // Mặc định không có mật khẩu
+        this.role = new Role("User");
+    }
+
 
     public String getUserId() {
         return userId;

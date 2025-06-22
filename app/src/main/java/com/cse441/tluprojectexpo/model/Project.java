@@ -2,19 +2,21 @@ package com.cse441.tluprojectexpo.model;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
-import com.google.firebase.firestore.PropertyName;
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.PropertyName;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Project implements Serializable {
 
     @DocumentId
     private String projectId;
 
-    // Các PropertyName ở đây cần khớp với tên trường trong Firestore "Projects" collection
+    // --- CÁC TRƯỜNG KHỚP VỚI FIRESTORE ---
+    // Annotation @PropertyName được đặt TRÊN TRƯỜNG (FIELD)
+
     @PropertyName("Title")
     private String title;
 
@@ -42,21 +44,23 @@ public class Project implements Serializable {
     @PropertyName("CreatorUserId")
     private String creatorUserId;
 
-    @PropertyName("CreatedAt") // Nên là Timestamp trong Firestore
+    @PropertyName("CreatedAt")
     private Timestamp createdAt;
 
-    @PropertyName("UpdatedAt") // Nên là Timestamp trong Firestore
+    // Trường này có thể null nếu không tồn tại trong document
+    @PropertyName("UpdatedAt")
     private Timestamp updatedAt;
 
     @PropertyName("IsApproved")
     private boolean isApproved;
+
     @PropertyName("IsFeatured")
-    private boolean isFeatured =false;
+    private boolean isFeatured = false;
 
     @PropertyName("VoteCount")
     private int voteCount;
 
-    // --- CÁC TRƯỜNG THÔNG TIN BỔ SUNG (KHÔNG LƯU TRỰC TIẾP) ---
+    // --- CÁC TRƯỜNG BỔ SUNG, KHÔNG LƯU TRÊN FIRESTORE ---
     @Exclude
     private String creatorFullName;
     @Exclude
@@ -66,6 +70,8 @@ public class Project implements Serializable {
     @Exclude
     private List<UserShortInfo> projectMembersInfo;
 
+    // --- CONSTRUCTOR ---
+    // Constructor rỗng là BẮT BUỘC cho Firebase
     public Project() {
         this.mediaGalleryUrls = new ArrayList<>();
         this.technologyNames = new ArrayList<>();
@@ -74,7 +80,8 @@ public class Project implements Serializable {
     }
 
     // --- GETTERS AND SETTERS ---
-    // (Giữ nguyên các getters và setters bạn đã có)
+    // Không cần đặt @PropertyName ở đây nữa
+
     public String getProjectId() { return projectId; }
     public void setProjectId(String projectId) { this.projectId = projectId; }
 
@@ -105,57 +112,51 @@ public class Project implements Serializable {
     public String getCreatorUserId() { return creatorUserId; }
     public void setCreatorUserId(String creatorUserId) { this.creatorUserId = creatorUserId; }
 
-    @PropertyName("CreatedAt")
     public Timestamp getCreatedAt() { return createdAt; }
-
-    @PropertyName("CreatedAt")
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    @PropertyName("UpdatedAt")
     public Timestamp getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
-    public boolean isApproved() { return isApproved; } // Hoặc getIsApproved()
-    public void setApproved(boolean approved) { isApproved = approved; } // Hoặc setIsApproved()
-    @PropertyName("IsFeatured")
+    // Đối với kiểu boolean, getter chuẩn là "isSomething()" và setter là "setSomething()"
+    public boolean isApproved() { return isApproved; }
+    public void setApproved(boolean approved) { isApproved = approved; }
+
     public boolean isFeatured() { return isFeatured; }
-    @PropertyName("IsFeatured")
     public void setFeatured(boolean featured) { isFeatured = featured; }
+
     public int getVoteCount() { return voteCount; }
     public void setVoteCount(int voteCount) { this.voteCount = voteCount; }
 
+    @Exclude
     public String getCreatorFullName() { return creatorFullName; }
     public void setCreatorFullName(String creatorFullName) { this.creatorFullName = creatorFullName; }
 
+    @Exclude
     public List<String> getTechnologyNames() { return technologyNames; }
     public void setTechnologyNames(List<String> technologyNames) { this.technologyNames = technologyNames; }
 
+    @Exclude
     public List<String> getCategoryNames() { return categoryNames; }
     public void setCategoryNames(List<String> categoryNames) { this.categoryNames = categoryNames; }
 
+    @Exclude
     public List<UserShortInfo> getProjectMembersInfo() { return projectMembersInfo; }
     public void setProjectMembersInfo(List<UserShortInfo> projectMembersInfo) { this.projectMembersInfo = projectMembersInfo; }
 
 
-    // --- INNER STATIC CLASS CHO MediaItem ---
+    // --- INNER STATIC CLASS (Giữ nguyên, đã đúng) ---
     public static class MediaItem implements Serializable {
-        @PropertyName("url")
         private String url;
-        @PropertyName("type")
         private String type;
 
         public MediaItem() {}
-        public MediaItem(String url, String type) {
-            this.url = url;
-            this.type = type;
-        }
         public String getUrl() { return url; }
         public void setUrl(String url) { this.url = url; }
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
     }
 
-    // --- INNER STATIC CLASS CHO UserShortInfo ---
     public static class UserShortInfo implements Serializable {
         private String userId;
         private String fullName;
@@ -163,12 +164,14 @@ public class Project implements Serializable {
         private String roleInProject;
 
         public UserShortInfo() {}
-        public UserShortInfo(String userId, String fullName, String avatarUrl, String roleInProject) {
-            this.userId = userId;
+
+        public UserShortInfo(String id, String fullName, String avatarUrl, String s) {
+            this.userId = id;
             this.fullName = fullName;
             this.avatarUrl = avatarUrl;
-            this.roleInProject = roleInProject;
+            this.roleInProject = s;
         }
+
         public String getUserId() { return userId; }
         public void setUserId(String userId) { this.userId = userId; }
         public String getFullName() { return fullName; }

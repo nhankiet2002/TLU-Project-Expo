@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.detailproject.ProjectDetailActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">  <!-- Hoặc Theme.MaterialComponents.DayNight.DarkActionBar -->
+        <RelativeLayout
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp">
+            <ImageView
+                android:id="@+id/iv_back_arrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_back"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back" />
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chi tiết dự án"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/iv_back_arrow"
+                android:layout_marginStart="8dp" />
+        </RelativeLayout>
+        <!-- Nếu bạn dùng theme MaterialComponents, có thể dùng app:navigationIconTint="@color/white" nếu cần -->
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Nội dung còn lại của bạn (ImageView, TextViews, RecyclerViews, etc.) giữ nguyên -->
+            <!-- ... (ImageViewProjectThumbnail, textViewProjectTitle, etc.) ... -->
+            <ImageView
+                android:id="@+id/imageViewProjectThumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+            <TextView
+                android:id="@+id/textViewProjectTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                tools:text="Tên Dự Án" />
+
+            <TextView
+                android:id="@+id/textViewProjectCreator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                tools:text="Tạo bởi: Nguyễn Văn A - Ngày: 01/01/2024" />
+
+            <TextView
+                android:id="@+id/textViewProjectStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@drawable/status_background_completed"
+                android:textColor="@android:color/white"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                tools:text="Hoàn thành" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Mô tả dự án"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+
+            <TextView
+                android:id="@+id/textViewProjectDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                tools:text="Đây là mô tả chi tiết của dự án. Dự án này nhằm giải quyết vấn đề XYZ bằng cách sử dụng công nghệ ABC. Các chức năng chính bao gồm..." />
+
+            <!-- Links Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Liên kết"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+
+                <TextView
+                    android:id="@+id/textViewProjectLinkSourceCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:autoLink="web"
+                    android:textColorLink="@color/blue"
+                    tools:text="Mã nguồn: https://github.com/user/project" />
+
+                <TextView
+                    android:id="@+id/textViewProjectLinkDemo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:autoLink="web"
+                    android:textColorLink="@color/blue"
+                    tools:text="Demo: https://demo.project.com" />
+
+            </LinearLayout>
+
+            <!-- Course Info -->
+            <LinearLayout
+                android:id="@+id/layoutProjectCourse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Môn học: "
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"/>
+                <TextView
+                    android:id="@+id/textViewProjectCourse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    tools:text="Lập trình ứng dụng di động"/>
+            </LinearLayout>
+
+
+            <!-- Categories/Fields -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Lĩnh vực"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupCategories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:chipSpacingHorizontal="8dp"/>
+
+            <!-- Technologies Used -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Công nghệ sử dụng"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupTechnologies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:chipSpacingHorizontal="8dp"/>
+
+            <!-- Team Members -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Thành viên nhóm"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewMembers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_member"
+                tools:itemCount="2"/>
+
+            <!-- Media Gallery -->
+            <TextView
+                android:id="@+id/textViewMediaGalleryTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Thư viện Media"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewMediaGallery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_media_gallery"
+                tools:itemCount="3"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+
+
+            <!-- Interactions: Upvote -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="24dp">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonUpvote"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bình chọn"
+                    android:textColor="@color/blue"
+                    app:strokeColor="@color/blue"
+                    app:iconTint="@color/blue"
+                    app:icon="@drawable/ic_thumb_up" />
+                <TextView
+                    android:id="@+id/textViewVoteCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    tools:text="123 lượt bình chọn"/>
+            </LinearLayout>
+
+
+            <!-- Comments Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Bình luận"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+
+            <EditText
+                android:id="@+id/editTextNewComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Viết bình luận của bạn..."
+                android:inputType="textMultiLine"
+                android:minLines="2" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonPostComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="8dp"
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@android:color/black"
+                android:text="Gửi"
+                app:cornerRadius="10dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewComments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_comment"
+                tools:itemCount="3"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

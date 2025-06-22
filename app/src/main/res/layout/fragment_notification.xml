@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:background="@color/white"
     android:fitsSystemWindows="true"
-    tools:context=".fragment.ProfileFragment">
+    tools:context=".ui.Profile.ProfileFragment">
 
     <!-- Top Bar -->
     <RelativeLayout

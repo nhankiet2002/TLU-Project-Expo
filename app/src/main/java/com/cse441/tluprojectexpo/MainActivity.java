@@ -1,7 +1,7 @@
 // MainActivity.java
 package com.cse441.tluprojectexpo;
 
-import android.content.Intent; // THÊM
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,17 +18,21 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.cse441.tluprojectexpo.ui.createproject.CreateProjectActivity; // THÊM: Import Activity mới
-import com.cse441.tluprojectexpo.ui.Home.HomeFragment;
+import com.cse441.tluprojectexpo.ui.createproject.CreateProjectActivity;
+// SỬA: Import interface OnScrollInteractionListener từ package đúng của nó
+import com.cse441.tluprojectexpo.ui.Home.listener.OnScrollInteractionListener;
+// Bỏ import HomeFragment nếu không cần trực tiếp (chỉ cần interface)
+// import com.cse441.tluprojectexpo.ui.Home.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.OnScrollInteractionListener {
+// SỬA: Implement interface đã import
+public class MainActivity extends AppCompatActivity implements OnScrollInteractionListener {
 
     private ViewPager viewPager;
     private BottomNavigationView bottomNavigationView;
     private boolean isBottomNavVisible = true;
     private int bottomNavHeight = 0;
-    private int previouslySelectedViewPagerItem = 0; // Để lưu lại tab trước khi chuyển sang CreateProjectActivity
+    private int previouslySelectedViewPagerItem = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,9 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSc
             }
         });
 
+        // Đảm bảo ViewPagerAdapter được khai báo và sử dụng đúng cách
+        // Nếu ViewPagerAdapter nằm trong package khác, cần import.
+        // Giả sử ViewPagerAdapter nằm cùng package với MainActivity hoặc được import đúng
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         viewPager.setAdapter(adapter);
 
@@ -57,31 +64,18 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSc
 
             @Override
             public void onPageSelected(int position){
-                // THAY ĐỔI: Logic ẩn/hiện BottomNav giờ không cần cho CreateFragment nữa
-                // vì nó là Activity riêng.
-                // Nếu bạn vẫn muốn ẩn BottomNav cho các Fragment khác, giữ lại logic đó.
-                // Ví dụ, nếu HomeFragment (position 0) có thể ẩn/hiện BottomNav khi cuộn.
-                if (position == 0) { // Chỉ áp dụng cho HomeFragment nếu cần
-                    // showBottomNavForPageChange(); // Hoặc logic ẩn/hiện dựa trên trạng thái cuộn
-                } else {
-                    // showBottomNavForPageChange(); // Hiện cho các trang khác
-                }
-
-                // Cập nhật item được chọn trên BottomNavigationView
-                // Chú ý: Index của ViewPager và thứ tự MenuItem có thể khác nhau sau khi bỏ CreateFragment
                 switch (position){
-                    case 0: // HomeFragment
+                    case 0:
                         bottomNavigationView.getMenu().findItem(R.id.menu_home).setChecked(true);
                         break;
-                    // menu_create sẽ được xử lý riêng
-                    case 1: // NotificationFragment (trước là vị trí 2)
+                    case 1:
                         bottomNavigationView.getMenu().findItem(R.id.menu_notification).setChecked(true);
                         break;
-                    case 2: // ProfileFragment (trước là vị trí 3)
+                    case 2:
                         bottomNavigationView.getMenu().findItem(R.id.menu_profile).setChecked(true);
                         break;
                 }
-                previouslySelectedViewPagerItem = position; // Lưu lại tab hiện tại của ViewPager
+                previouslySelectedViewPagerItem = position;
             }
 
             @Override
@@ -94,19 +88,14 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSc
                 viewPager.setCurrentItem(0);
                 return true;
             } else if (itemId == R.id.menu_create) {
-                // THAY ĐỔI: Khởi động CreateProjectActivity
                 Intent intent = new Intent(MainActivity.this, CreateProjectActivity.class);
                 startActivity(intent);
-                // Không return true ngay lập tức nếu bạn muốn giữ item "Create" không được chọn
-                // hoặc bạn có thể chọn lại item trước đó sau khi CreateProjectActivity đóng.
-                // Tạm thời, không làm gì với ViewPager ở đây.
-                return false; // Return false để item không được đánh dấu là selected cố định
-                // Vì chúng ta đang chuyển Activity
+                return false;
             } else if (itemId == R.id.menu_notification) {
-                viewPager.setCurrentItem(1); // Index mới cho Notification
+                viewPager.setCurrentItem(1);
                 return true;
             } else if (itemId == R.id.menu_profile) {
-                viewPager.setCurrentItem(2); // Index mới cho Profile
+                viewPager.setCurrentItem(2);
                 return true;
             }
             return false;
@@ -122,9 +111,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSc
     @Override
     protected void onResume() {
         super.onResume();
-        // Khi quay lại MainActivity từ CreateProjectActivity,
-        // đặt lại item được chọn trên BottomNavigationView về tab trước đó của ViewPager
-        // hoặc tab Home nếu không có thông tin.
         if (viewPager != null && bottomNavigationView != null) {
             int currentViewPagerItem = viewPager.getCurrentItem();
             MenuItem menuItemToSelect = null;
@@ -136,19 +122,16 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSc
             if (menuItemToSelect != null) {
                 menuItemToSelect.setChecked(true);
             } else {
-                // Nếu có lỗi, mặc định chọn Home
                 bottomNavigationView.getMenu().findItem(R.id.menu_home).setChecked(true);
             }
         }
-        // Đảm bảo BottomNav hiển thị khi quay lại từ CreateProjectActivity
         showBottomNavForPageChange();
     }
 
 
     private void adjustViewPagerMargin(boolean isBottomNavEffectivelyHidden) {
-        // ... (Giữ nguyên logic)
         if (viewPager == null || (bottomNavHeight == 0 && !isBottomNavEffectivelyHidden) ) {
-            if (!isBottomNavEffectivelyHidden) return;
+            if (!isBottomNavEffectivelyHidden) return; // Chỉ return nếu bottomNavHeight=0 VÀ isBottomNavEffectivelyHidden=false
         }
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) viewPager.getLayoutParams();
         if (isBottomNavEffectivelyHidden) {
@@ -157,52 +140,54 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSc
             params.bottomMargin = bottomNavHeight;
         }
         viewPager.setLayoutParams(params);
-        viewPager.requestLayout();
+        // viewPager.requestLayout(); // Có thể không cần thiết nếu setLayoutParams đã trigger layout pass
     }
 
+
     private void hideBottomNavForPageChange() {
-        // ... (Giữ nguyên logic)
         if (isBottomNavVisible) {
-            bottomNavigationView.setVisibility(View.GONE);
+            bottomNavigationView.setVisibility(View.GONE); // Ẩn ngay lập tức
             isBottomNavVisible = false;
             adjustViewPagerMargin(true);
         }
     }
 
     private void showBottomNavForPageChange() {
-        // ... (Giữ nguyên logic)
         if (!isBottomNavVisible) {
-            bottomNavigationView.setVisibility(View.VISIBLE);
-            bottomNavigationView.setTranslationY(0);
+            bottomNavigationView.setVisibility(View.VISIBLE); // Hiện ngay lập tức
+            bottomNavigationView.setTranslationY(0); // Đảm bảo nó ở đúng vị trí
             isBottomNavVisible = true;
             adjustViewPagerMargin(false);
         }
     }
 
+    // GHI ĐÈ onScrollUp TỪ INTERFACE
     @Override
     public void onScrollUp() {
-        // ... (Giữ nguyên logic, nhưng đảm bảo getCurrentItem() không bị lỗi index)
         if (viewPager.getAdapter() != null && viewPager.getCurrentItem() < viewPager.getAdapter().getCount() &&
-                viewPager.getCurrentItem() == 0 && isBottomNavVisible) { // Chỉ áp dụng cho Home
+                viewPager.getCurrentItem() == 0 && isBottomNavVisible) { // Chỉ áp dụng cho HomeFragment (index 0)
             isBottomNavVisible = false;
             bottomNavigationView.animate()
                     .translationY(bottomNavHeight)
                     .setInterpolator(new AccelerateInterpolator(2))
                     .setDuration(200)
                     .withEndAction(() -> {
+                        // Không cần setVisibility(View.GONE) nữa vì adjustViewPagerMargin
+                        // sẽ xử lý không gian dựa trên bottomNavHeight
                         adjustViewPagerMargin(true);
                     })
                     .start();
         }
     }
 
+    // GHI ĐÈ onScrollDown TỪ INTERFACE
     @Override
     public void onScrollDown() {
-        // ... (Giữ nguyên logic)
         if (viewPager.getAdapter() != null && viewPager.getCurrentItem() < viewPager.getAdapter().getCount() &&
-                viewPager.getCurrentItem() == 0 && !isBottomNavVisible) { // Chỉ áp dụng cho Home
+                viewPager.getCurrentItem() == 0 && !isBottomNavVisible) { // Chỉ áp dụng cho HomeFragment (index 0)
             isBottomNavVisible = true;
-            adjustViewPagerMargin(false);
+            adjustViewPagerMargin(false); // Điều chỉnh margin trước khi animation
+            bottomNavigationView.setVisibility(View.VISIBLE); // Đảm bảo nó hiện ra trước khi animate
             bottomNavigationView.animate()
                     .translationY(0)
                     .setInterpolator(new DecelerateInterpolator(2))

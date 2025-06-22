@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.fragment;
+package com.cse441.tluprojectexpo.ui.Notification;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

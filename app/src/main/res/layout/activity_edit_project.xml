@@ -7,9 +7,9 @@
     android:orientation="vertical"
     android:background="@android:color/white"
     android:fitsSystemWindows="true"
-    tools:context="com.cse441.tluprojectexpo.ui.createproject.CreateFragment">
+    tools:context="com.cse441.tluprojectexpo.ui.createproject.CreateFragment"> <!-- Hoặc EditProjectActivity -->
 
-    <!-- ... (Top Bar không đổi) ... -->
+    <!-- Top Bar -->
     <RelativeLayout
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
@@ -30,13 +30,13 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tạo dự án"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/iv_back_arrow"
-            android:layout_marginStart="8dp" />
+            android:text="Chỉnh sửa dự án"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@id/iv_back_arrow"
+        android:layout_marginStart="8dp" />
     </RelativeLayout>
 
 
@@ -154,42 +154,24 @@
                     tools:ignore="LabelFor" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Technology Input Section -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Công nghệ sử dụng (chọn từ gợi ý)"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                android:layout_marginTop="16dp"
-            android:layout_marginBottom="4dp"/>
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_technologies"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:chipSpacingHorizontal="4dp"
-                app:chipSpacingVertical="4dp"/>
-
+            <!-- Công nghệ -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_technology_input"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                android:id="@+id/til_technology"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập và chọn công nghệ"
+                android:hint="Công nghệ"
                 app:boxCornerRadiusTopStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusBottomEnd="8dp"
                 android:layout_marginBottom="16dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/actv_technology_input"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_technology"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapWords"
-                    android:completionThreshold="1" />
+                    android:inputType="textCapSentences" />
             </com.google.android.material.textfield.TextInputLayout>
-            <!-- End Technology Input Section -->
 
 
             <!-- KHỐI NÚT "THÊM THÀNH VIÊN" -->
@@ -313,27 +295,50 @@
                     android:inputType="none"
                     tools:ignore="LabelFor" />
             </com.google.android.material.textfield.TextInputLayout>
-
+            <!-- Bạn có thể thêm các trường khác như Môn học, ... tương tự ở đây nếu cần cho trang sửa -->
 
         </LinearLayout>
     </ScrollView>
 
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_create_project"
+    <!-- KHỐI NÚT LƯU VÀ XÓA -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tạo dự án"
-        android:textColor="@android:color/white"
-        app:backgroundTint="@color/black"
-        app:cornerRadius="8dp"
-        android:textAllCaps="false"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:paddingVertical="14dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="8dp"/>
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:gravity="center">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_delete_project"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Xóa Dự Án"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            app:strokeColor="@android:color/holo_red_dark"
+            android:textColor="@android:color/holo_red_dark"
+            app:cornerRadius="8dp"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingVertical="14dp"
+            android:layout_marginEnd="8dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save_changes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Lưu Thay Đổi"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@color/black"
+            app:cornerRadius="8dp"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingVertical="14dp"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
 
 </LinearLayout>
