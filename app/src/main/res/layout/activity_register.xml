@@ -103,7 +103,7 @@
         android:id="@+id/txtTitleRegister"
         android:layout_width="277dp"
         android:layout_height="52dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="44dp"
         android:text="Tạo tài khoản"
         android:textSize="30dp"
         android:textStyle="bold"
