@@ -7,55 +7,27 @@
     android:layout_height="match_parent">
 
         <!-- Header Dashboard -->
-        <LinearLayout
-            android:id="@+id/header_dashboard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:paddingVertical="20dp"
-            android:paddingHorizontal="25dp"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/avatar_image_view"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:padding="4dp"
-                android:layout_marginEnd="20dp"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                android:src="@drawable/image7"
-                android:scaleType="centerCrop" />
+    <!-- Main Content -->
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingVertical="6dp"
-                android:layout_marginEnd="12dp"
-                android:orientation="vertical">
-                <TextView
-                    android:textColor="#1D1B20"
-                    android:textSize="22sp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:text="@string/admin"
-                    />
-            </LinearLayout>
-            <ImageView
-                android:id="@+id/btn_go_to_admin_profile"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                app:srcCompat="@drawable/ic_chevrons_right"
-                android:scaleType="fitXY"
-                android:clickable="true"
-                android:focusable="true"/>
-        </LinearLayout>
+    <TextView
+        android:text="@string/title_dashboard"
+        android:id="@+id/header_dashboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="25dp"
+        android:paddingVertical="20dp"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-        <!-- Main Content -->
-        <LinearLayout
+    <LinearLayout
             android:id="@+id/nav_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -336,7 +308,7 @@
                     android:id="@+id/rxl697s6ik8"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/admin"
+                    android:text="@string/profile"
                     android:textColor="#1E1E1E"
                     android:textSize="14sp"
                     android:textStyle="bold" />

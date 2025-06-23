@@ -52,6 +52,7 @@
     <string name="apply">Áp dụng</string>
     <string name="clear_all">Bỏ chọn tất cả</string>
     <string name="full_name">Họ và tên:</string>
+    <string name="title_dashboard">TLU Project Expo Dashboard</string>
 
     <!-- Các string của nhánh main -->
     <string name="app_name">TLUProjectExpo</string>

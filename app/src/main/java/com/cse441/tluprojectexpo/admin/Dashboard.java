@@ -3,13 +3,13 @@ package com.cse441.tluprojectexpo.admin;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.auth.LoginActivity;
+import com.cse441.tluprojectexpo.auth.SettingProfileActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class Dashboard extends AppCompatActivity {
@@ -46,8 +46,6 @@ public class Dashboard extends AppCompatActivity {
         btnFeatured.setOnClickListener(v -> NavigationUtil.navigateTo(this, FeaturedManagementPage.class));
         btnCategory.setOnClickListener(v -> NavigationUtil.navigateTo(this, CatalogManagementPage.class));
         btnBackHome.setOnClickListener(v -> NavigationUtil.navigateTo(this, AdminHomePage.class));
-        btnGoAdminProfile.setOnClickListener(v -> {
-            Toast.makeText(this, "Trang profile admin đang được phát triển", Toast.LENGTH_SHORT).show();
-        });
+        btnGoAdminProfile.setOnClickListener(v -> NavigationUtil.navigateTo(this, SettingProfileActivity.class));
     }
 }
