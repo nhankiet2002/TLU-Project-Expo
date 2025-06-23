@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +28,8 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
     private TextView projectName, projectStatus, createdAt, updatedAt, likeCount, desc, authorName, categoryName, technologyNames;
     private Button btnDeleteProject, btnMember, btnComment;
     private ImageButton optionProjectDetail;
+
+    private LinearLayout btnGithub, btnVideoDemo;
 
     private ProjectRepository projectRepository;
     private Project currentProject;
@@ -77,6 +80,8 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
         btnMember = findViewById(R.id.btn_member);
         btnComment = findViewById(R.id.btn_comment);
         btnDeleteProject = findViewById(R.id.btn_delete_project);
+        btnGithub = findViewById(R.id.github_button);
+        btnVideoDemo = findViewById(R.id.video_button);
 
         // Ánh xạ các View mới
         authorName = findViewById(R.id.author_name);
@@ -87,6 +92,22 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
 
     private void setupInitialListeners() {
         backToHome.setOnClickListener(v -> finish());
+        btnGithub.setOnClickListener(v -> {
+            if (currentProject != null && currentProject.getProjectUrl() != null) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(currentProject.getProjectUrl()));
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Không có liên kết GitHub cho dự án này.", Toast.LENGTH_SHORT).show();
+            }
+        });
+        btnVideoDemo.setOnClickListener(v -> {
+            if (currentProject != null && currentProject.getDemoUrl() != null) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(currentProject.getDemoUrl()));
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Không có liên kết video demo cho dự án này.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupDataDependentListeners() {
