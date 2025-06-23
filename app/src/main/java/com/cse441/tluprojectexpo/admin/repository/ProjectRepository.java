@@ -34,7 +34,7 @@ public class ProjectRepository {
     public MutableLiveData<List<Project>> getAllProjectsForAdmin() {
         MutableLiveData<List<Project>> liveData = new MutableLiveData<>();
 
-        Task<QuerySnapshot> projectsTask = db.collection("Projects").get();
+        Task<QuerySnapshot> projectsTask = db.collection("Projects").whereEqualTo("IsApproved", true).get();
         Task<QuerySnapshot> usersTask = db.collection("Users").get();
         Task<QuerySnapshot> categoriesTask = db.collection("Categories").get();
         Task<QuerySnapshot> technologiesTask = db.collection("Technologies").get();
@@ -203,7 +203,7 @@ public class ProjectRepository {
 
             Query projectsQuery = buildProjectsQuery(searchQuery, status, filteredProjectIds);
 
-            Task<QuerySnapshot> projectsTask = projectsQuery.get();
+            Task<QuerySnapshot> projectsTask = projectsQuery.whereEqualTo("IsApproved", true).get();
             Task<QuerySnapshot> usersTask = db.collection("Users").get();
             Task<QuerySnapshot> categoriesTask = db.collection("Categories").get();
             Task<QuerySnapshot> technologiesTask = db.collection("Technologies").get();
@@ -538,5 +538,69 @@ public class ProjectRepository {
                 });
 
         return projectLiveData;
+    }
+
+
+    public MutableLiveData<List<Project>> getUnapprovedProjects() {
+        MutableLiveData<List<Project>> liveData = new MutableLiveData<>();
+
+        // 1. Lấy các project có IsApproved = false và sắp xếp theo ngày tạo
+        Task<QuerySnapshot> projectsTask = db.collection("Projects")
+                .whereEqualTo("IsApproved", false)
+                .orderBy("CreatedAt", Query.Direction.DESCENDING)
+                .get();
+
+        // 2. Vẫn cần các bảng tra cứu
+        Task<QuerySnapshot> usersTask = db.collection("Users").get();
+        Task<QuerySnapshot> categoriesTask = db.collection("Categories").get();
+        Task<QuerySnapshot> projectCategoriesTask = db.collection("ProjectCategories").get();
+
+        Tasks.whenAllSuccess(projectsTask, usersTask, categoriesTask, projectCategoriesTask)
+                .addOnSuccessListener(results -> {
+                    // 3. Xử lý dữ liệu
+                    QuerySnapshot projectsSnapshot = (QuerySnapshot) results.get(0);
+                    Map<String, User> userMap = ((QuerySnapshot) results.get(1)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.toObject(User.class)));
+                    Map<String, String> categoryMap = ((QuerySnapshot) results.get(2)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
+                    Map<String, String> projectToCategoryMap = ((QuerySnapshot) results.get(3)).getDocuments().stream().collect(Collectors.toMap(doc -> doc.getString("ProjectId"), doc -> doc.getString("CategoryId"), (v1, v2) -> v1));
+
+                    List<Project> projectList = new ArrayList<>();
+                    for (DocumentSnapshot doc : projectsSnapshot.getDocuments()) {
+                        Project p = doc.toObject(Project.class);
+                        if (p != null) {
+                            p.setProjectId(doc.getId());
+
+                            // Điền thông tin phụ
+                            User creator = userMap.get(p.getCreatorUserId());
+                            if (creator != null) {
+                                p.setCreatorFullName(creator.getFullName());
+                            }
+                            String categoryId = projectToCategoryMap.get(p.getProjectId());
+                            if (categoryId != null) {
+                                String categoryName = categoryMap.get(categoryId);
+                                p.setCategoryNames(new ArrayList<>(Collections.singletonList(categoryName != null ? categoryName : "")));
+                            }
+
+                            projectList.add(p);
+                        }
+                    }
+                    liveData.setValue(projectList);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi khi lấy danh sách dự án chờ duyệt: ", e);
+                    liveData.setValue(null);
+                });
+
+        return liveData;
+    }
+
+    public void setProjectApprovalStatus(String projectId, boolean isApproved, @NonNull OnTaskCompleteListener listener) {
+        if (projectId == null || projectId.isEmpty()) {
+            listener.onFailure(new IllegalArgumentException("Project ID không hợp lệ"));
+            return;
+        }
+        db.collection("Projects").document(projectId)
+                .update("IsApproved", isApproved)
+                .addOnSuccessListener(aVoid -> listener.onSuccess())
+                .addOnFailureListener(listener::onFailure);
     }
 }
