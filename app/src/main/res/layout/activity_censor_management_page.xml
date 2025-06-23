@@ -22,7 +22,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         android:layout_marginTop="10dp"/>
 
-    <!--    Navigation Bar for User Administration Page-->
+    <!--    Navigation Bar for Censor Administration Page-->
     <LinearLayout
         android:id="@+id/navigation_bar_sys_censor"
         android:layout_width="wrap_content"
@@ -58,40 +58,22 @@
             />
     </LinearLayout>
 
-    <!--    Search User Dashboard-->
-    <LinearLayout
+    <!--    Search Censor Dashboard-->
+    <EditText
         android:id="@+id/search_censor"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingVertical="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/search_bar_background"
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="8dp"
+        android:hint="@string/search_project"
         android:paddingHorizontal="16dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginHorizontal="3dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/navigation_bar_sys_censor"
+        android:paddingVertical="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@drawable/rounded_border_background_light">
-        <EditText
-            android:id="@+id/edt_search_censor"
-            android:textColor="#B3B3B3"
-            android:textSize="16sp"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="9"
-            android:hint="@string/search_prj_comment"
-            />
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/btn_icon_search_censor"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            app:srcCompat="@drawable/ic_search"
-            android:tint="@color/light_gray"
-            android:scaleType="fitXY"
-            />
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/navigation_bar_sys_censor" />
 
     <LinearLayout
         android:id="@+id/notice_censor"
@@ -110,7 +92,7 @@
             android:layout_width="0dp"
             android:text="@string/wait_censor"
             android:layout_marginTop="15dp"
-            app:layout_constraintTop_toBottomOf="@id/search_catalog_sys"
+            app:layout_constraintTop_toBottomOf="@id/search_censor"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_weight="8"
             />
@@ -128,7 +110,7 @@
             tools:text="12 mục"
             android:background="@drawable/border_amount_censor"
             android:layout_marginTop="15dp"
-            app:layout_constraintTop_toBottomOf="@id/search_catalog_sys"
+            app:layout_constraintTop_toBottomOf="@id/search_censor"
             app:layout_constraintStart_toStartOf="parent"
             />
 
@@ -136,6 +118,7 @@
 
     <!--Item need to censor-->
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/unapproved_projects_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/notice_censor"
@@ -143,8 +126,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp">
-
-
     </androidx.recyclerview.widget.RecyclerView>
     <Button
         android:id="@+id/btn_see_more"
