@@ -306,7 +306,24 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
 
     @Override
     public void onSetFeaturedClick(Project project, int position) {
-        // ...
+        Toast.makeText(this, "Đang làm nổi bật: " + project.getTitle(), Toast.LENGTH_SHORT).show();
+
+        // Gọi repository để cập nhật isFeatured = true trên Firestore
+        projectRepository.setProjectFeaturedStatus(project.getProjectId(), true, new ProjectRepository.OnTaskCompleteListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(AdminHomePage.this, "Đã làm nổi bật thành công!", Toast.LENGTH_SHORT).show();
+
+                // QUAN TRỌNG NHẤT: Tải lại toàn bộ danh sách
+                // để sắp xếp và giao diện được cập nhật đúng.
+                loadFilteredProjects();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(AdminHomePage.this, "Làm nổi bật thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
