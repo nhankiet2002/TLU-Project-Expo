@@ -66,9 +66,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Load các thông tin đã lưu vào các trường nhập liệu
         loadRememberMePreferences();
-
-        // KHÔNG CÒN LOGIC TỰ ĐỘNG ĐĂNG NHẬP Ở ĐÂY NỮA
-        // Logic này đã được chuyển sang OpenActivity
+        
     }
 
     private void initializeUIAndListeners() {
