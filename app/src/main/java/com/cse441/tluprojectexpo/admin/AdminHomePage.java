@@ -26,6 +26,8 @@ import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.AdminProjectAdapter;
 import com.cse441.tluprojectexpo.admin.repository.CatalogRepository;
 import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
+import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
+import com.cse441.tluprojectexpo.auth.SettingProfileActivity;
 import com.cse441.tluprojectexpo.model.Category;
 import com.cse441.tluprojectexpo.model.Project;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -75,6 +77,8 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
         setupRecyclerView();
         setupListeners();
         loadFilterDataAndProjects();
+
+        setupBottomNavigation();
     }
 
     private void initViews() {
@@ -273,6 +277,22 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
             return true;
         });
         popupMenu.show();
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.nav_manage) {
+                NavigationUtil.navigateTo(this, Dashboard.class);
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                NavigationUtil.navigateTo(this, SettingProfileActivity.class);
+                return true;
+            }
+
+            return false;
+        });
     }
 
     @Override

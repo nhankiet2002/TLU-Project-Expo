@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -30,31 +31,27 @@
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_marginTop="24dp"
-                android:src="@drawable/default_avatar"
-                app:civ_border_color="@color/black"
-                app:civ_border_width="2dp" />
+                tools:src="@drawable/image7"
+                android:src="@drawable/default_avatar" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/txtUserName"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Tên người dùng"
                 android:layout_gravity="start"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/full_name" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:hint="Tên">
+                tools:hint="Họ và tên">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edUserName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName" />
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textview.MaterialTextView
@@ -63,12 +60,12 @@
                 android:layout_gravity="start"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Khoa" />
+                android:text="@string/department" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập khoa (VD: Công nghệ thông tin)">
+                tools:hint="Tên khoa">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextText2"
@@ -83,12 +80,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginTop="24dp"
-                android:text="Lớp" />
+                android:text="@string/class_name" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập lớp (VD: 64CNTT2)">
+                tools:hint="Lớp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextText3"
@@ -99,6 +96,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveProfile"
+                style="@style/MyCustomDialogButton"
                 android:layout_width="234dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
@@ -107,8 +105,9 @@
                 app:iconPadding="8dp" />
 
             <com.google.android.material.button.MaterialButton
+                style="@style/MyCustomDialogButton"
                 android:id="@+id/btnChangePW"
-                android:layout_width="229dp"
+                android:layout_width="234dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="Đổi mật khẩu"

@@ -51,6 +51,7 @@
     <string name="cancel">Hủy bỏ</string>
     <string name="apply">Áp dụng</string>
     <string name="clear_all">Bỏ chọn tất cả</string>
+    <string name="full_name">Họ và tên:</string>
 
     <!-- Các string của nhánh main -->
     <string name="app_name">TLUProjectExpo</string>
@@ -66,5 +67,7 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <!-- Bạn có thể thêm các string khác ở đây nếu cần -->
+    <string name="confirm_reset_password">Chúng tôi sẽ gửi đường dẫn thay đổi mật khẩu về email của bạn, bấm xác nhận để nhận tin nhắn email.</string>
+    <string name="change_password">Đổi mật khẩu</string>
+    <string name="reset_password">Xác nhận đổi mật khẩu</string>
 </resources>
