@@ -1,9 +1,11 @@
 // User.java
-package com.cse441.tluprojectexpo.model; // THAY ĐỔI PACKAGE
+package com.cse441.tluprojectexpo.model; // Đảm bảo package này đúng với cấu trúc dự án của bạn
 
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
+// Bạn có thể cần import java.util.Date nếu sử dụng kiểu Date cho CreatedAt
+// import java.util.Date;
 
 import java.io.Serializable;
 
@@ -57,6 +59,7 @@ public class User implements Serializable {
         this.passwordHash = ""; // Mặc định không có mật khẩu
         this.role = new Role("User");
     }
+
 
 
     public String getUserId() {
@@ -138,5 +141,4 @@ public class User implements Serializable {
     public String getAvatarUrl(){
         return avatarUrl;
     }
-
 }

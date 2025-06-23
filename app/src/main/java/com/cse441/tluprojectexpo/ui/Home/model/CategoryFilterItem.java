@@ -1,12 +1,12 @@
-package com.cse441.tluprojectexpo.ui.Home.data.model;
+package com.cse441.tluprojectexpo.ui.Home.model;
 
 import androidx.annotation.NonNull;
 
-public class TechnologyFilterItem implements FilterableItem {
+public class CategoryFilterItem implements FilterableItem {
     private String id;
     private String name;
 
-    public TechnologyFilterItem(String id, String name) {
+    public CategoryFilterItem(String id, String name) {
         this.id = id;
         this.name = name;
     }

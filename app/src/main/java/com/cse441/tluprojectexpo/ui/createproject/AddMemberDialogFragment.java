@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.ui.createproject.adapter.UserSearchAdapter;
 import com.cse441.tluprojectexpo.model.User;
-import com.cse441.tluprojectexpo.util.Constants; // **ĐẢM BẢO IMPORT ĐÚNG**
+import com.cse441.tluprojectexpo.utils.Constants; // **ĐẢM BẢO IMPORT ĐÚNG**
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;

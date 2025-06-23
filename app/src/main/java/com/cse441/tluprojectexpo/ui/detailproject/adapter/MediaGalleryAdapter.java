@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.Project; // Model Project chứa MediaItem
-import com.cse441.tluprojectexpo.util.UiHelper;   // Helper của bạn (nếu có)
+import com.cse441.tluprojectexpo.utils.UiHelper;   // Helper của bạn (nếu có)
 import java.util.List;
 
 public class MediaGalleryAdapter extends RecyclerView.Adapter<MediaGalleryAdapter.ViewHolder> {

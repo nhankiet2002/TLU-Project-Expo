@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.util;
+package com.cse441.tluprojectexpo.utils;
 
 public class Constants {
 
@@ -14,6 +14,7 @@ public class Constants {
     public static final String COLLECTION_COMMENTS = "Comments"; // Thêm
     public static final String COLLECTION_PROJECT_VOTES = "ProjectVotes"; // Thêm
     public static final String SUB_COLLECTION_VOTERS = "Voters"; // Thêm
+    public static final String COLLECTION_NOTIFICATIONS = "Notifications";
 
     // Firestore Field Names
     public static final String FIELD_NAME = "Name";

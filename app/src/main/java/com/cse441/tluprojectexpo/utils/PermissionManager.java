@@ -1,5 +1,5 @@
 // PermissionManager.java
-package com.cse441.tluprojectexpo.util; // Hoặc package đúng của bạn
+package com.cse441.tluprojectexpo.utils; // Hoặc package đúng của bạn
 
 import android.Manifest;
 import android.app.Activity; // THÊM
@@ -9,7 +9,6 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.core.app.ActivityCompat; // THÊM
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import java.util.ArrayList;

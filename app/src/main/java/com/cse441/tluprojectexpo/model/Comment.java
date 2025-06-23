@@ -4,6 +4,9 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Comment {
     @Exclude
     private String commentId;
@@ -19,14 +22,15 @@ public class Comment {
 
     @PropertyName("CreatedAt") // Khớp với Firestore
     private Timestamp timestamp;
-
+    @PropertyName("ParentCommentId") // Thêm trường này để map từ Firestore
+    private String parentCommentId;   // Có thể là null
     @Exclude
     private String userName; // Sẽ được load sau
     @Exclude
     private String userAvatarUrl; // Sẽ được load sau
-
+    @Exclude // Danh sách các bình luận trả lời cho bình luận này
+    private List<Comment> replies = new ArrayList<>();
     public Comment() {
-        // Firestore cần constructor rỗng
     }
 
     // Constructor để tạo comment mới khi người dùng post (thông tin user có sẵn)
@@ -37,6 +41,7 @@ public class Comment {
         this.userAvatarUrl = userAvatarUrl; // Dùng để hiển thị ngay
         this.text = text;
         this.timestamp = timestamp;
+        this.parentCommentId = null;
     }
 
     // Getters and Setters
@@ -45,7 +50,9 @@ public class Comment {
     @Exclude
     public void setCommentId(String commentId) { this.commentId = commentId; }
 
+    @PropertyName("ProjectId")
     public String getProjectId() { return projectId; }
+    @PropertyName("ProjectId")
     public void setProjectId(String projectId) { this.projectId = projectId; }
 
     // Sử dụng @PropertyName trong getter/setter để đảm bảo mapping đúng
@@ -64,6 +71,10 @@ public class Comment {
     public Timestamp getTimestamp() { return timestamp; }
     @PropertyName("CreatedAt")
     public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
+    @PropertyName("ParentCommentId")
+    public String getParentCommentId() { return parentCommentId; }
+    @PropertyName("ParentCommentId")
+    public void setParentCommentId(String parentCommentId) { this.parentCommentId = parentCommentId; }
 
     @Exclude
     public String getUserName() { return userName; }
@@ -74,4 +85,15 @@ public class Comment {
     public String getUserAvatarUrl() { return userAvatarUrl; }
     @Exclude
     public void setUserAvatarUrl(String userAvatarUrl) { this.userAvatarUrl = userAvatarUrl; }
+    @Exclude
+    public List<Comment> getReplies() { return replies; }
+    @Exclude
+    public void setReplies(List<Comment> replies) { this.replies = replies; }
+    @Exclude
+    public void addReply(Comment reply) {
+        if (this.replies == null) {
+            this.replies = new ArrayList<>();
+        }
+        this.replies.add(reply);
+    }
 }

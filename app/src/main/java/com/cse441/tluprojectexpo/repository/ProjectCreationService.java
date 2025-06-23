@@ -1,9 +1,9 @@
 // ProjectCreationService.java
-package com.cse441.tluprojectexpo.repository.project;
+package com.cse441.tluprojectexpo.repository;
 
 import android.util.Log;
 import androidx.annotation.Nullable;
-import com.cse441.tluprojectexpo.util.Constants; // Đảm bảo import Constants
+import com.cse441.tluprojectexpo.utils.Constants; // Đảm bảo import Constants
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -161,6 +161,36 @@ public class ProjectCreationService {
                 .addOnSuccessListener(aVoid -> {
                     Log.i(TAG, "Dự án và các dữ liệu liên quan đã được tạo thành công bằng batch. Project ID: " + newProjectId);
                     listener.onProjectCreatedSuccessfully(newProjectId); // Thông báo thành công
+
+                    // Gửi notification mời thành viên (trừ người tạo)
+                    String creatorUserId = (String) projectData.get(Constants.FIELD_CREATOR_USER_ID);
+                    String creatorFullName = (String) projectData.get(Constants.FIELD_FULL_NAME);
+                    String creatorAvatarUrl = (String) projectData.get(Constants.FIELD_AVATAR_URL);
+                    String projectTitle = (String) projectData.get(Constants.FIELD_NAME); // hoặc "Title" nếu đúng key
+                    if (membersData != null) {
+                        for (Map<String, Object> member : membersData) {
+                            String memberUserId = (String) member.get(Constants.FIELD_USER_ID);
+                            String memberRole = (String) member.get(Constants.FIELD_ROLE_IN_PROJECT);
+                            if (memberUserId != null && !memberUserId.equals(creatorUserId)) {
+                                NotificationRepository notificationRepository = new NotificationRepository();
+                                notificationRepository.createProjectInvitation(
+                                    memberUserId, // recipientUserId
+                                    creatorUserId, // actorUserId
+                                    creatorFullName != null ? creatorFullName : "Người tạo dự án", // actorFullName
+                                    creatorAvatarUrl != null ? creatorAvatarUrl : "", // actorAvatarUrl
+                                    newProjectId, // targetProjectId
+                                    projectTitle != null ? projectTitle : "Dự án mới", // targetProjectTitle
+                                    memberRole != null ? memberRole : Constants.DEFAULT_MEMBER_ROLE, // invitationRole
+                                    new NotificationRepository.NotificationActionListener() {
+                                        @Override
+                                        public void onSuccess() { }
+                                        @Override
+                                        public void onError(String errorMessage) { }
+                                    }
+                                );
+                            }
+                        }
+                    }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Lỗi khi tạo dự án bằng batch commit", e);

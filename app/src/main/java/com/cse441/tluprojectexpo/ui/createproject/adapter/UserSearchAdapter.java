@@ -51,7 +51,7 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = userListFiltered.get(position); // THAY ĐỔI
         holder.tvMemberName.setText(user.getFullName()); // Sử dụng getFullName()
-        holder.tvMemberClass.setText(user.getClassName()); // Sử dụng getClassName()
+        holder.tvMemberClass.setText(user.getClassName()); // Sử dụng getUserClass()
 
         Glide.with(context)
                 .load(user.getAvatarUrl()) // Sử dụng getAvatarUrl()

@@ -1,7 +1,6 @@
 package com.cse441.tluprojectexpo.ui.Home.ui;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -9,7 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.cse441.tluprojectexpo.R;
-import com.cse441.tluprojectexpo.ui.Home.data.model.FilterableItem;
+import com.cse441.tluprojectexpo.ui.Home.model.FilterableItem;
 import com.google.android.material.chip.Chip;
 
 import java.util.List;

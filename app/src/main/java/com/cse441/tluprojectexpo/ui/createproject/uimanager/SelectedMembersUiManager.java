@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.cse441.tluprojectexpo.util.UiHelper;
+import com.cse441.tluprojectexpo.utils.UiHelper;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.User;
 import com.google.android.material.textfield.TextInputLayout; // Thêm nếu chưa có
