@@ -23,12 +23,11 @@ import java.util.Locale;
 public class ProjectDetailViewAdmin extends AppCompatActivity {
 
     // Khai báo các View từ layout
-    private ImageView imgThumb, backToHome;
-    private TextView projectName, projectStatus, createdAt, updatedAt, likeCount, desc;
+    private ImageView imgThumb, backToHome, isFeaturedIcon;
+    private TextView projectName, projectStatus, createdAt, updatedAt, likeCount, desc, authorName, categoryName, technologyNames;
     private Button btnDeleteProject, btnMember, btnComment;
     private ImageButton optionProjectDetail;
 
-    // Repository và project hiện tại
     private ProjectRepository projectRepository;
     private Project currentProject;
 
@@ -38,6 +37,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
         setContentView(R.layout.activity_admin_project_detail);
 
         projectRepository = new ProjectRepository();
+
         bindViews();
         setupInitialListeners();
 
@@ -45,7 +45,6 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
         String projectId = getIntent().getStringExtra("PROJECT_ID");
 
         if (projectId != null && !projectId.isEmpty()) {
-            // Dùng ID để tải dữ liệu chi tiết
             fetchAndDisplayProjectDetails(projectId);
         } else {
             Toast.makeText(this, "Không tìm thấy thông tin dự án.", Toast.LENGTH_SHORT).show();
@@ -56,11 +55,8 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
     private void fetchAndDisplayProjectDetails(String projectId) {
         projectRepository.getProjectDetailsById(projectId).observe(this, project -> {
             if (project != null) {
-                // 1. Dữ liệu đã về, gán cho biến toàn cục
                 this.currentProject = project;
-                // 2. Đổ dữ liệu lên UI
                 populateUI(project);
-                // 3. SAU KHI CÓ DỮ LIỆU, MỚI GÁN CÁC LISTENER CÒN LẠI
                 setupDataDependentListeners();
             } else {
                 Toast.makeText(this, "Tải thông tin dự án thất bại.", Toast.LENGTH_SHORT).show();
@@ -81,6 +77,12 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
         btnMember = findViewById(R.id.btn_member);
         btnComment = findViewById(R.id.btn_comment);
         btnDeleteProject = findViewById(R.id.btn_delete_project);
+
+        // Ánh xạ các View mới
+        authorName = findViewById(R.id.author_name);
+        categoryName = findViewById(R.id.category_name);
+        technologyNames = findViewById(R.id.technology_names);
+        isFeaturedIcon = findViewById(R.id.is_featured_icon);
     }
 
     private void setupInitialListeners() {
@@ -94,31 +96,56 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
 
     // Hàm chính để đổ dữ liệu lên UI
     private void populateUI(@NonNull Project project) {
-        // Tải ảnh thumbnail bằng thư viện Glide
         Glide.with(this)
                 .load(project.getThumbnailUrl())
-                .placeholder(R.drawable.project_thumbnail) // Ảnh hiển thị trong lúc tải
-                .error(R.drawable.project_thumbnail) // Ảnh hiển thị khi lỗi
+                .placeholder(R.drawable.project_thumbnail)
+                .error(R.drawable.project_thumbnail)
                 .into(imgThumb);
 
-        // Fill các thông tin text
         projectName.setText(project.getTitle());
-        projectStatus.setText(project.getStatus());
+        switch (project.getStatus().toLowerCase(Locale.getDefault())) {
+            case "đang thực hiện":
+                projectStatus.setText("Đang thực hiện");
+                projectStatus.setBackgroundResource(R.drawable.progress_background);
+                break;
+            case "hoàn thành":
+                projectStatus.setText("Đã hoàn thành");
+                projectStatus.setBackgroundResource(R.drawable.finish);
+                break;
+            case "tạm dừng":
+                projectStatus.setText("Tạm dừng");
+                projectStatus.setBackgroundResource(R.drawable.stopped);
+                break;
+            default:
+                break;
+        }
         desc.setText(project.getDescription());
         likeCount.setText(String.valueOf(project.getVoteCount()));
 
-        // Format ngày tháng cho dễ đọc
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         if (project.getCreatedAt() != null) {
             createdAt.setText("Tạo: " + dateFormat.format(project.getCreatedAt().toDate()));
-        } else {
-            createdAt.setText("Tạo: N/A");
         }
         if (project.getUpdatedAt() != null) {
             updatedAt.setText("Cập nhật: " + dateFormat.format(project.getUpdatedAt().toDate()));
-        } else {
-            updatedAt.setText("Cập nhật: N/A");
         }
+
+        // Đổ dữ liệu cho các View mới
+        authorName.setText("Tác giả: " + (project.getCreatorFullName() != null ? project.getCreatorFullName() : "N/A"));
+
+        if (project.getCategoryNames() != null && !project.getCategoryNames().isEmpty()) {
+            categoryName.setText("Lĩnh vực: " + String.join(", ", project.getCategoryNames()));
+        } else {
+            categoryName.setText("Lĩnh vực: Chưa xác định");
+        }
+
+        if (project.getTechnologyNames() != null && !project.getTechnologyNames().isEmpty()) {
+            technologyNames.setText("Công nghệ: " + String.join(", ", project.getTechnologyNames()));
+        } else {
+            technologyNames.setText("Công nghệ: Chưa xác định");
+        }
+
+        isFeaturedIcon.setVisibility(project.isFeatured() ? View.VISIBLE : View.GONE);
     }
 
     // Hàm hiển thị menu tùy chọn khi nhấn nút 3 chấm
