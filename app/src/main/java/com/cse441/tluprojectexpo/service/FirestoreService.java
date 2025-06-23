@@ -62,8 +62,6 @@ public class FirestoreService {
                             }
                         }
                         listener.onCategoriesFetched(names, nameToId);
-                    } else {
-                        listener.onError("Lỗi tải lĩnh vực: " + (task.getException() != null ? task.getException().getMessage() : "Unknown"));
                     }
                 });
     }

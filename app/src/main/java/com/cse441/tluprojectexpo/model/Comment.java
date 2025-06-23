@@ -50,7 +50,9 @@ public class Comment {
     @Exclude
     public void setCommentId(String commentId) { this.commentId = commentId; }
 
+    @PropertyName("ProjectId")
     public String getProjectId() { return projectId; }
+    @PropertyName("ProjectId")
     public void setProjectId(String projectId) { this.projectId = projectId; }
 
     // Sử dụng @PropertyName trong getter/setter để đảm bảo mapping đúng
