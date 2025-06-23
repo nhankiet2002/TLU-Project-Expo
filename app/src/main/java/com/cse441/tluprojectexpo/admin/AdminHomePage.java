@@ -1,6 +1,7 @@
 package com.cse441.tluprojectexpo.admin;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -33,6 +34,8 @@ import com.cse441.tluprojectexpo.model.Project;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -42,7 +45,11 @@ import java.util.stream.Collectors;
 public class AdminHomePage extends AppCompatActivity implements AdminProjectAdapter.OnProjectAdminInteraction {
 
     private static final String TAG = "AdminHomePage";
+    public static final String ACTION_DELETED = "ACTION_DELETED";
+    public static final String ACTION_UNFEATURED = "ACTION_UNFEATURED";
     private static final long SEARCH_DELAY = 500;
+
+    private static final int PROJECT_DETAIL_REQUEST_CODE = 1001;
 
     // Views
     private EditText etSearch;
@@ -302,6 +309,44 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
 
     @Override
     public void onProjectClick(Project project) {
-        // ...
+        NavigationUtil.navigateWithObjectForResult(this, ProjectDetailViewAdmin.class, "PROJECT_ID", project.getProjectId(), PROJECT_DETAIL_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Kiểm tra xem đây có phải là kết quả từ ProjectDetailActivity không
+        if (requestCode == PROJECT_DETAIL_REQUEST_CODE) {
+            // Kiểm tra xem hành động ở trang chi tiết có thành công không
+            if (resultCode == RESULT_OK && data != null) {
+                // Giả sử trang chi tiết có thể trả về một action, ví dụ "DELETED"
+                String action = data.getStringExtra("ACTION");
+                String projectId = data.getStringExtra("PROJECT_ID");
+
+                if (ACTION_DELETED.equals(action) && projectId != null) {
+                    Toast.makeText(this, "Đã xóa dự án, đang cập nhật danh sách...", Toast.LENGTH_SHORT).show();
+                    // Tìm và xóa project khỏi danh sách local
+                    removeProjectFromList(projectId);
+                }
+                // Bạn có thể thêm các case khác, ví dụ "UNFEATURED"
+                else if (ACTION_UNFEATURED.equals(action) && projectId != null) {
+                    // Tải lại toàn bộ danh sách để sắp xếp lại đúng
+                    loadFilteredProjects();
+                }
+            }
+        }
+    }
+
+    // Hàm phụ trợ để xóa project khỏi list và cập nhật adapter
+    private void removeProjectFromList(String projectId) {
+        for (int i = 0; i < projectList.size(); i++) {
+            if (projectList.get(i).getProjectId().equals(projectId)) {
+                projectList.remove(i);
+                adapter.notifyItemRemoved(i);
+                adapter.notifyItemRangeChanged(i, projectList.size());
+                return;
+            }
+        }
     }
 }

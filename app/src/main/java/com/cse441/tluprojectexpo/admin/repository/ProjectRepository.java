@@ -14,6 +14,7 @@ import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,6 +99,7 @@ public class ProjectRepository {
                 });
         return liveData;
     }
+
 
     /**
      * PHƯƠNG THỨC CHO TRANG FEATURED MANAGEMENT PAGE
@@ -249,6 +251,7 @@ public class ProjectRepository {
         return liveData;
     }
 
+
     /**
      * Hàm phụ: Lấy danh sách các Project ID dựa trên danh sách Technology ID.
      */
@@ -276,6 +279,7 @@ public class ProjectRepository {
                 });
     }
 
+
     /**
      * Hàm phụ: Xây dựng câu truy vấn chính cho collection "Projects".
      */
@@ -299,6 +303,7 @@ public class ProjectRepository {
         }
         return query;
     }
+
 
     /**
      * Hàm phụ để điền các thông tin chi tiết (tên tác giả, lĩnh vực, công nghệ) vào đối tượng Project.
@@ -327,6 +332,7 @@ public class ProjectRepository {
         }
     }
 
+
     /**
      * Hàm phụ để sắp xếp danh sách dự án.
      */
@@ -341,4 +347,196 @@ public class ProjectRepository {
         });
     }
 
+
+    //     HÀM XÓA PROJECT HOÀN CHỈNH
+    // =================================================================================
+
+    /**
+     * Xóa một dự án và TẤT CẢ các dữ liệu liên quan trong các collection khác.
+     * @param projectId ID của dự án cần xóa.
+     * @param listener Callback để thông báo kết quả.
+     */
+    public void deleteProject(String projectId, @NonNull OnTaskCompleteListener listener) {
+        if (projectId == null || projectId.isEmpty()) {
+            listener.onFailure(new IllegalArgumentException("Project ID không hợp lệ."));
+            return;
+        }
+
+        // Tạo một WriteBatch để thực hiện nhiều thao tác xóa cùng lúc một cách nguyên tử
+        WriteBatch batch = db.batch();
+
+        // 1. Thêm thao tác xóa document chính trong "Projects"
+        batch.delete(db.collection("Projects").document(projectId));
+        Log.d(TAG, "Chuẩn bị xóa: Project " + projectId);
+
+        // Tạo danh sách các Task để tìm và xóa dữ liệu liên quan
+        List<Task<Void>> deletionTasks = new ArrayList<>();
+
+        // 2. Thêm Task tìm và xóa trong "ProjectCategories"
+        deletionTasks.add(findAndDeleteRelatedDocs("ProjectCategories", "ProjectId", projectId, batch));
+
+        // 3. Thêm Task tìm và xóa trong "ProjectMembers"
+        deletionTasks.add(findAndDeleteRelatedDocs("ProjectMembers", "ProjectId", projectId, batch));
+
+        // 4. Thêm Task tìm và xóa trong "ProjectTechnologies"
+        deletionTasks.add(findAndDeleteRelatedDocs("ProjectTechnologies", "ProjectId", projectId, batch));
+
+        // 5. Thêm Task tìm và xóa trong "ProjectVotes"
+        deletionTasks.add(findAndDeleteRelatedDocs("ProjectVotes", "ProjectId", projectId, batch));
+
+        // 6. Thêm Task tìm và xóa trong "Comments"
+        deletionTasks.add(findAndDeleteRelatedDocs("Comments", "ProjectId", projectId, batch));
+
+        // 7. Chờ tất cả các Task tìm kiếm hoàn tất
+        Tasks.whenAll(deletionTasks)
+                .addOnSuccessListener(aVoid -> {
+                    // 8. Sau khi đã thêm tất cả thao tác xóa vào batch, thực thi batch
+                    batch.commit()
+                            .addOnSuccessListener(aVoid1 -> {
+                                Log.d(TAG, "XÓA THÀNH CÔNG dự án và các dữ liệu liên quan của: " + projectId);
+                                listener.onSuccess();
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Lỗi khi thực thi batch xóa: ", e);
+                                listener.onFailure(e);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi khi tìm kiếm dữ liệu liên quan để xóa: ", e);
+                    listener.onFailure(e);
+                });
+    }
+
+    /**
+     * Hàm phụ trợ để tìm các document liên quan và thêm thao tác xóa vào batch.
+     * @param collectionName Tên của collection cần tìm (ví dụ: "Comments").
+     * @param fieldName Tên của trường chứa ProjectID (ví dụ: "ProjectId").
+     * @param projectId ID của dự án.
+     * @param batch WriteBatch đang được sử dụng.
+     * @return Một Task đại diện cho quá trình tìm kiếm.
+     */
+    private Task<Void> findAndDeleteRelatedDocs(String collectionName, String fieldName, String projectId, WriteBatch batch) {
+        return db.collection(collectionName)
+                .whereEqualTo(fieldName, projectId)
+                .get()
+                .onSuccessTask(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        batch.delete(doc.getReference());
+                        Log.d(TAG, "Chuẩn bị xóa: " + collectionName + " doc " + doc.getId());
+                    }
+                    // Trả về một task đã hoàn thành để báo hiệu quá trình này xong
+                    return Tasks.forResult(null);
+                });
+    }
+
+
+    //     PHƯƠNG THỨC LẤY CHI TIẾT DỰ ÁN - PHIÊN BẢN HOÀN CHỈNH
+// =================================================================================
+    public MutableLiveData<Project> getProjectDetailsById(String projectId) {
+        MutableLiveData<Project> projectLiveData = new MutableLiveData<>();
+
+        if (projectId == null || projectId.isEmpty()) {
+            projectLiveData.setValue(null);
+            return projectLiveData;
+        }
+
+        // --- STAGE 1: Lấy tất cả các dữ liệu cần thiết một cách song song ---
+        // Lấy document project chính
+        Task<DocumentSnapshot> projectTask = db.collection("Projects").document(projectId).get();
+
+        // Lấy thông tin phụ liên quan đến project này
+        Task<QuerySnapshot> projectCategoriesTask = db.collection("ProjectCategories").whereEqualTo("ProjectId", projectId).get();
+        Task<QuerySnapshot> projectTechnologiesTask = db.collection("ProjectTechnologies").whereEqualTo("ProjectId", projectId).get();
+        Task<QuerySnapshot> projectMembersTask = db.collection("ProjectMembers").whereEqualTo("ProjectId", projectId).get();
+
+        // Lấy các bảng tra cứu (lookup tables)
+        Task<QuerySnapshot> usersTask = db.collection("Users").get();
+        Task<QuerySnapshot> categoriesTask = db.collection("Categories").get();
+        Task<QuerySnapshot> technologiesTask = db.collection("Technologies").get();
+
+        // --- STAGE 2: Kết hợp tất cả các task ---
+        Tasks.whenAllSuccess(projectTask, projectCategoriesTask, projectTechnologiesTask, projectMembersTask,
+                        usersTask, categoriesTask, technologiesTask)
+                .addOnSuccessListener(results -> {
+                    // --- STAGE 3: Chuyển đổi dữ liệu thô sang đối tượng và các Map ---
+                    DocumentSnapshot projectDoc = (DocumentSnapshot) results.get(0);
+                    if (!projectDoc.exists()) {
+                        Log.e(TAG, "Không tìm thấy dự án với ID: " + projectId);
+                        projectLiveData.setValue(null);
+                        return;
+                    }
+
+                    Project project = projectDoc.toObject(Project.class);
+                    if (project == null) {
+                        projectLiveData.setValue(null);
+                        return;
+                    }
+                    project.setProjectId(projectDoc.getId());
+
+                    // Lấy kết quả từ các task
+                    QuerySnapshot pCategoriesSnap = (QuerySnapshot) results.get(1);
+                    QuerySnapshot pTechsSnap = (QuerySnapshot) results.get(2);
+                    QuerySnapshot pMembersSnap = (QuerySnapshot) results.get(3);
+
+                    // Tạo các map để tra cứu
+                    Map<String, User> userMap = ((QuerySnapshot) results.get(4)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.toObject(User.class)));
+                    Map<String, String> categoryMap = ((QuerySnapshot) results.get(5)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
+                    Map<String, String> technologyMap = ((QuerySnapshot) results.get(6)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
+
+                    // --- STAGE 4: Điền các thông tin chi tiết vào đối tượng Project ---
+
+                    // 4.1. Điền tên người tạo
+                    User creator = userMap.get(project.getCreatorUserId());
+                    if (creator != null) {
+                        project.setCreatorFullName(creator.getFullName());
+                    }
+
+                    // 4.2. Điền tên lĩnh vực
+                    if (!pCategoriesSnap.isEmpty()) {
+                        String categoryId = pCategoriesSnap.getDocuments().get(0).getString("CategoryId");
+                        String categoryName = categoryMap.get(categoryId);
+                        if (categoryName != null) {
+                            project.setCategoryNames(new ArrayList<>(Collections.singletonList(categoryName)));
+                        }
+                    }
+
+                    // 4.3. Điền danh sách tên công nghệ
+                    List<String> techNames = pTechsSnap.getDocuments().stream()
+                            .map(doc -> doc.getString("TechnologyId"))
+                            .filter(Objects::nonNull)
+                            .map(technologyMap::get)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+                    project.setTechnologyNames(techNames);
+
+                    // 4.4. Điền danh sách thông tin thành viên
+                    List<Project.UserShortInfo> membersInfo = pMembersSnap.getDocuments().stream()
+                            .map(doc -> {
+                                String userId = doc.getString("UserId");
+                                User user = userMap.get(userId);
+                                if (user != null) {
+                                    return new Project.UserShortInfo(
+                                            userId,
+                                            user.getFullName(),
+                                            user.getAvatarUrl(),
+                                            doc.getString("Role") // Giả sử có trường Role trong ProjectMembers
+                                    );
+                                }
+                                return null;
+                            })
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+                    project.setProjectMembersInfo(membersInfo);
+
+                    // --- STAGE 5: Trả về đối tượng Project đã hoàn chỉnh ---
+                    projectLiveData.setValue(project);
+
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Lỗi khi lấy chi tiết dự án: ", e);
+                    projectLiveData.setValue(null);
+                });
+
+        return projectLiveData;
+    }
 }
