@@ -86,6 +86,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         }
     }
 
+    public DisplayableCommentItem getDisplayableItemAt(int position) {
+        return displayableItems.get(position);
+    }
 
     @Override
     public int getItemViewType(int position) {

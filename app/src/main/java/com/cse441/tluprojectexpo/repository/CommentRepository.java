@@ -170,6 +170,34 @@ public class CommentRepository {
                                     .addOnSuccessListener(documentReference -> {
                                         newCommentObject.setCommentId(documentReference.getId());
                                         listener.onCommentPosted(newCommentObject);
+
+                                        // Tích hợp notification cho chủ dự án
+                                        FirebaseFirestore db2 = FirebaseFirestore.getInstance();
+                                        db2.collection(Constants.COLLECTION_PROJECTS).document(projectId).get()
+                                            .addOnSuccessListener(projectDoc -> {
+                                                if (projectDoc.exists()) {
+                                                    com.cse441.tluprojectexpo.model.Project project = projectDoc.toObject(com.cse441.tluprojectexpo.model.Project.class);
+                                                    if (project != null && project.getCreatorUserId() != null) {
+                                                        String projectOwnerId = project.getCreatorUserId();
+                                                        if (!currentUser.getUid().equals(projectOwnerId)) {
+                                                            NotificationRepository notificationRepository = new NotificationRepository();
+                                                            notificationRepository.createCommentNotification(
+                                                                currentUser,
+                                                                projectId,
+                                                                documentReference.getId(),
+                                                                commentText,
+                                                                projectOwnerId,
+                                                                new NotificationRepository.NotificationActionListener() {
+                                                                    @Override
+                                                                    public void onSuccess() { }
+                                                                    @Override
+                                                                    public void onError(String errorMessage) { }
+                                                                }
+                                                            );
+                                                        }
+                                                    }
+                                                }
+                                            });
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.e(TAG, "Lỗi khi đăng bình luận vào Firestore", e);

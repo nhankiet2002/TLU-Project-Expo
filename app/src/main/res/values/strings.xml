@@ -45,4 +45,6 @@
     <string name="app_name">TLUProjectExpo</string>
     <string name="no_projects_for_this_user">Người dùng này chưa có dự án nào.</string>
     <string name="error_loading_projects">Lỗi khi tải danh sách dự án.</string>
+    <string name="no_notifications">Không có thông báo nào</string>
+    <string name="user_avatar">Ảnh đại diện người dùng</string>
 </resources>

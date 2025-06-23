@@ -100,6 +100,7 @@ public class ProjectDetailActivity extends AppCompatActivity implements CommentA
     private List<Project.MediaItem> mediaList = new ArrayList<>();
     private List<Comment> rootCommentList = new ArrayList<>();
     private String replyingToCommentId = null;
+    private String commentIdToScroll = null;
 
 
     @Override
@@ -122,6 +123,7 @@ public class ProjectDetailActivity extends AppCompatActivity implements CommentA
         setupListeners();
 
         projectId = getIntent().getStringExtra(EXTRA_PROJECT_ID);
+        commentIdToScroll = getIntent().getStringExtra("commentId");
         if (projectId == null || projectId.isEmpty()) {
             UiHelper.showToast(this, "Không có ID dự án.", Toast.LENGTH_LONG);
             finish();
@@ -446,6 +448,13 @@ public class ProjectDetailActivity extends AppCompatActivity implements CommentA
             public void onCommentsLoaded(List<Comment> rootComments) {
                 rootCommentList.clear(); rootCommentList.addAll(rootComments);
                 if (commentAdapter != null) commentAdapter.updateComments(rootCommentList);
+                if (commentIdToScroll != null) {
+                    int pos = findCommentPositionById(commentIdToScroll);
+                    if (pos >= 0) {
+                        recyclerViewComments.scrollToPosition(pos);
+                    }
+                    commentIdToScroll = null;
+                }
             }
             @Override public void onCommentsEmpty() {
                 rootCommentList.clear();
@@ -457,6 +466,17 @@ public class ProjectDetailActivity extends AppCompatActivity implements CommentA
                 if (commentAdapter != null) commentAdapter.updateComments(new ArrayList<>());
             }
         });
+    }
+
+    private int findCommentPositionById(String commentId) {
+        if (commentAdapter == null || commentId == null) return -1;
+        for (int i = 0; i < commentAdapter.getItemCount(); i++) {
+            com.cse441.tluprojectexpo.ui.detailproject.adapter.DisplayableCommentItem item = commentAdapter.getDisplayableItemAt(i);
+            if (item.comment != null && commentId.equals(item.comment.getCommentId())) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override

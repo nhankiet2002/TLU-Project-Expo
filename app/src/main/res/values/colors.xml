@@ -26,4 +26,10 @@
 
         <color name="colorPrimaryLight">#BB86FC</color> <!-- Ví dụ màu cho chip active -->
 
+    <color name="status_pending">#FFA726</color> <!-- Orange -->
+    <color name="status_accepted">#4CAF50</color> <!-- Green -->
+    <color name="status_declined">#F44336</color> <!-- Red -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+
 </resources>
