@@ -48,6 +48,9 @@
     <string name="make_featured">Làm nổi bật</string>
     <string name="in_progress">Đang thực hiện</string>
     <string name="finished">Đã hoàn thành</string>
+    <string name="cancel">Hủy bỏ</string>
+    <string name="apply">Áp dụng</string>
+    <string name="clear_all">Bỏ chọn tất cả</string>
 
     <!-- Các string của nhánh main -->
     <string name="app_name">TLUProjectExpo</string>

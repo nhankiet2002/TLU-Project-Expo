@@ -10,6 +10,7 @@ import com.cse441.tluprojectexpo.model.User;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -183,88 +184,119 @@ public class ProjectRepository {
     // =================================================================================
 
     /**
-     * Hàm tổng hợp cho việc lọc và tìm kiếm.
-     * @param searchQuery Chuỗi tìm kiếm theo tên (nếu rỗng hoặc null, sẽ bỏ qua tìm kiếm).
-     * @param categoryId ID của lĩnh vực cần lọc (nếu rỗng hoặc null, sẽ bỏ qua lọc theo lĩnh vực).
-     * @param technologyId ID của công nghệ cần lọc (nếu rỗng hoặc null, sẽ bỏ qua lọc theo công nghệ).
-     * @param status Trạng thái cần lọc (nếu rỗng hoặc null, sẽ bỏ qua lọc theo trạng thái).
+     * Hàm tổng hợp cho việc lọc và tìm kiếm (PHIÊN BẢN NÂNG CẤP).
+     * @param searchQuery Chuỗi tìm kiếm theo tên.
+     * @param categoryId ID của lĩnh vực cần lọc.
+     * @param technologyIds DANH SÁCH ID của các công nghệ cần lọc.
+     * @param status Trạng thái cần lọc.
      */
-    public MutableLiveData<List<Project>> getFilteredProjects(String searchQuery, String categoryId, String technologyId, String status) {
+    public MutableLiveData<List<Project>> getFilteredProjects(String searchQuery, String categoryId, List<String> technologyIds, String status) {
         MutableLiveData<List<Project>> liveData = new MutableLiveData<>();
 
-        // --- STAGE 1: Xây dựng câu truy vấn cơ sở cho Collection "Projects" ---
-        Query projectsQuery = buildProjectsQuery(searchQuery, status);
+        getProjectIdsByTechnologies(technologyIds).addOnSuccessListener(filteredProjectIds -> {
+            if (technologyIds != null && !technologyIds.isEmpty() && filteredProjectIds.isEmpty()) {
+                liveData.setValue(new ArrayList<>());
+                return;
+            }
 
-        // --- STAGE 2: Lấy tất cả dữ liệu cần thiết từ Firestore ---
-        Task<QuerySnapshot> projectsTask = projectsQuery.get();
-        Task<QuerySnapshot> usersTask = db.collection("Users").get();
-        Task<QuerySnapshot> categoriesTask = db.collection("Categories").get();
-        Task<QuerySnapshot> technologiesTask = db.collection("Technologies").get();
-        Task<QuerySnapshot> projectCategoriesTask = db.collection("ProjectCategories").get();
-        Task<QuerySnapshot> projectTechnologiesTask = db.collection("ProjectTechnologies").get();
+            Query projectsQuery = buildProjectsQuery(searchQuery, status, filteredProjectIds);
 
-        Tasks.whenAllSuccess(projectsTask, usersTask, categoriesTask, technologiesTask,
-                        projectCategoriesTask, projectTechnologiesTask)
-                .addOnSuccessListener(results -> {
-                    // --- STAGE 3: Chuyển đổi dữ liệu thô sang các Map để dễ tra cứu ---
-                    QuerySnapshot projectsSnapshot = (QuerySnapshot) results.get(0);
-                    Map<String, User> userMap = ((QuerySnapshot) results.get(1)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.toObject(User.class)));
-                    Map<String, String> categoryMap = ((QuerySnapshot) results.get(2)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
-                    Map<String, String> technologyMap = ((QuerySnapshot) results.get(3)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
-                    Map<String, String> projectToCategoryMap = ((QuerySnapshot) results.get(4)).getDocuments().stream().collect(Collectors.toMap(doc -> doc.getString("ProjectId"), doc -> doc.getString("CategoryId"), (v1, v2) -> v1));
-                    Map<String, List<String>> projectToTechsMap = new HashMap<>();
-                    for (DocumentSnapshot doc : ((QuerySnapshot) results.get(5)).getDocuments()) {
-                        projectToTechsMap.computeIfAbsent(doc.getString("ProjectId"), k -> new ArrayList<>()).add(doc.getString("TechnologyId"));
-                    }
+            Task<QuerySnapshot> projectsTask = projectsQuery.get();
+            Task<QuerySnapshot> usersTask = db.collection("Users").get();
+            Task<QuerySnapshot> categoriesTask = db.collection("Categories").get();
+            Task<QuerySnapshot> technologiesTask = db.collection("Technologies").get();
+            Task<QuerySnapshot> projectCategoriesTask = db.collection("ProjectCategories").get();
+            Task<QuerySnapshot> projectTechnologiesTask = db.collection("ProjectTechnologies").get();
 
-                    // --- STAGE 4: Xử lý danh sách Project ban đầu và lọc ---
-                    List<Project> filteredProjects = new ArrayList<>();
-                    for (DocumentSnapshot doc : projectsSnapshot.getDocuments()) {
-                        Project p = doc.toObject(Project.class);
-                        if (p != null) {
-                            p.setProjectId(doc.getId());
+            Tasks.whenAllSuccess(projectsTask, usersTask, categoriesTask, technologiesTask,
+                            projectCategoriesTask, projectTechnologiesTask)
+                    .addOnSuccessListener(results -> {
+                        Map<String, User> userMap = ((QuerySnapshot) results.get(1)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.toObject(User.class)));
+                        Map<String, String> categoryMap = ((QuerySnapshot) results.get(2)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
+                        Map<String, String> technologyMap = ((QuerySnapshot) results.get(3)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
+                        Map<String, String> projectToCategoryMap = ((QuerySnapshot) results.get(4)).getDocuments().stream().collect(Collectors.toMap(doc -> doc.getString("ProjectId"), doc -> doc.getString("CategoryId"), (v1, v2) -> v1));
+                        Map<String, List<String>> projectToTechsMap = new HashMap<>();
+                        for (DocumentSnapshot doc : ((QuerySnapshot) results.get(5)).getDocuments()) {
+                            projectToTechsMap.computeIfAbsent(doc.getString("ProjectId"), k -> new ArrayList<>()).add(doc.getString("TechnologyId"));
+                        }
 
-                            // Lọc phía client cho category và technology
-                            boolean categoryMatch = (categoryId == null || categoryId.isEmpty()) || categoryId.equals(projectToCategoryMap.get(p.getProjectId()));
-                            boolean technologyMatch = (technologyId == null || technologyId.isEmpty()) || (projectToTechsMap.get(p.getProjectId()) != null && projectToTechsMap.get(p.getProjectId()).contains(technologyId));
-
-                            // Chỉ thêm vào danh sách nếu thỏa mãn tất cả các điều kiện lọc
-                            if (categoryMatch && technologyMatch) {
-                                populateProjectDetails(p, userMap, categoryMap, technologyMap, projectToCategoryMap, projectToTechsMap);
-                                filteredProjects.add(p);
+                        List<Project> finalProjectList = new ArrayList<>();
+                        QuerySnapshot projectsSnapshot = (QuerySnapshot) results.get(0);
+                        for (DocumentSnapshot doc : projectsSnapshot.getDocuments()) {
+                            Project p = doc.toObject(Project.class);
+                            if (p != null) {
+                                p.setProjectId(doc.getId());
+                                boolean categoryMatch = (categoryId == null || categoryId.isEmpty()) || categoryId.equals(projectToCategoryMap.get(p.getProjectId()));
+                                if (categoryMatch) {
+                                    populateProjectDetails(p, userMap, categoryMap, technologyMap, projectToCategoryMap, projectToTechsMap);
+                                    finalProjectList.add(p);
+                                }
                             }
                         }
-                    }
 
-                    // --- STAGE 5: Sắp xếp kết quả cuối cùng ---
-                    sortProjects(filteredProjects);
-                    liveData.setValue(filteredProjects);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Lỗi khi lọc/tìm kiếm dự án: ", e);
-                    liveData.setValue(null);
-                });
+                        sortProjects(finalProjectList);
+                        liveData.setValue(finalProjectList);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Lỗi khi lấy chi tiết dự án: ", e);
+                        liveData.setValue(null);
+                    });
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Lỗi khi lọc project ID theo công nghệ: ", e);
+            liveData.setValue(null);
+        });
+
         return liveData;
     }
 
     /**
-     * Hàm phụ để xây dựng câu query cho collection "Projects".
-     * Lọc theo searchQuery và status trực tiếp trên Firestore để giảm tải.
+     * Hàm phụ: Lấy danh sách các Project ID dựa trên danh sách Technology ID.
      */
-    private Query buildProjectsQuery(String searchQuery, String status) {
-        Query query = db.collection("Projects");
+    private Task<List<String>> getProjectIdsByTechnologies(List<String> technologyIds) {
+        if (technologyIds == null || technologyIds.isEmpty()) {
+            return Tasks.forResult(null);
+        }
+        if (technologyIds.size() > 10) {
+            Log.w(TAG, "Lọc công nghệ vượt quá 10, chỉ lấy 10 mục đầu tiên.");
+            technologyIds = technologyIds.subList(0, 10);
+        }
 
-        // Áp dụng bộ lọc trạng thái
+        return db.collection("ProjectTechnologies")
+                .whereIn("TechnologyId", technologyIds)
+                .get()
+                .continueWith(task -> {
+                    if (!task.isSuccessful()) {
+                        throw Objects.requireNonNull(task.getException());
+                    }
+                    return task.getResult().getDocuments().stream()
+                            .map(doc -> doc.getString("ProjectId"))
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .collect(Collectors.toList());
+                });
+    }
+
+    /**
+     * Hàm phụ: Xây dựng câu truy vấn chính cho collection "Projects".
+     */
+    private Query buildProjectsQuery(String searchQuery, String status, List<String> projectIds) {
+        Query query = db.collection("Projects");
+        if (projectIds != null) {
+            if (projectIds.isEmpty()) {
+                return query.whereEqualTo(FieldPath.documentId(), "impossible_id_to_find");
+            }
+            if (projectIds.size() > 10) {
+                projectIds = projectIds.subList(0, 10);
+            }
+            query = query.whereIn(FieldPath.documentId(), projectIds);
+        }
         if (status != null && !status.isEmpty()) {
             query = query.whereEqualTo("Status", status);
         }
-
-        // Áp dụng bộ lọc tìm kiếm theo tên
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             query = query.whereGreaterThanOrEqualTo("Title", searchQuery)
                     .whereLessThanOrEqualTo("Title", searchQuery + "\uf8ff");
         }
-
         return query;
     }
 
@@ -274,20 +306,17 @@ public class ProjectRepository {
     private void populateProjectDetails(Project project, Map<String, User> userMap, Map<String, String> categoryMap,
                                         Map<String, String> technologyMap, Map<String, String> projectToCategoryMap,
                                         Map<String, List<String>> projectToTechsMap) {
-        // Lấy tên người tạo
         User creator = userMap.get(project.getCreatorUserId());
         if (creator != null) {
             project.setCreatorFullName(creator.getFullName());
         }
 
-        // Lấy tên lĩnh vực
         String categoryId = projectToCategoryMap.get(project.getProjectId());
         if (categoryId != null) {
             String categoryName = categoryMap.get(categoryId);
-            project.setCategoryNames(new ArrayList<>(List.of(categoryName != null ? categoryName : "")));
+            project.setCategoryNames(new ArrayList<>(Collections.singletonList(categoryName != null ? categoryName : "")));
         }
 
-        // Lấy danh sách tên công nghệ
         List<String> techIds = projectToTechsMap.get(project.getProjectId());
         if (techIds != null) {
             List<String> techNames = techIds.stream()
@@ -300,19 +329,15 @@ public class ProjectRepository {
 
     /**
      * Hàm phụ để sắp xếp danh sách dự án.
-     * Ưu tiên: Dự án nổi bật (IsFeatured=true) lên đầu, sau đó sắp xếp theo thời gian tạo.
      */
     private void sortProjects(List<Project> projectList) {
-        Collections.sort(projectList, (p1, p2) -> {
-            // So sánh isFeatured
-            if (p1.isFeatured() && !p2.isFeatured()) return -1; // p1 nổi bật, p2 không -> p1 lên trước
-            if (!p1.isFeatured() && p2.isFeatured()) return 1;  // p1 không, p2 nổi bật -> p2 lên trước
-
-            // Nếu cả hai cùng nổi bật hoặc cùng không nổi bật, sắp xếp theo ngày tạo mới nhất
+        projectList.sort((p1, p2) -> {
+            if (p1.isFeatured() && !p2.isFeatured()) return -1;
+            if (!p1.isFeatured() && p2.isFeatured()) return 1;
             if (p1.getCreatedAt() != null && p2.getCreatedAt() != null) {
-                return p2.getCreatedAt().compareTo(p1.getCreatedAt()); // Sắp xếp giảm dần (mới nhất lên đầu)
+                return p2.getCreatedAt().compareTo(p1.getCreatedAt());
             }
-            return 0; // Không thay đổi thứ tự nếu không có ngày tạo
+            return 0;
         });
     }
 
