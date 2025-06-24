@@ -11,6 +11,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,12 +67,26 @@ public class FirestoreService {
         void onMediaFetched(List<Map<String, String>> mediaList);
         void onError(String errorMessage);
     }
+
+    public interface ProjectUpdateListener {
+        void onProjectUpdated();
+        void onError(String errorMessage);
+    }
+
+    public interface ProjectCreationListener {
+        void onProjectCreated(String newProjectId);
+        void onError(String errorMessage);
+    }
+
+    public interface UpdateCallback {
+        void onSuccess();
+        void onError(String errorMessage);
+    }
+
     // --- KẾT THÚC INTERFACES CHO EditProjectActivity ---
 
     // --- PHƯƠNG THỨC CHO CreateProjectActivity (NẾU CÓ VÀ CẦN GIỮ LẠI) ---
     public void fetchCategories(CategoriesFetchListener listener) {
-        // (Giữ lại code gốc của bạn cho phương thức này nếu CreateProjectActivity đang dùng)
-        // Ví dụ:
         if (listener == null) return;
         db.collection(Constants.COLLECTION_CATEGORIES).orderBy(Constants.FIELD_NAME).get()
                 .addOnCompleteListener(task -> {
@@ -84,13 +102,13 @@ public class FirestoreService {
                             }
                         }
                         listener.onCategoriesFetched(names, nameToId);
+                    } else {
+                        listener.onError(task.getException() != null ? task.getException().getMessage() : "Unknown error");
                     }
                 });
     }
 
     public void fetchUserDetails(String userId, UserDetailsFetchListener listener) { // Dùng chung
-        // (Giữ lại code gốc của bạn cho phương thức này)
-        // Ví dụ:
         if (userId == null || userId.isEmpty()) { if (listener != null) listener.onError("User ID không hợp lệ."); return; }
         if (listener == null) return;
         db.collection(Constants.COLLECTION_USERS).document(userId).get()
@@ -111,7 +129,6 @@ public class FirestoreService {
     }
 
     public void fetchTechnologies(TechnologyFetchListener listener) {
-        // (Giữ lại code gốc của bạn cho phương thức này nếu CreateProjectActivity đang dùng)
         if (listener == null) return;
         db.collection(Constants.COLLECTION_TECHNOLOGIES).orderBy(Constants.FIELD_NAME).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -170,19 +187,13 @@ public class FirestoreService {
                     Map<String, String> userRoles = new HashMap<>();
                     
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String userId = document.getString("userId");
-                        String role = document.getString("role");
-                        String displayName = document.getString("displayName");
-                        String email = document.getString("email");
-                        
-                        if (userId != null) {
-                            User user = new User();
-                            user.setUserId(userId);
-                            user.setFullName(displayName);
-                            user.setEmail(email);
-                            members.add(user);
-                            userRoles.put(userId, role != null ? role : "Thành viên");
-                        }
+                        User user = new User();
+                        user.setUserId(document.getId());
+                        user.setFullName(document.getString("fullName"));
+                        user.setAvatarUrl(document.getString("avatarUrl"));
+                        user.setClassName(document.getString("className"));
+                        members.add(user);
+                        userRoles.put(document.getId(), document.getString("RoleInProject"));
                     }
                     
                     listener.onMembersFetched(members, userRoles);
@@ -246,4 +257,88 @@ public class FirestoreService {
                 .addOnFailureListener(e -> listener.onError("Lỗi tải media dự án: " + e.getMessage()));
     }
     // --- KẾT THÚC PHƯƠNG THỨC CHO EditProjectActivity ---
+
+    public void createProject(Map<String, Object> projectData, ProjectCreationListener listener) {
+        if (projectData == null || listener == null) return;
+        db.collection(Constants.COLLECTION_PROJECTS)
+                .add(projectData)
+                .addOnSuccessListener(documentReference -> listener.onProjectCreated(documentReference.getId()))
+                .addOnFailureListener(e -> listener.onError("Lỗi khi tạo dự án: " + e.getMessage()));
+    }
+
+    public void updateProject(String projectId, Map<String, Object> projectUpdates, ProjectUpdateListener listener) {
+        if (projectId == null || projectId.isEmpty()) {
+            if (listener != null) listener.onError("Project ID không hợp lệ.");
+            return;
+        }
+        db.collection(Constants.COLLECTION_PROJECTS).document(projectId)
+                .update(projectUpdates)
+                .addOnSuccessListener(aVoid -> {
+                    if (listener != null) listener.onProjectUpdated();
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onError("Lỗi cập nhật dự án: " + e.getMessage());
+                });
+    }
+
+    public void updateProjectCategories(String projectId, List<String> newCategoryIds, UpdateCallback callback) {
+        updateRelations(projectId, "ProjectCategories", "CategoryId", newCategoryIds, callback);
+    }
+
+    public void updateProjectTechnologies(String projectId, List<String> newTechnologyIds, UpdateCallback callback) {
+        updateRelations(projectId, "ProjectTechnologies", "TechnologyId", newTechnologyIds, callback);
+    }
+
+    public void updateProjectMembers(String projectId, List<User> members, Map<String, String> userRoles, UpdateCallback callback) {
+        WriteBatch batch = db.batch();
+        db.collection("ProjectMembers").whereEqualTo("ProjectId", projectId).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        batch.delete(doc.getReference());
+                    }
+
+                    for (User user : members) {
+                        if (user.getUserId() == null) continue;
+                        Map<String, Object> memberRelationData = new HashMap<>();
+                        memberRelationData.put("ProjectId", projectId);
+                        memberRelationData.put("UserId", user.getUserId());
+                        memberRelationData.put("RoleInProject", userRoles.get(user.getUserId()));
+                        
+                        batch.set(db.collection("ProjectMembers").document(), memberRelationData);
+                    }
+
+                    batch.commit()
+                         .addOnSuccessListener(aVoid -> callback.onSuccess())
+                         .addOnFailureListener(e -> callback.onError(e.getMessage()));
+
+                }).addOnFailureListener(e -> {
+                    callback.onError("Failed to query existing project members: " + e.getMessage());
+                });
+    }
+
+    private void updateRelations(String projectId, String relationCollectionName, String relationFieldName, List<String> newRelationIds, UpdateCallback callback) {
+        WriteBatch batch = db.batch();
+
+        db.collection(relationCollectionName).whereEqualTo("ProjectId", projectId).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        batch.delete(doc.getReference());
+                    }
+
+                    for (String relationId : newRelationIds) {
+                        Map<String, Object> relationData = new HashMap<>();
+                        relationData.put("ProjectId", projectId);
+                        relationData.put(relationFieldName, relationId);
+                        
+                        batch.set(db.collection(relationCollectionName).document(), relationData);
+                    }
+
+                    batch.commit()
+                         .addOnSuccessListener(aVoid -> callback.onSuccess())
+                         .addOnFailureListener(e -> callback.onError(e.getMessage()));
+
+                }).addOnFailureListener(e -> {
+                    callback.onError("Failed to query existing project relations in " + relationCollectionName + ": " + e.getMessage());
+                });
+    }
 }
