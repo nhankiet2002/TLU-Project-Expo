@@ -3,7 +3,9 @@ package com.cse441.tluprojectexpo.model;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.PropertyName;
 
-public class Role {
+import java.io.Serializable;
+
+public class Role implements Serializable {
     @DocumentId
     private String roleId;
 
@@ -13,6 +15,10 @@ public class Role {
     public Role(){}
     public Role(String name){
         roleName = name;
+    }
+
+    public Role(String roleName) {
+        this.roleName = roleName;
     }
 
     public String getRoleId() {

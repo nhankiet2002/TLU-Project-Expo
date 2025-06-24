@@ -295,7 +295,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                         User user = documentSnapshot.toObject(User.class);
                         if (user != null && avatarImageView != null && textViewUserName != null && textViewUserClass != null) {
                             textViewUserName.setText(user.getFullName());
-                            textViewUserClass.setText(user.getClassName());
+                            textViewUserClass.setText(user.getUserClass());
                             if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
                                 Glide.with(this)
                                         .load(user.getAvatarUrl())
@@ -479,10 +479,10 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         if (getContext() != null && project != null) {
             // Kiểm tra chủ sở hữu trước khi cho phép sửa
             if (currentUserId.equals(project.getCreatorUserId())) {
-                // Chuyển sang EditProjectActivity
-                Intent intent = new Intent(getActivity(), com.cse441.tluprojectexpo.ui.editproject.EditProjectActivity.class);
-                intent.putExtra(com.cse441.tluprojectexpo.ui.editproject.EditProjectActivity.EXTRA_PROJECT_ID, project.getProjectId());
-                startActivity(intent);
+                Toast.makeText(getContext(), "Sửa dự án: " + project.getTitle() + " (chưa code)", Toast.LENGTH_SHORT).show();
+                // Intent intent = new Intent(getActivity(), EditProjectActivity.class);
+                // intent.putExtra("PROJECT_ID", project.getProjectId());
+                // startActivity(intent);
             } else {
                 Toast.makeText(getContext(), "Bạn không có quyền sửa dự án này.", Toast.LENGTH_SHORT).show();
             }

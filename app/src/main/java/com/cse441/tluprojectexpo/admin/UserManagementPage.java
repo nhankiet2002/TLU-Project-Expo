@@ -1,27 +1,33 @@
 package com.cse441.tluprojectexpo.admin;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar; // Thêm import cho ProgressBar
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.UserManagementAdapter;
-import com.cse441.tluprojectexpo.model.User;
 import com.cse441.tluprojectexpo.admin.repository.UserManagementRepository;
+import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
+import com.cse441.tluprojectexpo.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 // Bước 1: Cho Activity implements interface từ Adapter
-public class UserManagementPage extends AppCompatActivity implements UserManagementAdapter.OnUserSwitchListener {
+public class UserManagementPage extends AppCompatActivity implements UserManagementAdapter.OnUserSwitchListener, UserManagementAdapter.OnUserClickListener {
 
     private static final String TAG = "UserManagementPage";
+    private static final int UPDATE_USER_REQUEST_CODE = 101;
 
     // Khai báo các thành phần UI và logic
     private RecyclerView recyclerView;
@@ -29,6 +35,7 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
     private UserManagementAdapter userAdapter;
     private List<User> userList;
     private UserManagementRepository userRepository;
+    private ImageButton btnBackToDashboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +53,7 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
         // 2.2. Khởi tạo các đối tượng logic và dữ liệu
         userRepository = new UserManagementRepository();
         userList = new ArrayList<>();
-        userAdapter = new UserManagementAdapter(this, userList, this); // 'this' vì Activity implement listener
+        userAdapter = new UserManagementAdapter(this, userList, this, this); // 'this' vì Activity implement listener
 
         // 2.3. Thiết lập cho RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -55,6 +62,9 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
         // Bước 3: Bắt đầu tải dữ liệu
         Log.d(TAG, "onCreate: Bắt đầu tải dữ liệu người dùng.");
         loadUsers();
+
+        btnBackToDashboard = (ImageButton) findViewById(R.id.back_to_dashboard);
+        btnBackToDashboard.setOnClickListener(v -> NavigationUtil.navigateToDashboard(this));
     }
 
     /**
@@ -120,5 +130,27 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
                 loadUsers();
             }
         });
+    }
+
+    @Override
+    public void onUserItemClicked(User user) {
+        NavigationUtil.navigateWithObjectForResult(
+                this,
+                UserDetailManagementPage.class,
+                "USER_DETAIL",
+                user,
+                UPDATE_USER_REQUEST_CODE
+        );
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UPDATE_USER_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                // Làm mới danh sách
+                loadUsers();
+            }
+        }
     }
 }

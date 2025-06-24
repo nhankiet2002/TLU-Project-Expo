@@ -6,27 +6,24 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="368dp"
-        android:layout_height="259dp"
-        android:layout_marginTop="28dp"
+        android:id="@+id/imageView4"
+        android:layout_width="433dp"
+        android:layout_height="347dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.488"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/logo_tlu" />
+        app:srcCompat="@drawable/logo_tlu_photoroom1" />
 
     <TextView
         android:id="@+id/textView6"
         android:layout_width="259dp"
         android:layout_height="41dp"
+        android:text="Đăng ký thành công"
         android:textSize="28dp"
         android:textStyle="bold"
-        android:layout_marginTop="20dp"
-        android:text="Đăng ký thành công"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnReturnToLogin"
@@ -42,4 +39,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6"
         app:strokeWidth="0dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

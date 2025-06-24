@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- File: res/layout/dialog_multi_select_technology.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="20dp"
+    android:paddingHorizontal="24dp">
+
+    <!-- Tiêu đề của Dialog -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chọn công nghệ"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Danh sách các công nghệ (ListView sẽ tự động có thanh cuộn) -->
+    <!-- Đặt trong một FrameLayout để giới hạn chiều cao -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/technology_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:choiceMode="multipleChoice"
+            android:divider="@null"
+            android:dividerHeight="0dp" />
+
+    </FrameLayout>
+
+    <!-- Hàng các nút bấm cố định ở dưới cùng -->
+    <LinearLayout
+        android:id="@+id/button_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:paddingBottom="8dp"
+        android:baselineAligned="false"> <!-- Thêm để tối ưu hiệu năng -->
+
+        <!-- NỬA BÊN TRÁI: Chứa nút "Bỏ chọn tất cả" -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_clear_all"
+                style="@style/MyCustomDialogButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/clear_all" />
+        </LinearLayout>
+
+
+        <!-- NỬA BÊN PHẢI: Chứa 2 nút Hủy và Áp dụng -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Nút Hủy bỏ -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cancel"
+                style="@style/MyCustomDialogButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel" />
+
+            <!-- Nút Áp dụng -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_apply"
+                style="@style/MyCustomDialogButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/apply" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

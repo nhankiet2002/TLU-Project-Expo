@@ -7,6 +7,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.CategoryAdapter;
+import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.model.Category;
 import com.cse441.tluprojectexpo.admin.repository.CatalogRepository;
 
@@ -28,7 +30,7 @@ public class CatalogManagementPage extends AppCompatActivity {
     private CatalogRepository catalogRepository;
     private RecyclerView fieldsRecyclerView;
     private RecyclerView technologiesRecyclerView;
-    // Đã xóa các biến Adapter và List không cần thiết ở cấp lớp
+    private ImageButton btnBackToDashboard;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +54,9 @@ public class CatalogManagementPage extends AppCompatActivity {
         // Nút "Thêm mới"
         Button btnAddNewCatalog = findViewById(R.id.add_new_catalog);
         btnAddNewCatalog.setOnClickListener(v -> showAddOptionsDialog());
+
+        btnBackToDashboard = (ImageButton) findViewById(R.id.back_to_dashboard);
+        btnBackToDashboard.setOnClickListener(v -> NavigationUtil.navigateToDashboard(this));
     }
 
     private void setupRecyclerViews() {

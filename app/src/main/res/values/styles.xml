@@ -34,13 +34,38 @@
         <item name="android:textSize">14sp</item>
         <item name="android:gravity">start|center_vertical</item>
     </style>
-    <!-- Define colorPrimary, colorPrimaryDark, colorAccent in your colors.xml if not already present -->
-    <!-- For example:
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
-    -->
-    <style name="Theme.TluProjectExpo" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- ... các thuộc tính Material 3 ... -->
+    <!-- Thêm Style cho PopupMenu -->
+    <style name="App.PopupMenu" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@drawable/popup_background</item>
     </style>
+
+    <style name="MyCustomDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowBackground">@drawable/dialog_rounded_background</item>
+    </style>
+
+
+    <!-- Style cho các nút bấm trong dialog tùy chỉnh -->
+    <style name="MyCustomDialogButton" parent="Widget.MaterialComponents.Button">
+        <!-- Nền màu đen -->
+        <item name="backgroundTint">@android:color/black</item>
+
+        <!-- Chữ màu trắng -->
+        <item name="android:textColor">@android:color/white</item>
+
+        <!-- Kiểu chữ in đậm -->
+        <item name="android:textStyle">bold</item>
+
+        <!-- Cỡ chữ -->
+        <item name="android:textSize">14sp</item>
+
+        <!-- Tắt viết hoa -->
+        <item name="android:textAllCaps">false</item>
+
+        <!-- Bo góc cho nút -->
+        <item name="cornerRadius">8dp</item>
+
+        <!-- Hiệu ứng gợn sóng khi nhấn -->
+        <item name="rippleColor">#4DFFFFFF</item>
+    </style>
+
 </resources>

@@ -5,16 +5,22 @@
 
     <!-- Quyền Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
-    
+
     <!-- Quyền Notification -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <!-- Quyền đọc/ghi storage tuỳ theo phiên bản Android -->
+
+    <!-- Quyền Internet -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Quyền đọc/ghi storage tuỳ theo phiên bản Android -->
     <!-- Dành cho thiết bị chạy Android 12L (API 32) trở xuống -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" /> <!-- Dành cho Android 13+ -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
@@ -24,6 +30,8 @@
     <!-- <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> Nếu dùng âm thanh -->
 
     <application
+
+        tools:replace="android:fullBackupContent"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -87,6 +95,11 @@
             android:exported="false"/>
 
         <!-- KHAI BÁO ACTIVITY TẠO DỰ ÁN MỚI TẠI ĐÂY -->
+
+        <!-- Main App Activity -->
+        <activity android:name=".auth.SettingProfileActivity" />
+        <activity android:name=".auth.SaveProfileSuccessfulActivity" />
+        <activity android:name=".auth.ResetPasswordActivity" />
         <activity
             android:name=".ui.createproject.CreateProjectActivity"
             android:exported="false"

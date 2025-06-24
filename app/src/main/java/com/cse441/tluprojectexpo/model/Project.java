@@ -1,62 +1,66 @@
 package com.cse441.tluprojectexpo.model;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.PropertyName;
+import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.PropertyName;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Project implements Serializable {
 
-    // --- CÁC TRƯỜNG LƯU TRỮ TRỰC TIẾP TRONG DOCUMENT 'Projects' TRÊN FIRESTORE ---
-    @Exclude
+    @DocumentId
     private String projectId;
 
-    // Các PropertyName ở đây cần khớp với tên trường trong Firestore "Projects" collection
+    // --- CÁC TRƯỜNG KHỚP VỚI FIRESTORE ---
+    // Annotation @PropertyName được đặt TRÊN TRƯỜNG (FIELD)
+
     @PropertyName("Title")
-    private String Title;
+    private String title;
 
     @PropertyName("Description")
-    private String Description;
+    private String description;
 
     @PropertyName("ThumbnailUrl")
-    private String ThumbnailUrl;
+    private String thumbnailUrl;
 
     @PropertyName("MediaGalleryUrls")
-    private List<MediaItem> MediaGalleryUrls;
+    private List<MediaItem> mediaGalleryUrls;
 
     @PropertyName("ProjectUrl")
-    private String ProjectUrl;
+    private String projectUrl;
 
     @PropertyName("DemoUrl")
-    private String DemoUrl;
+    private String demoUrl;
 
     @PropertyName("Status")
-    private String Status;
+    private String status;
 
     @PropertyName("CourseId") // Có thể là null
-    private String CourseId;
+    private String courseId;
 
     @PropertyName("CreatorUserId")
-    private String CreatorUserId;
+    private String creatorUserId;
 
-    @PropertyName("CreatedAt") // Nên là Timestamp trong Firestore
-    private Timestamp CreatedAt;
+    @PropertyName("CreatedAt")
+    private Timestamp createdAt;
 
-    @PropertyName("UpdatedAt") // Nên là Timestamp trong Firestore
-    private Timestamp UpdatedAt;
+    // Trường này có thể null nếu không tồn tại trong document
+    @PropertyName("UpdatedAt")
+    private Timestamp updatedAt;
 
-    @PropertyName("IsApproved")
-    private boolean IsApproved;
-    @PropertyName("IsFeatured")
-    private boolean IsFeatured =false;
+
+    private boolean isApproved;
+
+
+    private boolean isFeatured = false;
 
     @PropertyName("VoteCount")
-    private int VoteCount;
+    private int voteCount;
 
-    // --- CÁC TRƯỜNG THÔNG TIN BỔ SUNG (KHÔNG LƯU TRỰC TIẾP) ---
+    // --- CÁC TRƯỜNG BỔ SUNG, KHÔNG LƯU TRÊN FIRESTORE ---
     @Exclude
     private String creatorFullName;
     @Exclude
@@ -66,59 +70,66 @@ public class Project implements Serializable {
     @Exclude
     private List<UserShortInfo> projectMembersInfo;
 
+    // --- CONSTRUCTOR ---
+    // Constructor rỗng là BẮT BUỘC cho Firebase
     public Project() {
-        this.MediaGalleryUrls = new ArrayList<>();
+        this.mediaGalleryUrls = new ArrayList<>();
         this.technologyNames = new ArrayList<>();
         this.categoryNames = new ArrayList<>();
         this.projectMembersInfo = new ArrayList<>();
     }
 
     // --- GETTERS AND SETTERS ---
-    // (Giữ nguyên các getters và setters bạn đã có)
+    // Không cần đặt @PropertyName ở đây nữa
+
     public String getProjectId() { return projectId; }
     public void setProjectId(String projectId) { this.projectId = projectId; }
 
-    public String getTitle() { return Title; }
-    public void setTitle(String title) { this.Title = title; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
-    public String getDescription() { return Description; }
-    public void setDescription(String description) { this.Description = description; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public String getThumbnailUrl() { return ThumbnailUrl; }
-    public void setThumbnailUrl(String thumbnailUrl) { this.ThumbnailUrl = thumbnailUrl; }
+    public String getThumbnailUrl() { return thumbnailUrl; }
+    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
 
-    public List<MediaItem> getMediaGalleryUrls() { return MediaGalleryUrls; }
-    public void setMediaGalleryUrls(List<MediaItem> mediaGalleryUrls) { this.MediaGalleryUrls = mediaGalleryUrls; }
+    public List<MediaItem> getMediaGalleryUrls() { return mediaGalleryUrls; }
+    public void setMediaGalleryUrls(List<MediaItem> mediaGalleryUrls) { this.mediaGalleryUrls = mediaGalleryUrls; }
 
-    public String getProjectUrl() { return ProjectUrl; }
-    public void setProjectUrl(String projectUrl) { this.ProjectUrl = projectUrl; }
+    public String getProjectUrl() { return projectUrl; }
+    public void setProjectUrl(String projectUrl) { this.projectUrl = projectUrl; }
 
-    public String getDemoUrl() { return DemoUrl; }
-    public void setDemoUrl(String demoUrl) { this.DemoUrl = demoUrl; }
+    public String getDemoUrl() { return demoUrl; }
+    public void setDemoUrl(String demoUrl) { this.demoUrl = demoUrl; }
 
-    public String getStatus() { return Status; }
-    public void setStatus(String status) { this.Status = status; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public String getCourseId() { return CourseId; }
-    public void setCourseId(String courseId) { this.CourseId = courseId; }
+    public String getCourseId() { return courseId; }
+    public void setCourseId(String courseId) { this.courseId = courseId; }
 
-    public String getCreatorUserId() { return CreatorUserId; }
-    public void setCreatorUserId(String creatorUserId) { this.CreatorUserId = creatorUserId; }
+    public String getCreatorUserId() { return creatorUserId; }
+    public void setCreatorUserId(String creatorUserId) { this.creatorUserId = creatorUserId; }
 
-    public Timestamp getCreatedAt() { return CreatedAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.CreatedAt = createdAt; }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    public Timestamp getUpdatedAt() { return UpdatedAt; }
-    public void setUpdatedAt(Timestamp updatedAt) { this.UpdatedAt = updatedAt; }
+    public Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
-    public boolean isApproved() { return IsApproved; } // Hoặc getIsApproved()
-    public void setApproved(boolean approved) { IsApproved = approved; } // Hoặc setIsApproved()
+    // Đối với kiểu boolean, getter chuẩn là "isSomething()" và setter là "setSomething()"
+    @PropertyName("IsApproved")
+    public boolean getIsApproved() { return isApproved; }
+    @PropertyName("IsApproved")
+    public void setApproved(boolean approved) { isApproved = approved; }
+
     @PropertyName("IsFeatured")
-    public boolean isFeatured() { return IsFeatured; }
+    public boolean isFeatured() { return isFeatured; }
     @PropertyName("IsFeatured")
-    public void setFeatured(boolean featured) { IsFeatured = featured; }
-    public int getVoteCount() { return VoteCount; }
-    public void setVoteCount(int voteCount) { this.VoteCount = voteCount; }
+    public void setFeatured(boolean featured) { isFeatured = featured; }
+    public int getVoteCount() { return voteCount; }
+    public void setVoteCount(int voteCount) { this.voteCount = voteCount; }
 
     public String getCreatorFullName() { return creatorFullName; }
     public void setCreatorFullName(String creatorFullName) { this.creatorFullName = creatorFullName; }
@@ -173,6 +184,7 @@ public class Project implements Serializable {
             this.roleInProject = roleInProject;
             this.className = className;
         }
+
         public String getUserId() { return userId; }
         public void setUserId(String userId) { this.userId = userId; }
         public String getFullName() { return fullName; }
@@ -184,12 +196,4 @@ public class Project implements Serializable {
         public String getClassName() { return className; }
         public void setClassName(String className) { this.className = className; }
     }
-
-    // --- INNER STATIC CLASS CHO Comment ---
-    // XÓA BỎ CLASS NÀY ĐI VÌ ĐÃ CÓ model.Comment.java
-    /*
-    public static class Comment {
-        // ...
-    }
-    */
 }

@@ -22,6 +22,7 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="default_avatar_background_color">#FF5722</color>
     <color name="xoa">#E3E3E3</color>
     <color name="blue_background">#0070C0</color>
         <color name="colorPrimaryLight">#BB86FC</color> <!-- Ví dụ màu cho chip active -->
