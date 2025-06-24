@@ -34,7 +34,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
     // Khai báo các View từ layout
     private ImageView imgThumb, isFeaturedIcon;
     private ImageButton backToHome;
-    private TextView projectName, projectStatus, createdAt, updatedAt, likeCount, desc, authorName, categoryName, technologyNames;
+    private TextView projectName, projectStatus, createdAt, updatedAt, likeCount, desc, authorName, categoryName, technologyNames, textViewMemberRole;
     private Button btnDeleteProject, btnMember, btnComment;
     private ImageButton optionProjectDetail;
 
@@ -102,6 +102,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
         isFeaturedIcon = findViewById(R.id.is_featured_icon);
         recyclerViewMembers = findViewById(R.id.recycler_view_members);
         recyclerViewComments = findViewById(R.id.recycler_view_comments);
+        textViewMemberRole = findViewById(R.id.textViewMemberRole);
     }
 
     private void setupInitialListeners() {
@@ -265,6 +266,9 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
 
                 // Cập nhật trạng thái và trả về kết quả
                 currentProject.setFeatured(newStatus);
+
+                updateFeaturedIcon();
+
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("ACTION", "STATUS_CHANGED"); // Một action mới
                 setResult(Activity.RESULT_OK, resultIntent);
@@ -313,5 +317,12 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
     @Override
     public void onReplyClicked(Comment parentComment) {
         AppToast.show(this, "Chức năng trả lời của Admin đang phát triển.", Toast.LENGTH_SHORT);
+    }
+
+    // THÊM HÀM PHỤ TRỢ MỚI NÀY VÀO
+    private void updateFeaturedIcon() {
+        if (currentProject != null && isFeaturedIcon != null) {
+            isFeaturedIcon.setVisibility(currentProject.isFeatured() ? View.VISIBLE : View.GONE);
+        }
     }
 }

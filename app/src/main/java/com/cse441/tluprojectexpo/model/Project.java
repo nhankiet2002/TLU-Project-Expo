@@ -168,7 +168,7 @@ public class Project implements Serializable {
 
         public UserShortInfo() {}
 
-        public UserShortInfo(String id, String fullName, String avatarUrl, String s) {
+        public UserShortInfo(String id, String fullName, String avatarUrl, String roleInProject) {
             this.userId = id;
             this.fullName = fullName;
             this.avatarUrl = avatarUrl;
