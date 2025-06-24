@@ -44,11 +44,6 @@
             </intent-filter>
         </service>
 
-        <!-- Debug Activities -->
-        <activity
-            android:name=".DebugMenu"
-            android:exported="false" />
-
         <!-- Admin Activities -->
         <activity
             android:name=".admin.UserDetailManagementPage"
@@ -97,7 +92,7 @@
             android:exported="false"
             android:label="Tạo dự án" />
 
-        <!-- KHAI BÁO ACTIVITY TẠO DỰ ÁN MỚI TẠI ĐÂY -->
+        <!-- KHAI BÁO ACTIVITY CHI TIẾT DỰ ÁN MỚI TẠI ĐÂY -->
         <activity
             android:name=".ui.detailproject.ProjectDetailActivity"
             android:exported="false"
