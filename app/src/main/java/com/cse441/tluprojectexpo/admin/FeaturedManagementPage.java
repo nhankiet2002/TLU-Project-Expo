@@ -1,8 +1,11 @@
 package com.cse441.tluprojectexpo.admin;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -17,15 +20,23 @@ import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class FeaturedManagementPage extends AppCompatActivity implements FeaturedProjectAdapter.OnProjectInteractionListener {
+
+    private static final long SEARCH_DELAY = 500;
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private FeaturedProjectAdapter adapter;
     private ProjectRepository projectRepository;
-    private List<FeaturedProjectUIModel> uiModelList = new ArrayList<>();
+    private List<FeaturedProjectUIModel> originalUiModelList = new ArrayList<>();
+    private List<FeaturedProjectUIModel> displayedUiModelList = new ArrayList<>();
+
+    private Timer searchTimer = new Timer();
     private ImageButton btnBackToDashboard;
+    private EditText searchFeatured;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,18 +47,42 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
         recyclerView = findViewById(R.id.hold_featured_projects);
         progressBar = findViewById(R.id.progress_bar_loading);
         btnBackToDashboard = findViewById(R.id.back_to_dashboard);
+        searchFeatured = findViewById(R.id.search_featured);
 
         projectRepository = new ProjectRepository();
-        // Adapter được khởi tạo với uiModelList. Mọi thay đổi trên list này
-        // sẽ được adapter nhận biết sau khi gọi notifyDataSetChanged().
-        adapter = new FeaturedProjectAdapter(this, uiModelList, this);
-
+        adapter = new FeaturedProjectAdapter(this, displayedUiModelList, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
         loadFeaturedProjects();
+        setupSearchListener();
 
         btnBackToDashboard.setOnClickListener(v -> finish());
+    }
+
+    // THÊM HÀM NÀY
+    private void setupSearchListener() {
+        searchFeatured.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (searchTimer != null) searchTimer.cancel();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String query = s.toString().trim();
+                searchTimer = new Timer();
+                searchTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(() -> performSearch(query));
+                    }
+                }, SEARCH_DELAY);
+            }
+        });
     }
 
     private void loadFeaturedProjects() {
@@ -61,9 +96,11 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
             if (featuredProjects != null) {
                 Log.d("FeaturedPage", "Số dự án nổi bật lấy về: " + featuredProjects.size());
 
-                // Cập nhật danh sách mà adapter đang giữ tham chiếu
-                this.uiModelList.clear();
-                this.uiModelList.addAll(featuredProjects);
+                // Cập nhật cả 2 danh sách
+                originalUiModelList.clear();
+                originalUiModelList.addAll(featuredProjects);
+
+                updateDisplayedList(originalUiModelList);
 
                 // Thông báo cho adapter rằng dữ liệu đã thay đổi và cần vẽ lại UI.
                 adapter.notifyDataSetChanged();
@@ -74,6 +111,36 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
             }
         });
     }
+
+    // THÊM HÀM NÀY
+    private void performSearch(String query) {
+        if (query.isEmpty()) {
+            // Nếu không tìm kiếm, hiển thị lại danh sách gốc
+            updateDisplayedList(originalUiModelList);
+            return;
+        }
+
+        // Thực hiện tìm kiếm trên danh sách gốc
+        List<FeaturedProjectUIModel> searchResults = new ArrayList<>();
+        String lowerCaseQuery = query.toLowerCase();
+
+        for (FeaturedProjectUIModel project : originalUiModelList) {
+            // Tìm kiếm không phân biệt hoa thường trên ProjectTitle
+            if (project.getProjectTitle().toLowerCase().contains(lowerCaseQuery)) {
+                searchResults.add(project);
+            }
+        }
+
+        updateDisplayedList(searchResults);
+    }
+
+    // THÊM HÀM NÀY
+    private void updateDisplayedList(List<FeaturedProjectUIModel> newList) {
+        displayedUiModelList.clear();
+        displayedUiModelList.addAll(newList);
+        adapter.notifyDataSetChanged();
+    }
+
 
     @Override
     public void onSwitchChanged(FeaturedProjectUIModel item, boolean isChecked) {
@@ -86,18 +153,9 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
                 public void onSuccess() {
                     Toast.makeText(FeaturedManagementPage.this, "Đã bỏ nổi bật: " + item.getProjectTitle(), Toast.LENGTH_SHORT).show();
 
-                    // Tìm và xóa item khỏi danh sách hiện tại để giao diện cập nhật ngay lập tức
-                    int positionToRemove = -1;
-                    for (int i = 0; i < uiModelList.size(); i++) {
-                        if (uiModelList.get(i).getProjectId().equals(item.getProjectId())) {
-                            positionToRemove = i;
-                            break;
-                        }
-                    }
-                    if (positionToRemove != -1) {
-                        // Gọi phương thức removeItem từ adapter
-                        adapter.removeItem(positionToRemove);
-                    }
+                    originalUiModelList.remove(item);
+                    displayedUiModelList.remove(item);
+                    adapter.notifyDataSetChanged();
                 }
 
                 @Override

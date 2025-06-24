@@ -1,7 +1,10 @@
 package com.cse441.tluprojectexpo.admin;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -19,9 +22,13 @@ import com.cse441.tluprojectexpo.model.Project;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CensorManagementPage extends AppCompatActivity implements CensorAdapter.OnCensorInteractionListener {
 
+    private static final long SEARCH_DELAY = 500;
+    private EditText searchCensor;
     private RecyclerView recyclerView;
     private TextView totalCensor;
     private ImageButton btnBack;
@@ -29,7 +36,10 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
 
     private CensorAdapter adapter;
     private ProjectRepository projectRepository;
-    private List<Project> unapprovedProjectList = new ArrayList<>();
+    private List<Project> originalProjectList = new ArrayList<>();
+    private List<Project> displayedProjectList = new ArrayList<>();
+
+    private Timer searchTimer = new Timer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,16 +60,37 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
         totalCensor = findViewById(R.id.total_censor);
         btnBack = findViewById(R.id.back_from_censor);
         progressBar = findViewById(R.id.progress_bar);
+        searchCensor = findViewById(R.id.search_censor);
     }
 
     private void setupRecyclerView() {
-        adapter = new CensorAdapter(this, unapprovedProjectList, this);
+        adapter = new CensorAdapter(this, displayedProjectList, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
 
     private void setupListeners() {
+
         btnBack.setOnClickListener(v -> finish());
+        searchCensor.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (searchTimer != null) searchTimer.cancel();
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                String query = s.toString().trim();
+                searchTimer = new Timer();
+                searchTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(() -> performSearch(query));
+                    }
+                }, SEARCH_DELAY);
+            }
+        });
     }
 
     private void loadUnapprovedProjects() {
@@ -68,8 +99,10 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
         projectRepository.getUnapprovedProjects().observe(this, projects -> {
             if(progressBar != null) progressBar.setVisibility(View.GONE);
             if (projects != null) {
-                unapprovedProjectList.clear();
-                unapprovedProjectList.addAll(projects);
+                // Cập nhật cả 2 danh sách
+                originalProjectList.clear();
+                originalProjectList.addAll(projects);
+                updateDisplayedList(originalProjectList);
                 adapter.notifyDataSetChanged();
                 updateTotalCount();
             } else {
@@ -78,8 +111,34 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
         });
     }
 
+    // THÊM HÀM NÀY
+    private void performSearch(String query) {
+        if (query.isEmpty()) {
+            updateDisplayedList(originalProjectList);
+            return;
+        }
+
+        List<Project> searchResults = new ArrayList<>();
+        String lowerCaseQuery = query.toLowerCase();
+
+        for (Project project : originalProjectList) {
+            if (project.getTitle().toLowerCase().contains(lowerCaseQuery)) {
+                searchResults.add(project);
+            }
+        }
+        updateDisplayedList(searchResults);
+    }
+
+    // THÊM HÀM NÀY
+    private void updateDisplayedList(List<Project> newList) {
+        displayedProjectList.clear();
+        displayedProjectList.addAll(newList);
+        adapter.notifyDataSetChanged();
+        updateTotalCount();
+    }
+
     private void updateTotalCount() {
-        totalCensor.setText(unapprovedProjectList.size() + " mục");
+        totalCensor.setText(displayedProjectList.size() + " mục");
     }
 
     // --- Xử lý sự kiện từ Adapter ---
@@ -95,7 +154,9 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
                 Toast.makeText(CensorManagementPage.this, "Đã duyệt dự án: " + project.getTitle(), Toast.LENGTH_SHORT).show();
 
                 // Xóa item khỏi danh sách và cập nhật UI
-                unapprovedProjectList.remove(position);
+                originalProjectList.remove(project);
+                // Cập nhật lại danh sách hiển thị
+                updateDisplayedList(new ArrayList<>(originalProjectList));
                 adapter.notifyItemRemoved(position);
                 updateTotalCount();
             }
@@ -124,7 +185,10 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
                             if(progressBar != null) progressBar.setVisibility(View.GONE);
                             Toast.makeText(CensorManagementPage.this, "Đã xóa dự án: " + project.getTitle(), Toast.LENGTH_SHORT).show();
 
-                            unapprovedProjectList.remove(position);
+                            // Xóa khỏi danh sách gốc
+                            originalProjectList.remove(project);
+                            // Cập nhật lại danh sách hiển thị
+                            updateDisplayedList(new ArrayList<>(originalProjectList));
                             adapter.notifyItemRemoved(position);
                             updateTotalCount();
                         }

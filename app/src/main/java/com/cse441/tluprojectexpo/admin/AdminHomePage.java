@@ -40,15 +40,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 public class AdminHomePage extends AppCompatActivity implements AdminProjectAdapter.OnProjectAdminInteraction {
 
     private static final String TAG = "AdminHomePage";
-    public static final String ACTION_RESULT = "ACTION";
-    public static final String PROJECT_ID_RESULT = "PROJECT_ID";
-    public static final String ACTION_DELETED = "ACTION_DELETED";
-    public static final String ACTION_STATUS_CHANGED = "ACTION_STATUS_CHANGED";
     private static final long SEARCH_DELAY = 500;
 
     private static final int PROJECT_DETAIL_REQUEST_CODE = 1001;
@@ -303,16 +298,6 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
             return false;
         });
     }
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        // Bỏ chọn tất cả các item khi quay lại màn hình này
-//        // để nó không giữ trạng thái "selected" của màn hình trước đó
-//        if (bottomNavigationView.getSelectedItemId() != 0) {
-//            bottomNavigationView.getMenu().findItem(bottomNavigationView.getSelectedItemId()).setChecked(false);
-//        }
-//    }
 
     @Override
     public void onSetFeaturedClick(Project project, int position) {

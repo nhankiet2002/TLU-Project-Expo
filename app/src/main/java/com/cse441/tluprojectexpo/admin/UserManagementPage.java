@@ -3,8 +3,11 @@ package com.cse441.tluprojectexpo.admin;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -22,20 +25,26 @@ import com.cse441.tluprojectexpo.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 // Bước 1: Cho Activity implements interface từ Adapter
 public class UserManagementPage extends AppCompatActivity implements UserManagementAdapter.OnUserSwitchListener, UserManagementAdapter.OnUserClickListener {
 
     private static final String TAG = "UserManagementPage";
     private static final int UPDATE_USER_REQUEST_CODE = 101;
+    private static final long SEARCH_DELAY = 500;
 
     // Khai báo các thành phần UI và logic
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private UserManagementAdapter userAdapter;
-    private List<User> userList;
+    private List<User> userList = new ArrayList<>();
+    private List<User> filteredUserList = new ArrayList<>();
     private UserManagementRepository userRepository;
     private ImageButton btnBackToDashboard;
+    private EditText searchUser;
+    private Timer searchTimer = new Timer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +58,14 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
         // Đảm bảo các ID này tồn tại trong file activity_user_management_page.xml của bạn
         recyclerView = findViewById(R.id.recycler_view_user_management);
         progressBar = findViewById(R.id.progress_bar_loading); // Thêm một ProgressBar vào layout của bạn
+        searchUser = findViewById(R.id.search_user_magenment); // EditText để tìm kiếm người dùng
 
         // 2.2. Khởi tạo các đối tượng logic và dữ liệu
         userRepository = new UserManagementRepository();
-        userList = new ArrayList<>();
-        userAdapter = new UserManagementAdapter(this, userList, this, this); // 'this' vì Activity implement listener
+        userAdapter = new UserManagementAdapter(this, filteredUserList, this, this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(userAdapter);
+
 
         // 2.3. Thiết lập cho RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -65,6 +77,7 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
 
         btnBackToDashboard = (ImageButton) findViewById(R.id.back_to_dashboard);
         btnBackToDashboard.setOnClickListener(v -> NavigationUtil.navigateToDashboard(this));
+        setupSearchListener();
     }
 
     /**
@@ -83,9 +96,13 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
                 }
                 Log.d(TAG, "onUsersLoaded: Đã nhận được " + loadedUserList.size() + " người dùng.");
 
-                // Cập nhật dữ liệu cho Adapter
+                // Cả hai danh sách đều được cập nhật
                 userList.clear();
                 userList.addAll(loadedUserList);
+
+                filteredUserList.clear();
+                filteredUserList.addAll(loadedUserList);
+
                 userAdapter.notifyDataSetChanged();
             }
 
@@ -99,6 +116,62 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
             }
         });
     }
+
+    private void setupSearchListener() {
+        searchUser.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (searchTimer != null) {
+                    searchTimer.cancel();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String query = s.toString().trim();
+                searchTimer = new Timer();
+                searchTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(() -> {
+                            if (query.isEmpty()) {
+                                // Nếu ô tìm kiếm trống, hiển thị lại danh sách gốc
+                                filteredUserList.clear();
+                                filteredUserList.addAll(userList);
+                                userAdapter.notifyDataSetChanged();
+                            } else {
+                                // Nếu có chữ, thực hiện tìm kiếm
+                                performSearch(query);
+                            }
+                        });
+                    }
+                }, SEARCH_DELAY);
+            }
+        });
+    }
+
+    // THÊM HÀM MỚI ĐỂ GỌI TIỆN ÍCH TÌM KIẾM
+    private void performSearch(String query) {
+        // Hàm này sẽ không quan sát LiveData, mà sẽ lọc từ danh sách gốc `userList`
+        // để có trải nghiệm nhanh hơn và không cần gọi lại Firestore.
+        List<User> searchResults = new ArrayList<>();
+        String lowerCaseQuery = query.toLowerCase();
+
+        for (User user : userList) {
+            if (user.getFullName().toLowerCase().contains(lowerCaseQuery)) {
+                searchResults.add(user);
+            }
+        }
+
+        // Cập nhật danh sách hiển thị
+        filteredUserList.clear();
+        filteredUserList.addAll(searchResults);
+        userAdapter.notifyDataSetChanged();
+    }
+
 
     /**
      * Đây là phương thức được gọi từ Adapter khi người dùng nhấn vào switch.
