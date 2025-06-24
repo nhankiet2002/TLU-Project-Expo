@@ -284,10 +284,10 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
                     Log.w(TAG, "Notification to toggle read status not found in current list: " + notification.getNotificationId());
                 }
                 if (getContext() != null) {
-                    Toast.makeText(getContext(),
-                            newReadStatus ? R.string.notification_marked_as_read : R.string.notification_marked_as_unread,
+                    AppToast.show(getContext(),
+                            newReadStatus ? String.valueOf(R.string.notification_marked_as_read) : String.valueOf(R.string.notification_marked_as_unread),
                             Toast.LENGTH_SHORT
-                    ).show();
+                    );
                 }
             }
 
@@ -352,5 +352,13 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
+    }
+
+    private void sendPushNotification(String recipientUserId, String title, String message, String type, String projectId, String commentId) {
+        // TODO: Implement gửi push notification qua Firebase Cloud Functions
+        // Hiện tại chỉ log để debug
+        Log.d(TAG, "Should send push notification to user: " + recipientUserId);
+        Log.d(TAG, "Title: " + title + ", Message: " + message);
+        Log.d(TAG, "Type: " + type + ", ProjectId: " + projectId + ", CommentId: " + commentId);
     }
 }

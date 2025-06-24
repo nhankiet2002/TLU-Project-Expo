@@ -298,6 +298,7 @@ public class EditProjectActivity extends AppCompatActivity implements
     private void setupEventListeners() {
         ivBackArrow.setOnClickListener(v -> handleCustomBackPressed());
         flProjectImageContainer.setOnClickListener(v -> onPickProjectImage());
+        ivProjectImagePreview.setOnClickListener(v -> onPickProjectImage());
         actvCategoryInput.setOnItemClickListener((parent, view, position, id) -> onCategorySelected(parent.getItemAtPosition(position).toString()));
         actvTechnologyInput.setOnItemClickListener((parent, view, position, id) -> onTechnologySelected(parent.getItemAtPosition(position).toString()));
         btnAddMember.setOnClickListener(v -> onAddMember());

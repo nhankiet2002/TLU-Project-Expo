@@ -14,7 +14,7 @@ public class Project implements Serializable {
     @DocumentId
     private String projectId;
 
-    // Các PropertyName ở đây cần khớp với tên trường trong Firestore "Projects" collection
+
     @PropertyName("Title")
     private String title;
 

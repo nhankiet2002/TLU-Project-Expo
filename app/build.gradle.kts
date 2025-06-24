@@ -72,11 +72,15 @@ dependencies {
     // CircleImageView (rounded images)
     implementation("de.hdodenhof:circleimageview:3.1.0")
 
+
+    // Thêm Gson
+    implementation ("com.google.code.gson:gson:2.10.1")
     // Other libraries (from libs.versions.toml)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.firebase.firestore)
     implementation(libs.navigation.fragment)
     implementation(libs.swiperefreshlayout)
 
@@ -87,6 +91,9 @@ dependencies {
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
 
+    implementation(libs.annotation)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -97,4 +104,5 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.firebase.messaging)
 }
