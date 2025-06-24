@@ -33,6 +33,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.core.app.NotificationCompat;
+import com.cse441.tluprojectexpo.repository.NotificationRepository;
+import com.cse441.tluprojectexpo.repository.ProjectRepository;
+
 public class NotificationFragment extends Fragment implements NotificationAdapter.NotificationActionListener {
 
     private static final String TAG = "NotificationFragment";
@@ -47,6 +51,8 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
     private FirestoreService firestoreService;
     private String currentUserId;
     private FirebaseFirestore db;
+    private NotificationRepository notificationRepository = new NotificationRepository();
+    private ProjectRepository projectRepository = new ProjectRepository();
 
 
     @Nullable
@@ -238,19 +244,49 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
     @Override
     public void onAcceptInvite(Notification notification) {
         Log.d(TAG, "Accept invite for project: " + notification.getTargetProjectId());
-        if (getContext() != null) {
-            Toast.makeText(getContext(), "Đã chấp nhận lời mời (chức năng đang phát triển)", Toast.LENGTH_SHORT).show();
-        }
-        // TODO: Implement accept invitation logic
+        if (notification.getNotificationId() == null) return;
+        notificationRepository.updateProjectInvitationStatus(notification.getNotificationId(), "accepted", new NotificationRepository.NotificationActionListener() {
+            @Override
+            public void onSuccess() {
+                if (getContext() != null) Toast.makeText(getContext(), "Đã chấp nhận lời mời.", Toast.LENGTH_SHORT).show();
+                loadNotifications();
+            }
+            @Override
+            public void onError(String errorMessage) {
+                if (getContext() != null) Toast.makeText(getContext(), "Lỗi: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
     public void onDeclineInvite(Notification notification) {
         Log.d(TAG, "Decline invite for project: " + notification.getTargetProjectId());
-        if (getContext() != null) {
-            Toast.makeText(getContext(), "Đã từ chối lời mời (chức năng đang phát triển)", Toast.LENGTH_SHORT).show();
-        }
-        // TODO: Implement decline invitation logic
+        if (notification.getNotificationId() == null || notification.getTargetProjectId() == null || currentUserId == null) return;
+        notificationRepository.updateProjectInvitationStatus(notification.getNotificationId(), "declined", new NotificationRepository.NotificationActionListener() {
+            @Override
+            public void onSuccess() {
+                // Remove user from ProjectMembers collection
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("ProjectMembers")
+                  .whereEqualTo("ProjectId", notification.getTargetProjectId())
+                  .whereEqualTo("UserId", currentUserId)
+                  .get()
+                  .addOnSuccessListener(querySnapshot -> {
+                      for (QueryDocumentSnapshot doc : querySnapshot) {
+                          doc.getReference().delete();
+                      }
+                      if (getContext() != null) Toast.makeText(getContext(), "Đã từ chối lời mời và rời khỏi dự án.", Toast.LENGTH_SHORT).show();
+                      loadNotifications();
+                  })
+                  .addOnFailureListener(e -> {
+                      if (getContext() != null) Toast.makeText(getContext(), "Lỗi khi rời dự án: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                  });
+            }
+            @Override
+            public void onError(String errorMessage) {
+                if (getContext() != null) Toast.makeText(getContext(), "Lỗi: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -351,5 +387,13 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
+    }
+
+    private void sendPushNotification(String recipientUserId, String title, String message, String type, String projectId, String commentId) {
+        // TODO: Implement gửi push notification qua Firebase Cloud Functions
+        // Hiện tại chỉ log để debug
+        Log.d(TAG, "Should send push notification to user: " + recipientUserId);
+        Log.d(TAG, "Title: " + title + ", Message: " + message);
+        Log.d(TAG, "Type: " + type + ", ProjectId: " + projectId + ", CommentId: " + commentId);
     }
 }

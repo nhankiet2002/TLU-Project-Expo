@@ -49,7 +49,7 @@ public class NotificationRepository {
         db.collection("UserTokens")
             .document(userId)
             .set(new java.util.HashMap<String, Object>() {{
-                put("userId", userId);
+                put("UserId", userId);
                 put("fcmToken", fcmToken);
                 put("lastUpdated", Timestamp.now());
             }})

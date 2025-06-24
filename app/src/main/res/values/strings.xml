@@ -64,4 +64,18 @@
     <string name="error_deleting_notification">Lỗi khi xóa thông báo.</string>
     <string name="confirm_delete_notification">Bạn có chắc chắn muốn xóa thông báo này không?</string>
     <string name="delete">Xóa</string>
+
+    <string name="search_project">Tìm kiếm dự án</string>
+    <string name="field_subject">Lĩnh vực/Chủ đề</string>
+    <string name="status_2">Trạng thái 2</string> <!-- Bạn cần đặt tên có ý nghĩa hơn cho "status_2" -->
+    <string name="title_dashboard">Bảng điều khiển</string>
+    <string name="profile">Hồ sơ</string>
+    <string name="clear_all">Xóa tất cả</string>
+    <string name="apply">Áp dụng</string>
+    <string name="make_featured">Đặt làm nổi bật</string>
+    <string name="change_password">Thay đổi mật khẩu</string>
+    <string name="confirm_reset_password">Xác nhận đặt lại mật khẩu</string>
+    <string name="reset_password">Đặt lại mật khẩu</string>
+    <string name="full_name">Họ và tên</string>
+    <string name="management">Quản lý</string>
 </resources>

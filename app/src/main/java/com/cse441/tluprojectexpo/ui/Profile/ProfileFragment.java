@@ -3,6 +3,7 @@ package com.cse441.tluprojectexpo.ui.Profile; // THAY ĐỔI CHO ĐÚNG PACKAGE 
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -50,6 +51,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import com.cse441.tluprojectexpo.ui.editproject.EditProjectActivity;
+import com.cse441.tluprojectexpo.auth.SettingProfileActivity;
 
 public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnProjectActionListener {
 
@@ -205,9 +208,8 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         if (profileLayout != null) {
             profileLayout.setOnClickListener(v -> {
                 if (currentUserId != null && getContext() != null) {
-                    Toast.makeText(getContext(), "Chức năng xem/sửa profile chi tiết (chưa code)", Toast.LENGTH_SHORT).show();
-                    // Ví dụ: Intent intent = new Intent(getActivity(), EditProfileActivity.class);
-                    // startActivity(intent);
+                    Intent intent = new Intent(getActivity(), SettingProfileActivity.class);
+                    startActivity(intent);
                 } else if (getContext() != null) {
                     Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
                 }
@@ -261,6 +263,12 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                 public void afterTextChanged(Editable s) {}
             });
         }
+
+        if (avatarImageView != null) {
+            avatarImageView.setOnClickListener(v -> {
+                Toast.makeText(requireContext(), "Bấm vào vùng ảnh đại diện!", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void loadUserProfile() {
@@ -295,7 +303,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                         User user = documentSnapshot.toObject(User.class);
                         if (user != null && avatarImageView != null && textViewUserName != null && textViewUserClass != null) {
                             textViewUserName.setText(user.getFullName());
-                            textViewUserClass.setText(user.getUserClass());
+                            textViewUserClass.setText(user.getClassName());
                             if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
                                 Glide.with(this)
                                         .load(user.getAvatarUrl())
@@ -479,10 +487,9 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         if (getContext() != null && project != null) {
             // Kiểm tra chủ sở hữu trước khi cho phép sửa
             if (currentUserId.equals(project.getCreatorUserId())) {
-                Toast.makeText(getContext(), "Sửa dự án: " + project.getTitle() + " (chưa code)", Toast.LENGTH_SHORT).show();
-                // Intent intent = new Intent(getActivity(), EditProjectActivity.class);
-                // intent.putExtra("PROJECT_ID", project.getProjectId());
-                // startActivity(intent);
+                Intent intent = new Intent(getActivity(), EditProjectActivity.class);
+                intent.putExtra(EditProjectActivity.EXTRA_PROJECT_ID, project.getProjectId());
+                startActivity(intent);
             } else {
                 Toast.makeText(getContext(), "Bạn không có quyền sửa dự án này.", Toast.LENGTH_SHORT).show();
             }

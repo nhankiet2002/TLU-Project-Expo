@@ -72,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initializeUIAndListeners() {
-        edEmailLogin = findViewById(R.id.edEmailLogin);
+        edEmailLogin = findViewById(R.id.edFullName);
         edPasswordLogin = findViewById(R.id.edPasswordLogin);
         btnLogin = findViewById(R.id.btnLogin);
         txtRegister = findViewById(R.id.txtRegister);

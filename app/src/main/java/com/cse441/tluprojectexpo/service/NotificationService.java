@@ -110,6 +110,7 @@ public class NotificationService extends FirebaseMessagingService {
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH) // Để hiển thị heads up
+                .setFullScreenIntent(pendingIntent, true) // Yêu cầu hiển thị heads-up
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
