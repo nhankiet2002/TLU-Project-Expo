@@ -4,6 +4,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
+import com.cse441.tluprojectexpo.model.Comment;
 import com.cse441.tluprojectexpo.model.FeaturedProjectUIModel;
 import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
@@ -448,6 +449,7 @@ public class ProjectRepository {
         Task<QuerySnapshot> projectCategoriesTask = db.collection("ProjectCategories").whereEqualTo("ProjectId", projectId).get();
         Task<QuerySnapshot> projectTechnologiesTask = db.collection("ProjectTechnologies").whereEqualTo("ProjectId", projectId).get();
         Task<QuerySnapshot> projectMembersTask = db.collection("ProjectMembers").whereEqualTo("ProjectId", projectId).get();
+        Task<QuerySnapshot> commentsTask = db.collection("Comments").whereEqualTo("ProjectId", projectId).orderBy("CreatedAt").get();
 
         // Lấy các bảng tra cứu (lookup tables)
         Task<QuerySnapshot> usersTask = db.collection("Users").get();
@@ -455,7 +457,7 @@ public class ProjectRepository {
         Task<QuerySnapshot> technologiesTask = db.collection("Technologies").get();
 
         // --- STAGE 2: Kết hợp tất cả các task ---
-        Tasks.whenAllSuccess(projectTask, projectCategoriesTask, projectTechnologiesTask, projectMembersTask,
+        Tasks.whenAllSuccess(projectTask, projectCategoriesTask, projectTechnologiesTask, projectMembersTask, commentsTask,
                         usersTask, categoriesTask, technologiesTask)
                 .addOnSuccessListener(results -> {
                     // --- STAGE 3: Chuyển đổi dữ liệu thô sang đối tượng và các Map ---
@@ -477,11 +479,12 @@ public class ProjectRepository {
                     QuerySnapshot pCategoriesSnap = (QuerySnapshot) results.get(1);
                     QuerySnapshot pTechsSnap = (QuerySnapshot) results.get(2);
                     QuerySnapshot pMembersSnap = (QuerySnapshot) results.get(3);
+                    QuerySnapshot commentsSnap = (QuerySnapshot) results.get(4);
 
                     // Tạo các map để tra cứu
-                    Map<String, User> userMap = ((QuerySnapshot) results.get(4)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.toObject(User.class)));
-                    Map<String, String> categoryMap = ((QuerySnapshot) results.get(5)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
-                    Map<String, String> technologyMap = ((QuerySnapshot) results.get(6)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
+                    Map<String, User> userMap = ((QuerySnapshot) results.get(5)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.toObject(User.class)));
+                    Map<String, String> categoryMap = ((QuerySnapshot) results.get(6)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
+                    Map<String, String> technologyMap = ((QuerySnapshot) results.get(7)).getDocuments().stream().collect(Collectors.toMap(DocumentSnapshot::getId, doc -> doc.getString("Name")));
 
                     // --- STAGE 4: Điền các thông tin chi tiết vào đối tượng Project ---
 
@@ -509,24 +512,44 @@ public class ProjectRepository {
                             .collect(Collectors.toList());
                     project.setTechnologyNames(techNames);
 
-                    // 4.4. Điền danh sách thông tin thành viên
-                    List<Project.UserShortInfo> membersInfo = pMembersSnap.getDocuments().stream()
+                    // --- STAGE 4: Điền thông tin chi tiết ---
+
+                    // 4.4 Điền thông tin thành viên (tái sử dụng từ code cũ của bạn)
+                    project.setProjectMembersInfo(pMembersSnap.getDocuments().stream()
                             .map(doc -> {
-                                String userId = doc.getString("UserId");
-                                User user = userMap.get(userId);
-                                if (user != null) {
-                                    return new Project.UserShortInfo(
-                                            userId,
-                                            user.getFullName(),
-                                            user.getAvatarUrl(),
-                                            doc.getString("Role") // Giả sử có trường Role trong ProjectMembers
-                                    );
-                                }
-                                return null;
+                                User user = userMap.get(doc.getString("UserId"));
+                                return user != null ? new Project.UserShortInfo(user.getUserId(), user.getFullName(), user.getAvatarUrl(), doc.getString("RoleInProject")) : null;
                             })
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList());
-                    project.setProjectMembersInfo(membersInfo);
+                            .filter(Objects::nonNull).collect(Collectors.toList()));
+
+                    // 4.5 Xây dựng cây bình luận
+                    List<Comment> allComments = new ArrayList<>();
+                    Map<String, Comment> commentMap = new HashMap<>();
+
+                    for (DocumentSnapshot doc : commentsSnap.getDocuments()) {
+                        Comment comment = doc.toObject(Comment.class);
+                        if (comment != null) {
+                            comment.setCommentId(doc.getId());
+                            User author = userMap.get(comment.getUserId());
+                            if (author != null) {
+                                comment.setUserName(author.getFullName());
+                                comment.setUserAvatarUrl(author.getAvatarUrl());
+                            }
+                            allComments.add(comment);
+                            commentMap.put(comment.getCommentId(), comment);
+                        }
+                    }
+
+                    List<Comment> rootComments = new ArrayList<>();
+                    for (Comment comment : allComments) {
+                        if (comment.getParentCommentId() != null && commentMap.containsKey(comment.getParentCommentId())) {
+                            commentMap.get(comment.getParentCommentId()).addReply(comment);
+                        } else {
+                            rootComments.add(comment);
+                        }
+                    }
+                    project.setComments(rootComments); // << Bạn cần thêm trường và setter này vào model Project
+
 
                     // --- STAGE 5: Trả về đối tượng Project đã hoàn chỉnh ---
                     projectLiveData.setValue(project);
@@ -579,7 +602,6 @@ public class ProjectRepository {
                                 String categoryName = categoryMap.get(categoryId);
                                 p.setCategoryNames(new ArrayList<>(Collections.singletonList(categoryName != null ? categoryName : "")));
                             }
-
                             projectList.add(p);
                         }
                     }
@@ -589,6 +611,7 @@ public class ProjectRepository {
                     Log.e(TAG, "Lỗi khi lấy danh sách dự án chờ duyệt: ", e);
                     liveData.setValue(null);
                 });
+
 
         return liveData;
     }

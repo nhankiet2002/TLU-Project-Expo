@@ -14,14 +14,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
+import com.cse441.tluprojectexpo.model.Comment;
 import com.cse441.tluprojectexpo.model.Project;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import com.cse441.tluprojectexpo.ui.detailproject.adapter.ProjectMemberAdapter;
+import com.cse441.tluprojectexpo.ui.detailproject.adapter.CommentAdapter;
 
-public class ProjectDetailViewAdmin extends AppCompatActivity {
+
+public class ProjectDetailViewAdmin extends AppCompatActivity implements CommentAdapter.OnCommentInteractionListener {
 
     // Khai báo các View từ layout
     private ImageView imgThumb, backToHome, isFeaturedIcon;
@@ -32,7 +39,10 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
     private LinearLayout btnGithub, btnVideoDemo;
 
     private ProjectRepository projectRepository;
+    private ProjectMemberAdapter memberAdapter;
+    private CommentAdapter commentAdapter;
     private Project currentProject;
+    private RecyclerView recyclerViewMembers, recyclerViewComments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +98,8 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
         categoryName = findViewById(R.id.category_name);
         technologyNames = findViewById(R.id.technology_names);
         isFeaturedIcon = findViewById(R.id.is_featured_icon);
+        recyclerViewMembers = findViewById(R.id.recycler_view_members);
+        recyclerViewComments = findViewById(R.id.recycler_view_comments);
     }
 
     private void setupInitialListeners() {
@@ -113,6 +125,8 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
     private void setupDataDependentListeners() {
         optionProjectDetail.setOnClickListener(this::showOptionsMenu);
         btnDeleteProject.setOnClickListener(v -> showDeleteConfirmationDialog());
+        btnMember.setOnClickListener(v -> selectTab(v));
+        btnComment.setOnClickListener(v -> selectTab(v));
     }
 
     // Hàm chính để đổ dữ liệu lên UI
@@ -167,7 +181,51 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
         }
 
         isFeaturedIcon.setVisibility(project.isFeatured() ? View.VISIBLE : View.GONE);
+        setupRecyclerViews(project);
+        selectTab(btnMember); // Mặc định chọn tab Thành viên
     }
+
+    private void setupRecyclerViews(Project project) {
+        // Setup cho thành viên
+        if (project.getProjectMembersInfo() != null) {
+            memberAdapter = new ProjectMemberAdapter(this, project.getProjectMembersInfo()); // << DÙNG ProjectMemberAdapter
+            recyclerViewMembers.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewMembers.setAdapter(memberAdapter);
+        }
+
+        // Setup cho bình luận
+        if (project.getComments() != null) {
+            commentAdapter = new CommentAdapter(this, project.getComments(), this);
+            recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewComments.setAdapter(commentAdapter);
+        }
+    }
+
+    private void selectTab(View selectedButton) {
+        boolean isMemberSelected = selectedButton.getId() == R.id.btn_member;
+
+        btnMember.setSelected(isMemberSelected);
+        btnComment.setSelected(!isMemberSelected);
+
+        if( isMemberSelected) {
+            btnMember.setBackgroundResource(R.drawable.button_selected);
+            btnMember.setTextColor(getResources().getColor(R.color.white));
+
+            btnComment.setBackgroundResource(R.drawable.border_button_medium);
+            btnComment.setTextColor(getResources().getColor(R.color.black));
+        } else {
+            btnMember.setBackgroundResource(R.drawable.border_button_medium);
+            btnMember.setTextColor(getResources().getColor(R.color.black));
+
+            btnComment.setBackgroundResource(R.drawable.button_selected);
+            btnComment.setTextColor(getResources().getColor(R.color.white));
+        }
+
+        recyclerViewMembers.setVisibility(isMemberSelected ? View.VISIBLE : View.GONE);
+        recyclerViewComments.setVisibility(!isMemberSelected ? View.VISIBLE : View.GONE);
+    }
+
+
 
     // Hàm hiển thị menu tùy chọn khi nhấn nút 3 chấm
     // Hàm hiển thị menu tùy chọn khi nhấn nút 3 chấm
@@ -248,5 +306,10 @@ public class ProjectDetailViewAdmin extends AppCompatActivity {
                 Toast.makeText(ProjectDetailViewAdmin.this, "Xóa thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onReplyClicked(Comment parentComment) {
+        Toast.makeText(this, "Chức năng trả lời của Admin đang phát triển.", Toast.LENGTH_SHORT).show();
     }
 }

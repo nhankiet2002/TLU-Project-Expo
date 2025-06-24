@@ -58,6 +58,8 @@
     <string name="app_name">TLUProjectExpo</string>
     <string name="no_projects_for_this_user">Người dùng này chưa có dự án nào.</string>
     <string name="error_loading_projects">Lỗi khi tải danh sách dự án.</string>
+    <string name="no_notifications">Không có thông báo nào</string>
+    <string name="user_avatar">Ảnh đại diện người dùng</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -71,4 +73,8 @@
     <string name="confirm_reset_password">Chúng tôi sẽ gửi đường dẫn thay đổi mật khẩu về email của bạn, bấm xác nhận để nhận tin nhắn email.</string>
     <string name="change_password">Đổi mật khẩu</string>
     <string name="reset_password">Xác nhận đổi mật khẩu</string>
+
+
+
+
 </resources>

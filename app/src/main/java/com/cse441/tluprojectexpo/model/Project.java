@@ -186,4 +186,15 @@ public class Project implements Serializable {
         public String getRoleInProject() { return roleInProject; }
         public void setRoleInProject(String roleInProject) { this.roleInProject = roleInProject; }
     }
+
+    @Exclude
+    private List<Comment> comments;
+    @Exclude
+    public List<Comment> getComments() {
+        return comments;
+    }
+    @Exclude
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
 }
