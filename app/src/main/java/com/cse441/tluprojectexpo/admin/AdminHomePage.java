@@ -27,6 +27,7 @@ import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.AdminProjectAdapter;
 import com.cse441.tluprojectexpo.admin.repository.CatalogRepository;
 import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.auth.SettingProfileActivity;
 import com.cse441.tluprojectexpo.model.Category;
@@ -141,14 +142,14 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
             @Override
             public void onDataLoaded(List<Category> items) { allCategories = items; }
             @Override
-            public void onError(Exception e) { Toast.makeText(AdminHomePage.this, "Lỗi tải danh sách lĩnh vực", Toast.LENGTH_SHORT).show(); }
+            public void onError(Exception e) { AppToast.show(AdminHomePage.this, "Lỗi tải danh sách lĩnh vực", Toast.LENGTH_SHORT); }
         });
 
         catalogRepository.getAllItems(CatalogRepository.CatalogType.TECHNOLOGY, new CatalogRepository.CatalogDataListener() {
             @Override
             public void onDataLoaded(List<Category> items) { allTechnologies = items; }
             @Override
-            public void onError(Exception e) { Toast.makeText(AdminHomePage.this, "Lỗi tải danh sách công nghệ", Toast.LENGTH_SHORT).show(); }
+            public void onError(Exception e) { AppToast.show(AdminHomePage.this, "Lỗi tải danh sách công nghệ", Toast.LENGTH_SHORT); }
         });
 
         loadFilteredProjects();
@@ -167,13 +168,13 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
                         projectList.addAll(projects);
                         adapter.notifyDataSetChanged();
                     } else {
-                        Toast.makeText(this, "Lỗi khi tải danh sách dự án.", Toast.LENGTH_SHORT).show();
+                        AppToast.show(this, "Lỗi khi tải danh sách dự án.", Toast.LENGTH_SHORT);
                     }
                 });
     }
 
     private void showCategoryMenu(View view) {
-        if (allCategories.isEmpty()) { Toast.makeText(this, "Đang tải danh sách...", Toast.LENGTH_SHORT).show(); return; }
+        if (allCategories.isEmpty()) { AppToast.show(this, "Đang tải danh sách...", Toast.LENGTH_SHORT); return; }
 
         Context wrapper = new ContextThemeWrapper(this, R.style.App_PopupMenu);
         PopupMenu popupMenu = new PopupMenu(wrapper, view);
@@ -199,7 +200,7 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
 
     private void showTechnologyMultiSelectDialog() {
         if (allTechnologies.isEmpty()) {
-            Toast.makeText(this, "Đang tải danh sách công nghệ...", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Đang tải danh sách công nghệ...", Toast.LENGTH_SHORT);
             return;
         }
 
@@ -301,13 +302,13 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
 
     @Override
     public void onSetFeaturedClick(Project project, int position) {
-        Toast.makeText(this, "Đang làm nổi bật: " + project.getTitle(), Toast.LENGTH_SHORT).show();
+        AppToast.show(this, "Đang làm nổi bật: " + project.getTitle(), Toast.LENGTH_SHORT);
 
         // Gọi repository để cập nhật isFeatured = true trên Firestore
         projectRepository.setProjectFeaturedStatus(project.getProjectId(), true, new ProjectRepository.OnTaskCompleteListener() {
             @Override
             public void onSuccess() {
-                Toast.makeText(AdminHomePage.this, "Đã làm nổi bật thành công!", Toast.LENGTH_SHORT).show();
+                AppToast.show(AdminHomePage.this, "Đã làm nổi bật thành công!", Toast.LENGTH_SHORT);
 
                 // QUAN TRỌNG NHẤT: Tải lại toàn bộ danh sách
                 // để sắp xếp và giao diện được cập nhật đúng.
@@ -316,7 +317,7 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(AdminHomePage.this, "Làm nổi bật thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                AppToast.show(AdminHomePage.this, "Làm nổi bật thất bại: " + e.getMessage(), Toast.LENGTH_SHORT);
             }
         });
     }
@@ -337,7 +338,7 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
             // là luôn tải lại danh sách để đảm bảo dữ liệu được đồng bộ hóa.
             // Điều này xử lý được cả trường hợp XÓA và BỎ NỔI BẬT.
             Log.d(TAG, "Nhận được kết quả từ trang chi tiết, đang tải lại danh sách...");
-            Toast.makeText(this, "Đang cập nhật danh sách...", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Đang cập nhật danh sách...", Toast.LENGTH_SHORT);
             loadFilteredProjects();
         }
     }

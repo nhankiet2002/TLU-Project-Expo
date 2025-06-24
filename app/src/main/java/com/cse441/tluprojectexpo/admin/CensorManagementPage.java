@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.CensorAdapter;
 import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.model.Project;
 
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
                 adapter.notifyDataSetChanged();
                 updateTotalCount();
             } else {
-                Toast.makeText(this, "Lỗi khi tải danh sách chờ duyệt.", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Lỗi khi tải danh sách chờ duyệt.", Toast.LENGTH_SHORT);
             }
         });
     }
@@ -151,7 +152,7 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
             @Override
             public void onSuccess() {
                 if(progressBar != null) progressBar.setVisibility(View.GONE);
-                Toast.makeText(CensorManagementPage.this, "Đã duyệt dự án: " + project.getTitle(), Toast.LENGTH_SHORT).show();
+                AppToast.show(CensorManagementPage.this, "Đã duyệt dự án: " + project.getTitle(), Toast.LENGTH_SHORT);
 
                 // Xóa item khỏi danh sách và cập nhật UI
                 originalProjectList.remove(project);
@@ -164,7 +165,7 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
             @Override
             public void onFailure(Exception e) {
                 if(progressBar != null) progressBar.setVisibility(View.GONE);
-                Toast.makeText(CensorManagementPage.this, "Duyệt thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                AppToast.show(CensorManagementPage.this, "Duyệt thất bại: " + e.getMessage(), Toast.LENGTH_SHORT);
             }
         });
     }
@@ -183,7 +184,7 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
                         @Override
                         public void onSuccess() {
                             if(progressBar != null) progressBar.setVisibility(View.GONE);
-                            Toast.makeText(CensorManagementPage.this, "Đã xóa dự án: " + project.getTitle(), Toast.LENGTH_SHORT).show();
+                            AppToast.show(CensorManagementPage.this, "Đã xóa dự án: " + project.getTitle(), Toast.LENGTH_SHORT);
 
                             // Xóa khỏi danh sách gốc
                             originalProjectList.remove(project);
@@ -196,7 +197,7 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
                         @Override
                         public void onFailure(Exception e) {
                             if(progressBar != null) progressBar.setVisibility(View.GONE);
-                            Toast.makeText(CensorManagementPage.this, "Xóa thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            AppToast.show(CensorManagementPage.this, "Xóa thất bại: " + e.getMessage(), Toast.LENGTH_SHORT);
                         }
                     });
                 })
@@ -206,7 +207,7 @@ public class CensorManagementPage extends AppCompatActivity implements CensorAda
 
     @Override
     public void onItemClick(Project project) {
-        Toast.makeText(this, "Xem chi tiết: " + project.getTitle(), Toast.LENGTH_SHORT).show();
+        AppToast.show(this, "Xem chi tiết: " + project.getTitle(), Toast.LENGTH_SHORT);
         // Intent intent = new Intent(this, ProjectDetailViewAdmin.class);
         // intent.putExtra("PROJECT_ID", project.getProjectId());
         // startActivity(intent);

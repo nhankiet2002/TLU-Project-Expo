@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.FeaturedProjectAdapter;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.model.FeaturedProjectUIModel;
 import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
@@ -116,7 +117,7 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
 
             } else {
                 totalFeaturedCount.setText("0 dự án");
-                Toast.makeText(this, "Lỗi khi tải dự án nổi bật.", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Lỗi khi tải dự án nổi bật.", Toast.LENGTH_SHORT);
                 Log.e("FeaturedPage", "Danh sách dự án nổi bật trả về là null.");
             }
         });
@@ -162,21 +163,20 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
     public void onSwitchChanged(FeaturedProjectUIModel item, boolean isChecked) {
         // Logic này chỉ chạy khi người dùng gạt TẮT switch (isChecked == false)
         if (!isChecked) {
-            Toast.makeText(this, "Đang bỏ nổi bật...", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Đang bỏ nổi bật...", Toast.LENGTH_SHORT);
 
             projectRepository.setProjectFeaturedStatus(item.getProjectId(), false, new ProjectRepository.OnTaskCompleteListener() {
                 @Override
                 public void onSuccess() {
-                    Toast.makeText(FeaturedManagementPage.this, "Đã bỏ nổi bật: " + item.getProjectTitle(), Toast.LENGTH_SHORT).show();
+                    AppToast.show(FeaturedManagementPage.this, "Đã bỏ nổi bật: " + item.getProjectTitle(), Toast.LENGTH_SHORT);
 
                     originalUiModelList.remove(item);
-                    displayedUiModelList.remove(item);
-                    adapter.notifyDataSetChanged();
+                    updateDisplayedList(new ArrayList<>(originalUiModelList));
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-                    Toast.makeText(FeaturedManagementPage.this, "Lỗi khi bỏ nổi bật: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    AppToast.show(FeaturedManagementPage.this, "Lỗi khi bỏ nổi bật: " + e.getMessage(), Toast.LENGTH_SHORT);
                     // Nếu lỗi, tải lại toàn bộ danh sách để đảm bảo dữ liệu đồng bộ
                     loadFeaturedProjects();
                 }
@@ -199,7 +199,7 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
             if (resultCode == Activity.RESULT_OK) {
                 // 3. Nếu thành công, cách đơn giản và an toàn nhất là tải lại toàn bộ danh sách
                 //    Điều này xử lý được cả trường hợp XÓA và BỎ NỔI BẬT từ trang chi tiết.
-                Toast.makeText(this, "Đang cập nhật danh sách nổi bật...", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Đang cập nhật danh sách nổi bật...", Toast.LENGTH_SHORT);
                 loadFeaturedProjects();
             }
         }

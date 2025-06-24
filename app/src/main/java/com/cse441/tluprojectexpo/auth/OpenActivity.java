@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.cse441.tluprojectexpo.MainActivity;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.AdminHomePage; // Import AdminHomePage
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.model.UserRole; // Import UserRole
 import com.cse441.tluprojectexpo.utils.GuestModeHandler;
 import com.google.firebase.auth.FirebaseAuth;
@@ -89,7 +90,7 @@ public class OpenActivity extends AppCompatActivity {
                                         mAuth.signOut(); // Đăng xuất Firebase
                                         LoginActivity.clearRememberMePreferences(OpenActivity.this); // Xóa SharedPreferences
                                         hideProgressBar(); // Ẩn ProgressBar
-                                        Toast.makeText(OpenActivity.this, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.", Toast.LENGTH_LONG).show();
+                                        AppToast.show(OpenActivity.this, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.", Toast.LENGTH_LONG);
                                         Log.d(TAG, "Tài khoản bị khóa: " + currentUser.getUid());
                                         // Giữ màn hình OpenActivity và hiển thị các nút đăng nhập/đăng ký
                                     } else {
@@ -97,7 +98,7 @@ public class OpenActivity extends AppCompatActivity {
                                         Log.d(TAG, "User account is not locked. Checking role.");
                                         // Check if email is verified (optional, can be done later)
                                         if (!currentUser.isEmailVerified()) {
-                                            Toast.makeText(OpenActivity.this, "Email của bạn chưa được xác thực. Một số tính năng có thể bị hạn chế.", Toast.LENGTH_LONG).show();
+                                            AppToast.show(OpenActivity.this, "Email của bạn chưa được xác thực. Một số tính năng có thể bị hạn chế.", Toast.LENGTH_LONG);
                                         }
                                         checkUserRoleAndNavigate(currentUser.getUid());
                                     }
@@ -106,7 +107,7 @@ public class OpenActivity extends AppCompatActivity {
                                     Log.e(TAG, "Không tìm thấy thông tin người dùng trong Firestore cho UID: " + currentUser.getUid());
                                     mAuth.signOut();
                                     hideProgressBar();
-                                    Toast.makeText(OpenActivity.this, "Lỗi: Không thể truy xuất thông tin tài khoản. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                                    AppToast.show(OpenActivity.this, "Lỗi: Không thể truy xuất thông tin tài khoản. Vui lòng thử lại.", Toast.LENGTH_LONG);
                                     LoginActivity.clearRememberMePreferences(OpenActivity.this);
                                 }
                             } else {
@@ -114,7 +115,7 @@ public class OpenActivity extends AppCompatActivity {
                                 Log.e(TAG, "Lỗi khi lấy trạng thái khóa từ Firestore: " + userDocTask.getException().getMessage());
                                 mAuth.signOut();
                                 hideProgressBar();
-                                Toast.makeText(OpenActivity.this, "Lỗi: Không thể kiểm tra trạng thái tài khoản. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                                AppToast.show(OpenActivity.this, "Lỗi: Không thể kiểm tra trạng thái tài khoản. Vui lòng thử lại.", Toast.LENGTH_LONG);
                                 LoginActivity.clearRememberMePreferences(OpenActivity.this);
                             }
                         }
@@ -189,12 +190,12 @@ public class OpenActivity extends AppCompatActivity {
                                 }
                             } else {
                                 Log.e(TAG, "Lỗi: Không tìm thấy trường 'role' trong UserRole cho userId: " + userId);
-                                Toast.makeText(OpenActivity.this, "Lỗi: Không tìm thấy vai trò người dùng. Mặc định vào màn hình người dùng.", Toast.LENGTH_LONG).show();
+                                AppToast.show(OpenActivity.this, "Lỗi: Không tìm thấy vai trò người dùng. Mặc định vào màn hình người dùng.", Toast.LENGTH_LONG);
                                 navigateToMainActivity();
                             }
                         } else {
                             Log.e(TAG, "Lỗi khi lấy UserRole từ Firestore hoặc không tìm thấy UserRole cho userId: " + userId, task.getException());
-                            Toast.makeText(OpenActivity.this, "Lỗi: Không thể lấy vai trò người dùng. Mặc định vào màn hình người dùng.", Toast.LENGTH_LONG).show();
+                            AppToast.show(OpenActivity.this, "Lỗi: Không thể lấy vai trò người dùng. Mặc định vào màn hình người dùng.", Toast.LENGTH_LONG);
                             navigateToMainActivity();
                         }
                     }

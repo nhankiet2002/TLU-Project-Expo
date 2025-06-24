@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -36,7 +37,7 @@ public class CheckEmailActivity extends AppCompatActivity {
             txtYourEmail.setText(userEmail);
         } else {
             // Trường hợp không có email, có thể hiển thị thông báo lỗi hoặc quay lại màn hình trước
-            Toast.makeText(this, "Không tìm thấy email.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Không tìm thấy email.", Toast.LENGTH_SHORT);
             finish();
         }
 

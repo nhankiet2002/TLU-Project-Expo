@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.model.User;
 import com.cse441.tluprojectexpo.utils.GuestModeHandler;
 import com.google.android.material.button.MaterialButton;
@@ -101,7 +102,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(fullName) || TextUtils.isEmpty(email) ||
                 TextUtils.isEmpty(password) || TextUtils.isEmpty(verifyPassword)) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Vui lòng nhập đầy đủ thông tin.", Toast.LENGTH_SHORT);
             return;
         }
 
@@ -121,7 +122,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
         if (!checkBoxAgreeTerms.isChecked()) {
-            Toast.makeText(this, "Vui lòng chấp nhận các điều khoản.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Vui lòng chấp nhận các điều khoản.", Toast.LENGTH_SHORT);
             return;
         }
 
@@ -135,7 +136,7 @@ public class RegisterActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         if (!task.getResult().isEmpty()) {
                             hideProgressBar();
-                            Toast.makeText(RegisterActivity.this, "Email này đã được đăng ký. Vui lòng sử dụng email khác hoặc đăng nhập.", Toast.LENGTH_LONG).show();
+                            AppToast.show(RegisterActivity.this, "Email này đã được đăng ký. Vui lòng sử dụng email khác hoặc đăng nhập.", Toast.LENGTH_LONG);
                         } else {
                             mAuth.createUserWithEmailAndPassword(email, password)
                                     .addOnCompleteListener(this, authTask -> {
@@ -147,14 +148,14 @@ public class RegisterActivity extends AppCompatActivity {
                                                         .addOnCompleteListener(verificationTask -> {
                                                             if (verificationTask.isSuccessful()) {
                                                                 Log.d(TAG, "Email xác thực đã được gửi.");
-                                                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công! Vui lòng kiểm tra email của bạn để xác thực tài khoản.", Toast.LENGTH_LONG).show();
+                                                                AppToast.show(RegisterActivity.this, "Đăng ký thành công! Vui lòng kiểm tra email của bạn để xác thực tài khoản.", Toast.LENGTH_LONG);
 
                                                                 // Hash mật khẩu trước khi lưu vào Firestore
                                                                 String hashedPassword = hashPassword(password);
                                                                 saveUserToFirestore(firebaseUser.getUid(), fullName, email, selectedRole, hashedPassword);
                                                             } else {
                                                                 Log.e(TAG, "Không thể gửi email xác thực.", verificationTask.getException());
-                                                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công nhưng không thể gửi email xác thực. Vui lòng thử lại sau.", Toast.LENGTH_LONG).show();
+                                                                AppToast.show(RegisterActivity.this, "Đăng ký thành công nhưng không thể gửi email xác thực. Vui lòng thử lại sau.", Toast.LENGTH_LONG);
                                                                 // Nếu không gửi được email xác thực, có thể ẩn progressBar và cho phép người dùng thử lại
                                                                 hideProgressBar();
                                                             }
@@ -162,7 +163,7 @@ public class RegisterActivity extends AppCompatActivity {
                                             }
                                         } else {
                                             hideProgressBar();
-                                            Toast.makeText(RegisterActivity.this, "Đăng ký thất bại: " + authTask.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                            AppToast.show(RegisterActivity.this, "Đăng ký thất bại: " + authTask.getException().getMessage(), Toast.LENGTH_LONG);
                                             Log.e(TAG, "Đăng ký thất bại", authTask.getException());
                                         }
                                     });
@@ -170,7 +171,7 @@ public class RegisterActivity extends AppCompatActivity {
                     } else {
                         hideProgressBar();
                         Log.e(TAG, "Lỗi khi kiểm tra email tồn tại.", task.getException());
-                        Toast.makeText(RegisterActivity.this, "Lỗi kiểm tra email. Vui lòng thử lại.", Toast.LENGTH_SHORT).show();
+                        AppToast.show(RegisterActivity.this, "Lỗi kiểm tra email. Vui lòng thử lại.", Toast.LENGTH_SHORT);
                     }
                 });
     }
@@ -206,14 +207,14 @@ public class RegisterActivity extends AppCompatActivity {
                                         finish();
                                     } else {
                                         Log.e(TAG, "Lưu vai trò vào Firestore (UserRoles) thất bại.", roleSaveTask.getException());
-                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công nhưng lỗi khi lưu vai trò.", Toast.LENGTH_LONG).show();
+                                        AppToast.show(RegisterActivity.this, "Đăng ký thành công nhưng lỗi khi lưu vai trò.", Toast.LENGTH_LONG);
                                     }
                                 });
 
                     } else {
                         hideProgressBar();
                         Log.e(TAG, "Lưu thông tin người dùng vào Firestore (Users) thất bại.", userSaveTask.getException());
-                        Toast.makeText(RegisterActivity.this, "Lỗi khi lưu thông tin người dùng.", Toast.LENGTH_LONG).show();
+                        AppToast.show(RegisterActivity.this, "Lỗi khi lưu thông tin người dùng.", Toast.LENGTH_LONG);
                     }
                 });
     }

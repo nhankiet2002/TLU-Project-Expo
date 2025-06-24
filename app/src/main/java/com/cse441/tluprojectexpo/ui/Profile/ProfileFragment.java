@@ -25,6 +25,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 
 import com.bumptech.glide.Glide;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.auth.LoginActivity; // GIẢ SỬ BẠN CÓ LoginActivity
 import com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity;
 import com.cse441.tluprojectexpo.R;
@@ -205,11 +206,11 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         if (profileLayout != null) {
             profileLayout.setOnClickListener(v -> {
                 if (currentUserId != null && getContext() != null) {
-                    Toast.makeText(getContext(), "Chức năng xem/sửa profile chi tiết (chưa code)", Toast.LENGTH_SHORT).show();
+                    AppToast.show(getContext(), "Chức năng xem/sửa profile chi tiết (chưa code)", Toast.LENGTH_SHORT);
                     // Ví dụ: Intent intent = new Intent(getActivity(), EditProfileActivity.class);
                     // startActivity(intent);
                 } else if (getContext() != null) {
-                    Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+                    AppToast.show(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT);
                 }
             });
         }
@@ -223,7 +224,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                             .setPositiveButton("Đăng xuất", (dialog, which) -> {
                                 mAuth.signOut();
                                 // AuthStateListener sẽ xử lý việc cập nhật UI và điều hướng nếu cần
-                                Toast.makeText(getContext(), "Đã đăng xuất", Toast.LENGTH_SHORT).show();
+                                AppToast.show(getContext(), "Đã đăng xuất", Toast.LENGTH_SHORT);
                             })
                             .setNegativeButton("Hủy", null)
                             .show();
@@ -239,7 +240,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                     loadUserProjects(true);
                 } else {
                     swipeRefreshLayoutProfile.setRefreshing(false); // Không làm gì nếu chưa đăng nhập
-                    if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) AppToast.show(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT);
                 }
             });
         }
@@ -316,7 +317,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                 .addOnFailureListener(e -> {
                     if (!isAdded() || getContext() == null) return;
                     Log.e(TAG, "Error loading user profile for UserID: "+currentUserId, e);
-                    if (getContext() != null) Toast.makeText(getContext(), "Lỗi tải thông tin cá nhân: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) AppToast.show(getContext(), "Lỗi tải thông tin cá nhân: " + e.getMessage(), Toast.LENGTH_SHORT);
                 })
                 .addOnCompleteListener(task -> { // Luôn ẩn progress bar khi hoàn tất (dù thành công hay thất bại)
                     if (progressBarProfile != null && !isLoadingProjects) progressBarProfile.setVisibility(View.GONE);
@@ -440,9 +441,9 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                         }
                         if (fetchedProjects.isEmpty() && isInitialLoadOrRefresh) {
                             if (currentUserProjectSearchQuery == null || currentUserProjectSearchQuery.isEmpty()){
-                                //  Toast.makeText(getContext(), "Bạn chưa có dự án nào.", Toast.LENGTH_SHORT).show();
+                                //  AppToast.show(getContext(), "Bạn chưa có dự án nào.", Toast.LENGTH_SHORT);
                             } else {
-                                Toast.makeText(getContext(), "Không tìm thấy dự án nào khớp với tìm kiếm.", Toast.LENGTH_SHORT).show();
+                                AppToast.show(getContext(), "Không tìm thấy dự án nào khớp với tìm kiếm.", Toast.LENGTH_SHORT);
                             }
                         }
                     });
@@ -452,15 +453,15 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                         userProjectsAdapter.clearProjects();
                     }
                     if (getContext() != null && isInitialLoadOrRefresh && (currentUserProjectSearchQuery == null || currentUserProjectSearchQuery.isEmpty())) {
-                        // Toast.makeText(getContext(), "Bạn chưa có dự án nào.", Toast.LENGTH_SHORT).show();
+                        // AppToast.show(getContext(), "Bạn chưa có dự án nào.", Toast.LENGTH_SHORT);
                     } else if (getContext() != null && isInitialLoadOrRefresh && !currentUserProjectSearchQuery.isEmpty()){
-                        Toast.makeText(getContext(), "Không tìm thấy dự án nào khớp với tìm kiếm.", Toast.LENGTH_SHORT).show();
+                        AppToast.show(getContext(), "Không tìm thấy dự án nào khớp với tìm kiếm.", Toast.LENGTH_SHORT);
                     }
                 }
             } else {
                 Log.e(TAG, "Error getting user projects for UserID: "+currentUserId, task.getException());
                 if (getContext() != null) {
-                    Toast.makeText(getContext(), "Lỗi tải danh sách dự án: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    AppToast.show(getContext(), "Lỗi tải danh sách dự án: " + task.getException().getMessage(), Toast.LENGTH_LONG);
                 }
                 if (userProjectsAdapter != null) {
                     userProjectsAdapter.clearProjects();
@@ -473,7 +474,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     @Override
     public void onEditClick(Project project) {
         if (currentUserId == null) {
-            if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) AppToast.show(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT);
             return;
         }
         if (getContext() != null && project != null) {
@@ -484,7 +485,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
                 intent.putExtra(com.cse441.tluprojectexpo.ui.editproject.EditProjectActivity.EXTRA_PROJECT_ID, project.getProjectId());
                 startActivity(intent);
             } else {
-                Toast.makeText(getContext(), "Bạn không có quyền sửa dự án này.", Toast.LENGTH_SHORT).show();
+                AppToast.show(getContext(), "Bạn không có quyền sửa dự án này.", Toast.LENGTH_SHORT);
             }
         }
     }
@@ -492,12 +493,12 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
     @Override
     public void onDeleteClick(final Project project) {
         if (currentUserId == null) {
-            if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) AppToast.show(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT);
             return;
         }
         if (getContext() != null && project != null) {
             if (!currentUserId.equals(project.getCreatorUserId())) {
-                Toast.makeText(getContext(), "Bạn không phải chủ dự án này.", Toast.LENGTH_LONG).show();
+                AppToast.show(getContext(), "Bạn không phải chủ dự án này.", Toast.LENGTH_LONG);
                 return;
             }
             new AlertDialog.Builder(getContext())
@@ -511,15 +512,15 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
 
     private void deleteProjectFromFirestore(final Project project) {
         if (currentUserId == null) {
-            if (getContext() != null) Toast.makeText(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) AppToast.show(getContext(), "Vui lòng đăng nhập.", Toast.LENGTH_SHORT);
             return;
         }
         if (project.getProjectId() == null || project.getProjectId().isEmpty()) {
-            if (getContext() != null) Toast.makeText(getContext(), "ID dự án không hợp lệ.", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) AppToast.show(getContext(), "ID dự án không hợp lệ.", Toast.LENGTH_SHORT);
             return;
         }
         if (!currentUserId.equals(project.getCreatorUserId())) {
-            if (getContext() != null) Toast.makeText(getContext(), "Lỗi: Bạn không phải chủ dự án.", Toast.LENGTH_LONG).show();
+            if (getContext() != null) AppToast.show(getContext(), "Lỗi: Bạn không phải chủ dự án.", Toast.LENGTH_LONG);
             return;
         }
 
@@ -546,7 +547,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         }).addOnSuccessListener(aVoid -> {
             if (!isAdded() || getContext() == null || userProjectsAdapter == null) return;
             if(progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
-            Toast.makeText(getContext(), "Đã xóa dự án: " + project.getTitle(), Toast.LENGTH_SHORT).show();
+            AppToast.show(getContext(), "Đã xóa dự án: " + project.getTitle(), Toast.LENGTH_SHORT);
             userProjectsAdapter.removeProject(project);
             Log.i(TAG, "Project " + project.getProjectId() + " and related data deleted for user " + currentUserId);
             // Có thể cần tải lại danh sách dự án nếu có thay đổi ngoài dự án này
@@ -555,7 +556,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
             if (!isAdded() || getContext() == null) return;
             if(progressBarProfile != null) progressBarProfile.setVisibility(View.GONE);
             Log.e(TAG, "Error deleting project: " + project.getProjectId() + " for user " + currentUserId, e);
-            Toast.makeText(getContext(), "Lỗi xóa dự án: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            AppToast.show(getContext(), "Lỗi xóa dự án: " + e.getMessage(), Toast.LENGTH_SHORT);
         });
     }
 
@@ -568,7 +569,7 @@ public class ProfileFragment extends Fragment implements UserProjectsAdapter.OnP
         } else {
             Log.e(TAG, "Cannot start ProjectDetailActivity. Context, project, or project ID is null.");
             if (getContext() != null) {
-                Toast.makeText(getContext(), "Không thể mở chi tiết dự án.", Toast.LENGTH_SHORT).show();
+                AppToast.show(getContext(), "Không thể mở chi tiết dự án.", Toast.LENGTH_SHORT);
             }
         }
     }

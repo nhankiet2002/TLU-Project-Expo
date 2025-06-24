@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.UserManagementAdapter;
 import com.cse441.tluprojectexpo.admin.repository.UserManagementRepository;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.model.User;
 
@@ -112,7 +113,7 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
                     progressBar.setVisibility(View.GONE); // Ẩn vòng xoay loading
                 }
                 Log.e(TAG, "onError: Lỗi khi tải dữ liệu", e);
-                Toast.makeText(UserManagementPage.this, "Không thể tải danh sách người dùng.", Toast.LENGTH_SHORT).show();
+                AppToast.show(UserManagementPage.this, "Không thể tải danh sách người dùng.", Toast.LENGTH_SHORT);
             }
         });
     }
@@ -181,13 +182,13 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
     @Override
     public void onUserLockStateChanged(User user, boolean newLockState) {
         Log.d(TAG, "onUserLockStateChanged: Yêu cầu thay đổi trạng thái của " + user.getFullName() + " thành isLocked = " + newLockState);
-        Toast.makeText(this, "Đang cập nhật...", Toast.LENGTH_SHORT).show();
+        AppToast.show(this, "Đang cập nhật...", Toast.LENGTH_SHORT);
 
         // Yêu cầu UserManagementRepository cập nhật trạng thái lên Firestore
         userRepository.updateUserLockState(user.getUserId(), newLockState, new UserManagementRepository.OnTaskCompleteListener() {
             @Override
             public void onSuccess() {
-                Toast.makeText(UserManagementPage.this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+                AppToast.show(UserManagementPage.this, "Cập nhật thành công!", Toast.LENGTH_SHORT);
                 // Cập nhật trạng thái trong danh sách local để UI khớp ngay lập tức
                 user.setLocked(newLockState);
                 userAdapter.notifyDataSetChanged();
@@ -196,7 +197,7 @@ public class UserManagementPage extends AppCompatActivity implements UserManagem
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(UserManagementPage.this, "Cập nhật thất bại!", Toast.LENGTH_LONG).show();
+                AppToast.show(UserManagementPage.this, "Cập nhật thất bại!", Toast.LENGTH_LONG);
                 Log.e(TAG, "onFailure: Lỗi khi cập nhật trạng thái khóa", e);
                 // Vì cập nhật thất bại, tải lại toàn bộ danh sách để đảm bảo
                 // switch trên UI quay về đúng trạng thái trên server.

@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -96,7 +97,7 @@ public class SettingProfileActivity extends AppCompatActivity {
         cloudinary = new Cloudinary(config);
 
         if (auth.getCurrentUser() == null) {
-            Toast.makeText(this, "Chưa đăng nhập", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Chưa đăng nhập", Toast.LENGTH_SHORT);
             finish();
             return;
         }
@@ -161,7 +162,7 @@ public class SettingProfileActivity extends AppCompatActivity {
             }
         }).addOnFailureListener(e -> {
             Log.e(TAG, "Error loading user profile: " + e.getMessage());
-            Toast.makeText(this, "Không thể tải thông tin hồ sơ.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Không thể tải thông tin hồ sơ.", Toast.LENGTH_SHORT);
             Glide.with(this).load(R.drawable.default_avatar).into(imageView);
         });
     }
@@ -172,7 +173,7 @@ public class SettingProfileActivity extends AppCompatActivity {
         String lop = lopEditText.getText().toString().trim();
 
         if (fullName.isEmpty() || khoa.isEmpty() || lop.isEmpty()) {
-            Toast.makeText(this, "Vui lòng điền đầy đủ tên, khoa và lớp", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Vui lòng điền đầy đủ tên, khoa và lớp", Toast.LENGTH_SHORT);
             return;
         }
 
@@ -225,7 +226,7 @@ public class SettingProfileActivity extends AppCompatActivity {
                         saveToFirestore(userRef, fullName, userClass, imageUrl);
                     } else {
                         hideProgressBar();
-                        Toast.makeText(SettingProfileActivity.this, "Lỗi tải ảnh lên Cloudinary.", Toast.LENGTH_SHORT).show();
+                        AppToast.show(SettingProfileActivity.this, "Lỗi tải ảnh lên Cloudinary.", Toast.LENGTH_SHORT);
                         Log.e(TAG, "Cloudinary upload failed: secure_url is null.");
                     }
                 });
@@ -234,7 +235,7 @@ public class SettingProfileActivity extends AppCompatActivity {
                 Log.e(TAG, "Cloudinary upload error: " + e.getMessage());
                 runOnUiThread(() -> {
                     hideProgressBar();
-                    Toast.makeText(SettingProfileActivity.this, "Lỗi tải ảnh lên: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    AppToast.show(SettingProfileActivity.this, "Lỗi tải ảnh lên: " + e.getMessage(), Toast.LENGTH_LONG);
                 });
             }
         });
@@ -257,7 +258,7 @@ public class SettingProfileActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     hideProgressBar();
-                    Toast.makeText(this, "Lưu thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    AppToast.show(this, "Lưu thất bại: " + e.getMessage(), Toast.LENGTH_SHORT);
                     Log.e(TAG, "Firestore update failed: " + e.getMessage());
                 });
     }

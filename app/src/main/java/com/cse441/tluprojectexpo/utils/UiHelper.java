@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
+
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class UiHelper {
@@ -24,7 +26,7 @@ public class UiHelper {
 
     public static void showToast(Context context, String message, int duration) {
         if (context == null) return;
-        Toast.makeText(context, message, duration).show();
+        AppToast.show(context, message, duration);
     }
 
 

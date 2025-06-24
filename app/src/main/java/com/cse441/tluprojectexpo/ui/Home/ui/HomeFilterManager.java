@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.ui.Home.model.FilterableItem;
 import com.google.android.material.chip.Chip;
 
@@ -71,7 +72,7 @@ public class HomeFilterManager {
 
     private void showCategoryDialog() {
         if (categoryDataSource == null || categoryDataSource.isEmpty()) {
-            Toast.makeText(context, "Dữ liệu lĩnh vực chưa sẵn sàng.", Toast.LENGTH_SHORT).show();
+            AppToast.show(context, "Dữ liệu lĩnh vực chưa sẵn sàng.", Toast.LENGTH_SHORT);
             return;
         }
         showGenericFilterDialog("Chọn Lĩnh vực/Chủ đề", categoryDataSource, selectedCategoryId,
@@ -84,7 +85,7 @@ public class HomeFilterManager {
 
     private void showTechnologyDialog() {
         if (technologyDataSource == null || technologyDataSource.isEmpty()) {
-            Toast.makeText(context, "Dữ liệu công nghệ chưa sẵn sàng.", Toast.LENGTH_SHORT).show();
+            AppToast.show(context, "Dữ liệu công nghệ chưa sẵn sàng.", Toast.LENGTH_SHORT);
             return;
         }
         showGenericFilterDialog("Chọn Công nghệ", technologyDataSource, selectedTechnologyId,
@@ -97,7 +98,7 @@ public class HomeFilterManager {
 
     private void showStatusDialog() {
         if (statusDataSource == null || statusDataSource.length == 0) {
-            Toast.makeText(context, "Dữ liệu trạng thái chưa sẵn sàng.", Toast.LENGTH_SHORT).show();
+            AppToast.show(context, "Dữ liệu trạng thái chưa sẵn sàng.", Toast.LENGTH_SHORT);
             return;
         }
         int currentSelection = -1;

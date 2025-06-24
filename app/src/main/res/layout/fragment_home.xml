@@ -24,7 +24,6 @@
             app:title="Trang chủ"
             app:titleTextColor="@android:color/black"
             app:titleTextAppearance="@style/Toolbar.TitleText"
-            app:menu="@menu/main_toolbar_menu"
             android:background="@color/white"
             app:layout_scrollFlags="scroll|enterAlways|snap" />
 

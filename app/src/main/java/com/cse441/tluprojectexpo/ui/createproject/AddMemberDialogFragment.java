@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.ui.createproject.adapter.UserSearchAdapter;
 import com.cse441.tluprojectexpo.model.User;
 import com.cse441.tluprojectexpo.utils.Constants; // **ĐẢM BẢO IMPORT ĐÚNG**
@@ -160,7 +161,7 @@ public class AddMemberDialogFragment extends DialogFragment implements UserSearc
                         }
                     } else {
                         Log.w(TAG, "Error fetching valid users: ", task.getException());
-                        if(getContext() != null) Toast.makeText(getContext(), "Lỗi tải danh sách người dùng.", Toast.LENGTH_SHORT).show();
+                        if(getContext() != null) AppToast.show(getContext(), "Lỗi tải danh sách người dùng.", Toast.LENGTH_SHORT);
                     }
                 });
         return; // Dừng ở đây nếu dùng Lựa chọn 1
@@ -266,7 +267,7 @@ public class AddMemberDialogFragment extends DialogFragment implements UserSearc
                                     }
                                 } else {
                                     Log.w(TAG, "Error fetching all users: ", allUsersTask.getException());
-                                    if(getContext() != null) Toast.makeText(getContext(), "Lỗi tải danh sách người dùng.", Toast.LENGTH_SHORT).show();
+                                    if(getContext() != null) AppToast.show(getContext(), "Lỗi tải danh sách người dùng.", Toast.LENGTH_SHORT);
                                 }
                             });
                 })
@@ -274,7 +275,7 @@ public class AddMemberDialogFragment extends DialogFragment implements UserSearc
                     pbLoadingMembers.setVisibility(View.GONE);
                     rvMembersList.setVisibility(View.VISIBLE);
                     Log.e(TAG, "Error fetching initial role/lock data: ", e);
-                    if(getContext() != null) Toast.makeText(getContext(), "Lỗi tải dữ liệu người dùng.", Toast.LENGTH_SHORT).show();
+                    if(getContext() != null) AppToast.show(getContext(), "Lỗi tải dữ liệu người dùng.", Toast.LENGTH_SHORT);
                 });
     }
 
@@ -284,17 +285,17 @@ public class AddMemberDialogFragment extends DialogFragment implements UserSearc
         // ... (code trong onUserClick giữ nguyên) ...
         if (dialogListener == null) {
             Log.e(TAG, "AddUserDialogListener is null in onUserClick.");
-            if (getContext() != null) Toast.makeText(getContext(), "Lỗi: Không thể xử lý lựa chọn.", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) AppToast.show(getContext(), "Lỗi: Không thể xử lý lựa chọn.", Toast.LENGTH_SHORT);
             dismiss(); return;
         }
         if (user != null && user.getUserId() != null) {
             Log.d(TAG, "User selected: " + user.getFullName() + " with ID: " + user.getUserId());
             dialogListener.onUserSelected(user);
-            if (getContext() != null) Toast.makeText(getContext(), "Đã chọn: " + user.getFullName(), Toast.LENGTH_SHORT).show();
+            if (getContext() != null) AppToast.show(getContext(), "Đã chọn: " + user.getFullName(), Toast.LENGTH_SHORT);
             dismiss();
         } else {
             Log.e(TAG, "User or UserID is null onUserClick.");
-            if (getContext() != null) Toast.makeText(getContext(), "Lỗi: Không thể chọn người dùng này.", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) AppToast.show(getContext(), "Lỗi: Không thể chọn người dùng này.", Toast.LENGTH_SHORT);
         }
     }
 }

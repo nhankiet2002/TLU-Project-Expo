@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.model.Comment;
 import com.cse441.tluprojectexpo.model.Project;
 import java.text.SimpleDateFormat;
@@ -61,7 +62,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
         if (projectId != null && !projectId.isEmpty()) {
             fetchAndDisplayProjectDetails(projectId);
         } else {
-            Toast.makeText(this, "Không tìm thấy thông tin dự án.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Không tìm thấy thông tin dự án.", Toast.LENGTH_SHORT);
             finish();
         }
     }
@@ -73,7 +74,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
                 populateUI(project);
                 setupDataDependentListeners();
             } else {
-                Toast.makeText(this, "Tải thông tin dự án thất bại.", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Tải thông tin dự án thất bại.", Toast.LENGTH_SHORT);
             }
         });
     }
@@ -110,7 +111,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
                 Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(currentProject.getProjectUrl()));
                 startActivity(intent);
             } else {
-                Toast.makeText(this, "Không có liên kết GitHub cho dự án này.", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Không có liên kết GitHub cho dự án này.", Toast.LENGTH_SHORT);
             }
         });
         btnVideoDemo.setOnClickListener(v -> {
@@ -118,7 +119,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
                 Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(currentProject.getDemoUrl()));
                 startActivity(intent);
             } else {
-                Toast.makeText(this, "Không có liên kết video demo cho dự án này.", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Không có liên kết video demo cho dự án này.", Toast.LENGTH_SHORT);
             }
         });
     }
@@ -260,7 +261,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
             @Override
             public void onSuccess() {
                 String message = newStatus ? "Đã thêm vào dự án nổi bật" : "Đã bỏ nổi bật dự án";
-                Toast.makeText(ProjectDetailViewAdmin.this, message, Toast.LENGTH_SHORT).show();
+                AppToast.show(ProjectDetailViewAdmin.this, message, Toast.LENGTH_SHORT);
 
                 // Cập nhật trạng thái và trả về kết quả
                 currentProject.setFeatured(newStatus);
@@ -273,7 +274,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(ProjectDetailViewAdmin.this, "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
+                AppToast.show(ProjectDetailViewAdmin.this, "Cập nhật thất bại", Toast.LENGTH_SHORT);
             }
         });
     }
@@ -294,7 +295,7 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
         projectRepository.deleteProject(currentProject.getProjectId(), new ProjectRepository.OnTaskCompleteListener() {
             @Override
             public void onSuccess() {
-                Toast.makeText(ProjectDetailViewAdmin.this, "Đã xóa dự án thành công!", Toast.LENGTH_LONG).show();
+                AppToast.show(ProjectDetailViewAdmin.this, "Đã xóa dự án thành công!", Toast.LENGTH_LONG);
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("ACTION", "DELETED");
                 resultIntent.putExtra("PROJECT_ID", currentProject.getProjectId());
@@ -304,13 +305,13 @@ public class ProjectDetailViewAdmin extends AppCompatActivity implements Comment
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(ProjectDetailViewAdmin.this, "Xóa thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                AppToast.show(ProjectDetailViewAdmin.this, "Xóa thất bại: " + e.getMessage(), Toast.LENGTH_SHORT);
             }
         });
     }
 
     @Override
     public void onReplyClicked(Comment parentComment) {
-        Toast.makeText(this, "Chức năng trả lời của Admin đang phát triển.", Toast.LENGTH_SHORT).show();
+        AppToast.show(this, "Chức năng trả lời của Admin đang phát triển.", Toast.LENGTH_SHORT);
     }
 }

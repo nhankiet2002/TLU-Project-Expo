@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.cse441.tluprojectexpo.MainActivity; // Đảm bảo đúng package của MainActivity
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -39,7 +40,7 @@ public class GuestModeHandler {
         // Tắt chức năng "nhớ tài khoản" khi vào chế độ khách để không tự động đăng nhập lại bằng tài khoản thật
         saveRememberMeStatePreference(context, "", false);
 
-        Toast.makeText(context, "Đang vào chế độ khách...", Toast.LENGTH_SHORT).show();
+        AppToast.show(context, "Đang vào chế độ khách...", Toast.LENGTH_SHORT);
         navigateToMainActivity(context); // Chuyển thẳng vào MainActivity
     }
 

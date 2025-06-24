@@ -152,7 +152,7 @@ public class ProjectSaveManager {
 
     private void updateProjectData(String projectId, String projectName, String projectDescription, String status, Project currentProject, List<Map<String, String>> existingMediaUrls, List<Map<String, String>> newMediaUrls, String newThumbnailUrl, ProjectSaveListener listener) {
         listener.onProgress("Đang cập nhật dự án...");
-        final boolean wasApproved = currentProject.isApproved();
+        final boolean wasApproved = currentProject.getIsApproved();
         Map<String, Object> projectUpdates = formManager.collectProjectDataForUpdate(projectName, projectDescription, status, currentProject, existingMediaUrls, newThumbnailUrl, newMediaUrls);
 
         firestoreService.updateProject(projectId, projectUpdates, new FirestoreService.ProjectUpdateListener() {

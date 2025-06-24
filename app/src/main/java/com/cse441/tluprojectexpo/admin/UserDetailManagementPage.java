@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.repository.RoleRepository;
 import com.cse441.tluprojectexpo.admin.repository.UserManagementRepository;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.model.Role;
 import com.cse441.tluprojectexpo.model.User;
 import com.google.android.material.imageview.ShapeableImageView;
@@ -31,7 +33,7 @@ public class UserDetailManagementPage extends AppCompatActivity {
     private Spinner spinnerRole, spinnerStatus;
     private ShapeableImageView imgAvatar;
     private Button btnSaveChanges;
-    private LinearLayout navigationBar;
+    private ImageButton back;
 
     // --- Dữ liệu và Repositories ---
     private User currentUser;
@@ -54,7 +56,7 @@ public class UserDetailManagementPage extends AppCompatActivity {
 
         // Nếu không có dữ liệu user, đóng activity
         if (currentUser == null) {
-            Toast.makeText(this, "Không thể tải dữ liệu người dùng.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Không thể tải dữ liệu người dùng.", Toast.LENGTH_SHORT);
             finish();
             return;
         }
@@ -80,7 +82,7 @@ public class UserDetailManagementPage extends AppCompatActivity {
 
         // Buttons and Navigation
         btnSaveChanges = findViewById(R.id.btn_save_infor);
-        navigationBar = findViewById(R.id.navigation_bar_sys_censor);
+        back = findViewById(R.id.back_from_censor);
     }
 
     private void retrieveUserData() {
@@ -122,7 +124,7 @@ public class UserDetailManagementPage extends AppCompatActivity {
                 allRolesList.addAll(roles);
                 setupRoleSpinner(); // Cài đặt Spinner sau khi có dữ liệu
             } else {
-                Toast.makeText(this, "Không thể tải danh sách vai trò", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Không thể tải danh sách vai trò", Toast.LENGTH_SHORT);
             }
         });
     }
@@ -168,7 +170,7 @@ public class UserDetailManagementPage extends AppCompatActivity {
 
     private void setupClickListeners() {
         // Sự kiện cho nút quay lại
-        navigationBar.setOnClickListener(v -> finish());
+        back.setOnClickListener(v -> finish());
 
         // Sự kiện cho nút Lưu thay đổi
         btnSaveChanges.setOnClickListener(v -> saveUserInformation());
@@ -178,7 +180,7 @@ public class UserDetailManagementPage extends AppCompatActivity {
         // Lấy dữ liệu đã chọn từ Spinner
         int selectedRolePosition = spinnerRole.getSelectedItemPosition();
         if (selectedRolePosition < 0 || selectedRolePosition >= allRolesList.size()) {
-            Toast.makeText(this, "Vui lòng chọn vai trò hợp lệ.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Vui lòng chọn vai trò hợp lệ.", Toast.LENGTH_SHORT);
             return;
         }
         Role selectedRole = allRolesList.get(selectedRolePosition);
@@ -198,7 +200,7 @@ public class UserDetailManagementPage extends AppCompatActivity {
         userManagementRepository.updateUserRoleAndStatus(userId, selectedRole, isLocked, new UserManagementRepository.OnTaskCompleteListener() {
             @Override
             public void onSuccess() {
-                Toast.makeText(UserDetailManagementPage.this, "Đã cập nhật thành công!", Toast.LENGTH_SHORT).show();
+                AppToast.show(UserDetailManagementPage.this, "Đã cập nhật thành công!", Toast.LENGTH_SHORT);
                 Intent resultIntent = new Intent();
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
@@ -206,7 +208,7 @@ public class UserDetailManagementPage extends AppCompatActivity {
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(UserDetailManagementPage.this, "Cập nhật thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                AppToast.show(UserDetailManagementPage.this, "Cập nhật thất bại: " + e.getMessage(), Toast.LENGTH_LONG);
             }
         });
     }

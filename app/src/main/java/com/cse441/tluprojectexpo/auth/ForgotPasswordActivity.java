@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -74,7 +75,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         hideProgressBar();
                         if (task.isSuccessful()) {
-                            Toast.makeText(ForgotPasswordActivity.this, "Đã gửi hướng dẫn đặt lại mật khẩu đến email của bạn.", Toast.LENGTH_LONG).show();
+                            AppToast.show(ForgotPasswordActivity.this, "Đã gửi hướng dẫn đặt lại mật khẩu đến email của bạn.", Toast.LENGTH_LONG);
                             // Chuyển sang màn hình CheckEmailActivity và truyền email qua
                             Intent intent = new Intent(ForgotPasswordActivity.this, CheckEmailActivity.class);
                             intent.putExtra("user_email", email); // Truyền email qua CheckEmailActivity
@@ -82,7 +83,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                             finish(); // Đóng ForgotPasswordActivity
                         } else {
                             String errorMessage = task.getException() != null ? task.getException().getMessage() : "Lỗi không xác định.";
-                            Toast.makeText(ForgotPasswordActivity.this, "Không thể gửi email đặt lại mật khẩu: " + errorMessage, Toast.LENGTH_LONG).show();
+                            AppToast.show(ForgotPasswordActivity.this, "Không thể gửi email đặt lại mật khẩu: " + errorMessage, Toast.LENGTH_LONG);
                         }
                     }
                 });

@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.CategoryAdapter;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.model.Category;
 import com.cse441.tluprojectexpo.admin.repository.CatalogRepository;
@@ -139,7 +140,7 @@ public class CatalogManagementPage extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 Log.w(TAG, "[FIELDS] Lỗi tải dữ liệu.", e);
-                Toast.makeText(CatalogManagementPage.this, "Lỗi tải Lĩnh vực.", Toast.LENGTH_SHORT).show();
+                AppToast.show(CatalogManagementPage.this, "Lỗi tải Lĩnh vực.", Toast.LENGTH_SHORT);
                 hideLoading();
             }
         });
@@ -155,7 +156,7 @@ public class CatalogManagementPage extends AppCompatActivity {
             }
             @Override
             public void onError(Exception e) {
-                Toast.makeText(CatalogManagementPage.this, "Lỗi tải Công nghệ.", Toast.LENGTH_SHORT).show();
+                AppToast.show(CatalogManagementPage.this, "Lỗi tải Công nghệ.", Toast.LENGTH_SHORT);
                 hideLoading();
             }
         });
@@ -231,7 +232,7 @@ public class CatalogManagementPage extends AppCompatActivity {
             if (!name.isEmpty()) {
                 addNewItem(new Category(name), type);
             } else {
-                Toast.makeText(this, "Tên không được để trống!", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Tên không được để trống!", Toast.LENGTH_SHORT);
             }
         });
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
@@ -273,10 +274,10 @@ public class CatalogManagementPage extends AppCompatActivity {
             hideLoadingSimple();
 
             if (task.isSuccessful()) {
-                Toast.makeText(this, "Thêm thành công!", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Thêm thành công!", Toast.LENGTH_SHORT);
                 loadData(); // Tải lại dữ liệu sau khi thêm
             } else {
-                Toast.makeText(this, "Thêm thất bại!", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Thêm thất bại!", Toast.LENGTH_SHORT);
                 Log.w(TAG, "Lỗi khi thêm item qua Repository", task.getException());
             }
         });
@@ -287,10 +288,10 @@ public class CatalogManagementPage extends AppCompatActivity {
         catalogRepository.updateItem(type, itemToUpdate, task -> {
             hideLoadingSimple();
             if (task.isSuccessful()) {
-                Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Cập nhật thành công!", Toast.LENGTH_SHORT);
                 loadData();
             } else {
-                Toast.makeText(this, "Cập nhật thất bại!", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Cập nhật thất bại!", Toast.LENGTH_SHORT);
                 Log.w(TAG, "Lỗi khi cập nhật item qua Repository", task.getException());
             }
         });
@@ -301,10 +302,10 @@ public class CatalogManagementPage extends AppCompatActivity {
         catalogRepository.deleteItem(type, itemId, task -> {
             hideLoadingSimple();
             if (task.isSuccessful()) {
-                Toast.makeText(this, "Xóa thành công!", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Xóa thành công!", Toast.LENGTH_SHORT);
                 loadData();
             } else {
-                Toast.makeText(this, "Xóa thất bại!", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Xóa thất bại!", Toast.LENGTH_SHORT);
                 Log.w(TAG, "Lỗi khi xóa item qua Repository", task.getException());
             }
         });

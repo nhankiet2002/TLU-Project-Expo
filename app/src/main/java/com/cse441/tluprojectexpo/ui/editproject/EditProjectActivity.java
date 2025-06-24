@@ -32,6 +32,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.model.LinkItem;
 import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
@@ -162,7 +163,7 @@ public class EditProjectActivity extends AppCompatActivity implements
 
         currentProjectId = getIntent().getStringExtra(EXTRA_PROJECT_ID);
         if (currentProjectId == null || currentProjectId.isEmpty()) {
-            Toast.makeText(this, "ID dự án không hợp lệ.", Toast.LENGTH_LONG).show();
+            AppToast.show(this, "ID dự án không hợp lệ.", Toast.LENGTH_LONG);
             finish();
             return;
         }
@@ -323,7 +324,7 @@ public class EditProjectActivity extends AppCompatActivity implements
             addChipToGroup(chipGroupCategories, categoryName, () -> formManager.removeCategory(categoryName));
             hasUserMadeChanges = true;
         } else {
-            Toast.makeText(this, "Không thể thêm lĩnh vực. Đã đạt giới hạn hoặc đã tồn tại.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Không thể thêm lĩnh vực. Đã đạt giới hạn hoặc đã tồn tại.", Toast.LENGTH_SHORT);
         }
         actvCategoryInput.setText("");
         hideKeyboard();
@@ -334,7 +335,7 @@ public class EditProjectActivity extends AppCompatActivity implements
             addChipToGroup(chipGroupTechnologies, techName, () -> formManager.removeTechnology(techName));
             hasUserMadeChanges = true;
         } else {
-            Toast.makeText(this, "Không thể thêm công nghệ. Đã đạt giới hạn hoặc đã tồn tại.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Không thể thêm công nghệ. Đã đạt giới hạn hoặc đã tồn tại.", Toast.LENGTH_SHORT);
         }
         actvTechnologyInput.setText("");
         hideKeyboard();
@@ -352,7 +353,7 @@ public class EditProjectActivity extends AppCompatActivity implements
             boolean demoLinkExists = formManager.getProjectLinks().stream().anyMatch(item -> "Demo".equalsIgnoreCase(item.getPlatform()));
 
             if (githubLinkExists && demoLinkExists) {
-                Toast.makeText(this, "Bạn đã thêm đủ liên kết GitHub và Demo.", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Bạn đã thêm đủ liên kết GitHub và Demo.", Toast.LENGTH_SHORT);
                 return;
             }
 
@@ -366,7 +367,7 @@ public class EditProjectActivity extends AppCompatActivity implements
     private void onAddMedia() {
         if (checkLoginAndNotify("thêm media")) {
             if (formManager.getSelectedMediaUris().size() >= 10) {
-                Toast.makeText(this, "Bạn chỉ có thể thêm tối đa 10 media.", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Bạn chỉ có thể thêm tối đa 10 media.", Toast.LENGTH_SHORT);
                 return;
             }
             currentPickerAction = ACTION_PICK_MEDIA;
@@ -405,7 +406,7 @@ public class EditProjectActivity extends AppCompatActivity implements
             }
             @Override
             public void onError(String errorMessage) {
-                Toast.makeText(EditProjectActivity.this, "Lỗi tải dự án: " + errorMessage, Toast.LENGTH_LONG).show();
+                AppToast.show(EditProjectActivity.this, "Lỗi tải dự án: " + errorMessage, Toast.LENGTH_LONG);
                 finish();
             }
         });
@@ -546,9 +547,9 @@ public class EditProjectActivity extends AppCompatActivity implements
                 notificationManager.sendMemberChangeNotifications(originalProjectUsers, originalUserRoles, formManager.getSelectedProjectUsers(), formManager.getUserRolesInProject(), projectId, projectName);
                 
                 if (wasPreviouslyApproved) {
-                    Toast.makeText(EditProjectActivity.this, "Cập nhật dự án thành công. Vui lòng chờ xét duyệt dự án.", Toast.LENGTH_LONG).show();
+                    AppToast.show(EditProjectActivity.this, "Cập nhật dự án thành công. Vui lòng chờ xét duyệt dự án.", Toast.LENGTH_LONG);
                 } else {
-                    Toast.makeText(EditProjectActivity.this, "Cập nhật dự án thành công!", Toast.LENGTH_LONG).show();
+                    AppToast.show(EditProjectActivity.this, "Cập nhật dự án thành công!", Toast.LENGTH_LONG);
                 }
                 finish();
             }
@@ -556,7 +557,7 @@ public class EditProjectActivity extends AppCompatActivity implements
             @Override
             public void onError(String errorMessage) {
                 showProgress(false, null);
-                Toast.makeText(EditProjectActivity.this, "Lỗi cập nhật: " + errorMessage, Toast.LENGTH_LONG).show();
+                AppToast.show(EditProjectActivity.this, "Lỗi cập nhật: " + errorMessage, Toast.LENGTH_LONG);
             }
 
             @Override
@@ -581,7 +582,7 @@ public class EditProjectActivity extends AppCompatActivity implements
             @Override
             public void onSuccess() {
                 showProgress(false, null);
-                Toast.makeText(EditProjectActivity.this, "Đã xóa dự án thành công!", Toast.LENGTH_LONG).show();
+                AppToast.show(EditProjectActivity.this, "Đã xóa dự án thành công!", Toast.LENGTH_LONG);
                 
                 // Trả về kết quả để trang danh sách có thể cập nhật
                 Intent resultIntent = new Intent();
@@ -594,7 +595,7 @@ public class EditProjectActivity extends AppCompatActivity implements
             @Override
             public void onError(String errorMessage) {
                 showProgress(false, null);
-                Toast.makeText(EditProjectActivity.this, "Lỗi khi xóa dự án: " + errorMessage, Toast.LENGTH_LONG).show();
+                AppToast.show(EditProjectActivity.this, "Lỗi khi xóa dự án: " + errorMessage, Toast.LENGTH_LONG);
             }
         });
     }
@@ -677,7 +678,7 @@ public class EditProjectActivity extends AppCompatActivity implements
             if (currentPickerAction == ACTION_PICK_PROJECT_IMAGE) imagePickerDelegate.launchProjectImagePicker();
             else if (currentPickerAction == ACTION_PICK_MEDIA) imagePickerDelegate.launchMediaPicker();
         } else {
-            Toast.makeText(this, "Quyền truy cập bộ nhớ bị từ chối.", Toast.LENGTH_SHORT).show();
+            AppToast.show(this, "Quyền truy cập bộ nhớ bị từ chối.", Toast.LENGTH_SHORT);
         }
     }
 
@@ -699,9 +700,9 @@ public class EditProjectActivity extends AppCompatActivity implements
                 newMediaUris.add(uri); // Track new files for upload
                 updateAllUIs();
                 hasUserMadeChanges = true;
-                Toast.makeText(this, "Đã thêm media.", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Đã thêm media.", Toast.LENGTH_SHORT);
             } else {
-                Toast.makeText(this, "Media đã tồn tại hoặc đã đạt giới hạn.", Toast.LENGTH_SHORT).show();
+                AppToast.show(this, "Media đã tồn tại hoặc đã đạt giới hạn.", Toast.LENGTH_SHORT);
             }
         }
     }

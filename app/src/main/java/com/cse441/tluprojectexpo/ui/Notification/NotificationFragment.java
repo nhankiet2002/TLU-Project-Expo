@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.admin.utils.AppToast;
 import com.cse441.tluprojectexpo.model.Notification;
 import com.cse441.tluprojectexpo.service.FirestoreService;
 import com.cse441.tluprojectexpo.ui.Notification.adapter.NotificationAdapter;
@@ -100,7 +101,7 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
             emptyView.setVisibility(View.VISIBLE);
             recyclerViewNotifications.setVisibility(View.GONE);
             if (getContext() != null) {
-                Toast.makeText(getContext(), "Vui lòng đăng nhập để xem thông báo.", Toast.LENGTH_LONG).show();
+                AppToast.show(getContext(), "Vui lòng đăng nhập để xem thông báo.", Toast.LENGTH_LONG);
             }
         }
 
@@ -143,7 +144,7 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
                     } else {
                         Log.e(TAG, "Lỗi tải thông báo: ", task.getException());
                         if (getContext() != null) {
-                            Toast.makeText(getContext(), getString(R.string.error_loading_notifications) + (task.getException() != null ? ": " + task.getException().getMessage() : ""), Toast.LENGTH_SHORT).show();
+                            AppToast.show(getContext(), getString(R.string.error_loading_notifications) + (task.getException() != null ? ": " + task.getException().getMessage() : ""), Toast.LENGTH_SHORT);
                         }
                         updateUIBasedOnData(); // Vẫn cập nhật UI để hiển thị empty view nếu cần
                     }
@@ -222,15 +223,15 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
                     startActivity(commentIntent);
                     break;
                 default:
-                    Toast.makeText(getContext(), "Hành động cho thông báo này chưa được xác định.", Toast.LENGTH_SHORT).show();
+                    AppToast.show(getContext(), "Hành động cho thông báo này chưa được xác định.", Toast.LENGTH_SHORT);
                     break;
             }
         } else if (notification.getActionUrl() != null && !notification.getActionUrl().isEmpty() && getContext() != null) {
             // Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(notification.getActionUrl()));
             // startActivity(browserIntent);
-            Toast.makeText(getContext(), "Action URL: " + notification.getActionUrl(), Toast.LENGTH_SHORT).show();
+            AppToast.show(getContext(), "Action URL: " + notification.getActionUrl(), Toast.LENGTH_SHORT);
         } else if (getContext() != null) {
-            Toast.makeText(getContext(), "Thông báo này không có hành động cụ thể.", Toast.LENGTH_SHORT).show();
+            AppToast.show(getContext(), "Thông báo này không có hành động cụ thể.", Toast.LENGTH_SHORT);
         }
     }
 
@@ -239,7 +240,7 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
     public void onAcceptInvite(Notification notification) {
         Log.d(TAG, "Accept invite for project: " + notification.getTargetProjectId());
         if (getContext() != null) {
-            Toast.makeText(getContext(), "Đã chấp nhận lời mời (chức năng đang phát triển)", Toast.LENGTH_SHORT).show();
+            AppToast.show(getContext(), "Đã chấp nhận lời mời (chức năng đang phát triển)", Toast.LENGTH_SHORT);
         }
         // TODO: Implement accept invitation logic
     }
@@ -248,7 +249,7 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
     public void onDeclineInvite(Notification notification) {
         Log.d(TAG, "Decline invite for project: " + notification.getTargetProjectId());
         if (getContext() != null) {
-            Toast.makeText(getContext(), "Đã từ chối lời mời (chức năng đang phát triển)", Toast.LENGTH_SHORT).show();
+            AppToast.show(getContext(), "Đã từ chối lời mời (chức năng đang phát triển)", Toast.LENGTH_SHORT);
         }
         // TODO: Implement decline invitation logic
     }
@@ -256,7 +257,7 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
     @Override
     public void onToggleReadStatus(Notification notification) {
         if (notification.getNotificationId() == null || notification.getNotificationId().isEmpty()) {
-            if (getContext() != null) Toast.makeText(getContext(), R.string.error_updating_notification, Toast.LENGTH_SHORT).show();
+            if (getContext() != null) AppToast.show(getContext(), String.valueOf(R.string.error_updating_notification), Toast.LENGTH_SHORT);
             Log.e(TAG, "Notification ID is null or empty for toggle read status.");
             return;
         }
@@ -293,7 +294,7 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
             @Override
             public void onError(String errorMessage) {
                 Log.e(TAG, "Error toggling read status: " + errorMessage);
-                if (getContext() != null) Toast.makeText(getContext(), R.string.error_updating_notification, Toast.LENGTH_SHORT).show();
+                if (getContext() != null) AppToast.show(getContext(), String.valueOf(R.string.error_updating_notification), Toast.LENGTH_SHORT);
             }
         });
     }
@@ -301,7 +302,7 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
     @Override
     public void onDeleteNotification(Notification notification) {
         if (notification.getNotificationId() == null || notification.getNotificationId().isEmpty()) {
-            if (getContext() != null) Toast.makeText(getContext(), R.string.error_deleting_notification, Toast.LENGTH_SHORT).show();
+            if (getContext() != null) AppToast.show(getContext(), String.valueOf(R.string.error_deleting_notification), Toast.LENGTH_SHORT);
             Log.e(TAG, "Notification ID is null or empty for delete.");
             return;
         }
@@ -339,13 +340,13 @@ public class NotificationFragment extends Fragment implements NotificationAdapte
                                 // loadNotifications();
                             }
                             updateUIBasedOnData();
-                            if (getContext() != null) Toast.makeText(getContext(), R.string.notification_deleted, Toast.LENGTH_SHORT).show();
+                            if (getContext() != null) AppToast.show(getContext(), String.valueOf(R.string.notification_deleted), Toast.LENGTH_SHORT);
                         }
 
                         @Override
                         public void onError(String errorMessage) {
                             Log.e(TAG, "Error deleting notification: " + errorMessage);
-                            if (getContext() != null) Toast.makeText(getContext(), R.string.error_deleting_notification, Toast.LENGTH_SHORT).show();
+                            if (getContext() != null) AppToast.show(getContext(), String.valueOf(R.string.error_deleting_notification), Toast.LENGTH_SHORT);
                         }
                     });
                 })

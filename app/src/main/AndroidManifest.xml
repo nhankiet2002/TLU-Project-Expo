@@ -45,8 +45,12 @@
         </service>
 
         <!-- Admin Activities -->
+
         <activity
             android:name=".admin.UserDetailManagementPage"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminHomePage"
             android:exported="false" />
         <activity
             android:name=".admin.FeaturedManagementPage"
@@ -62,6 +66,9 @@
             android:exported="false" />
         <activity
             android:name=".admin.UserManagementPage"
+            android:exported="false" />
+        <activity
+            android:name=".admin.ProjectDetailViewAdmin"
             android:exported="false" />
 
         <!-- Auth Activities -->
@@ -80,6 +87,8 @@
         <activity android:name=".auth.LoginActivity"
             android:exported="false"/>
         <activity android:name=".auth.ForgotPasswordActivity"
+            android:exported="false"/>
+        <activity android:name=".auth.SettingProfileActivity"
             android:exported="false"/>
 
         <!-- Main App Activity -->
