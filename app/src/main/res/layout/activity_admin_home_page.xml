@@ -97,22 +97,27 @@
         tools:listitem="@layout/item_project_admin" />
 
     <!-- Thanh điều hướng dưới cùng -->
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:minHeight="50dp"
         android:layout_alignParentBottom="true"
         android:background="@android:color/white"
+        android:minHeight="50dp"
         app:elevation="0dp"
         app:itemIconSize="24dp"
-        app:itemPaddingTop="5dp"
-        app:itemPaddingBottom="5dp"
-        app:itemTextColor="@color/custom_color_nav"
         app:itemIconTint="@color/custom_color_nav"
+        app:itemPaddingBottom="5dp"
+        app:itemPaddingTop="5dp"
+        app:itemTextColor="@color/custom_color_nav"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/admin_bottom_nav_menu"/>
+        app:menu="@menu/admin_bottom_nav_menu"
+        tools:layout_editor_absoluteX="0dp"
+        app:itemRippleColor="@color/light_gray"
+        app:itemBackground="@android:color/transparent"
+        app:itemActiveIndicatorStyle="@null"/>
 
     <ProgressBar
         android:id="@+id/progress_bar_loading"

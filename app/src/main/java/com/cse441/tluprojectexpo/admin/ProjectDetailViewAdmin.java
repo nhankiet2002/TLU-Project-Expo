@@ -31,7 +31,8 @@ import com.cse441.tluprojectexpo.ui.detailproject.adapter.CommentAdapter;
 public class ProjectDetailViewAdmin extends AppCompatActivity implements CommentAdapter.OnCommentInteractionListener {
 
     // Khai báo các View từ layout
-    private ImageView imgThumb, backToHome, isFeaturedIcon;
+    private ImageView imgThumb, isFeaturedIcon;
+    private ImageButton backToHome;
     private TextView projectName, projectStatus, createdAt, updatedAt, likeCount, desc, authorName, categoryName, technologyNames;
     private Button btnDeleteProject, btnMember, btnComment;
     private ImageButton optionProjectDetail;

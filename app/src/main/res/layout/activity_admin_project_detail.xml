@@ -32,21 +32,22 @@
             android:clickable="true"
             android:focusable="true">
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/back_to_home"
                 android:layout_width="40dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="4dp"
-                android:scaleType="fitXY"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
                 app:srcCompat="@drawable/ic_arrow_back_left"
-                android:clickable="true"
-                android:focusable="true"/>
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitXY"
+                />
 
             <TextView
                 android:textColor="#1D1B20"
                 android:textSize="20sp"
                 android:layout_marginBottom="1dp"
                 android:layout_marginEnd="4dp"
+                android:layout_gravity="center"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:text="@string/project_detail"
@@ -379,30 +380,34 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_members"
         android:layout_width="match_parent"
-        android:layout_height="185dp"
+        android:layout_height="0dp"
         android:visibility="gone"
         tools:itemCount="3"
         tools:listitem="@layout/item_member"
         tools:visibility="visible"
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tab_button" />
+        app:layout_constraintTop_toBottomOf="@+id/tab_button"
+        app:layout_constraintBottom_toTopOf="@+id/btn_delete_project"/>
 
     <!-- RecyclerView cho Bình luận -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_comments"
         android:layout_width="match_parent"
-        android:layout_height="185dp"
+        android:layout_height="0dp"
         android:visibility="gone"
         tools:itemCount="2"
         tools:listitem="@layout/item_comment"
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tab_button"/>
+        app:layout_constraintTop_toBottomOf="@+id/tab_button"
+        app:layout_constraintBottom_toTopOf="@+id/btn_delete_project"/>
 
 
     <Button

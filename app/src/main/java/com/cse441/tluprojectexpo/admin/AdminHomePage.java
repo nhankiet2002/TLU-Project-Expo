@@ -304,6 +304,16 @@ public class AdminHomePage extends AppCompatActivity implements AdminProjectAdap
         });
     }
 
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        // Bỏ chọn tất cả các item khi quay lại màn hình này
+//        // để nó không giữ trạng thái "selected" của màn hình trước đó
+//        if (bottomNavigationView.getSelectedItemId() != 0) {
+//            bottomNavigationView.getMenu().findItem(bottomNavigationView.getSelectedItemId()).setChecked(false);
+//        }
+//    }
+
     @Override
     public void onSetFeaturedClick(Project project, int position) {
         Toast.makeText(this, "Đang làm nổi bật: " + project.getTitle(), Toast.LENGTH_SHORT).show();
