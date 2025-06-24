@@ -79,6 +79,12 @@ public class FeaturedProjectAdapter extends RecyclerView.Adapter<FeaturedProject
             personPosting.setText("Bởi: " + item.getCreatorName());
             txtCategory.setText(item.getCategoryName()); // Giả sử có getCategoryName()
 
+            viewMore.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onViewMoreClicked(item);
+                }
+            });
+
             // Xử lý sự kiện cho Switch "Nổi bật"
             // Vì đây là danh sách các dự án đã nổi bật, switch luôn ở trạng thái "on"
             // Ta cần set listener về null trước khi set checked để tránh trigger sự kiện không mong muốn

@@ -1,5 +1,7 @@
 package com.cse441.tluprojectexpo.admin;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,13 +10,17 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.admin.adapter.FeaturedProjectAdapter;
+import com.cse441.tluprojectexpo.admin.utils.NavigationUtil;
 import com.cse441.tluprojectexpo.model.FeaturedProjectUIModel;
 import com.cse441.tluprojectexpo.admin.repository.ProjectRepository;
 
@@ -26,6 +32,7 @@ import java.util.TimerTask;
 public class FeaturedManagementPage extends AppCompatActivity implements FeaturedProjectAdapter.OnProjectInteractionListener {
 
     private static final long SEARCH_DELAY = 500;
+    private static final int PROJECT_DETAIL_REQUEST_CODE = 2002;
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
@@ -37,6 +44,7 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
     private Timer searchTimer = new Timer();
     private ImageButton btnBackToDashboard;
     private EditText searchFeatured;
+    private TextView totalFeaturedCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +56,7 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
         progressBar = findViewById(R.id.progress_bar_loading);
         btnBackToDashboard = findViewById(R.id.back_to_dashboard);
         searchFeatured = findViewById(R.id.search_featured);
+        totalFeaturedCount = findViewById(R.id.total_featured);
 
         projectRepository = new ProjectRepository();
         adapter = new FeaturedProjectAdapter(this, displayedUiModelList, this);
@@ -106,6 +115,7 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
                 adapter.notifyDataSetChanged();
 
             } else {
+                totalFeaturedCount.setText("0 dự án");
                 Toast.makeText(this, "Lỗi khi tải dự án nổi bật.", Toast.LENGTH_SHORT).show();
                 Log.e("FeaturedPage", "Danh sách dự án nổi bật trả về là null.");
             }
@@ -139,6 +149,12 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
         displayedUiModelList.clear();
         displayedUiModelList.addAll(newList);
         adapter.notifyDataSetChanged();
+
+        // CẬP NHẬT SỐ LƯỢNG MỖI KHI DANH SÁCH THAY ĐỔI
+        if (totalFeaturedCount != null) {
+            String countText = newList.size() + " dự án";
+            totalFeaturedCount.setText(countText);
+        }
     }
 
 
@@ -170,7 +186,22 @@ public class FeaturedManagementPage extends AppCompatActivity implements Feature
 
     @Override
     public void onViewMoreClicked(FeaturedProjectUIModel item) {
-        // Logic chuyển sang trang chi tiết của bạn ở đây
-        Toast.makeText(this, "Xem chi tiết: " + item.getProjectTitle(), Toast.LENGTH_SHORT).show();
+        NavigationUtil.navigateWithObjectForResult(this, ProjectDetailViewAdmin.class, "PROJECT_ID", item.getProjectId(), PROJECT_DETAIL_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // 1. Kiểm tra xem đây có phải kết quả từ trang chi tiết không
+        if (requestCode == PROJECT_DETAIL_REQUEST_CODE) {
+            // 2. Kiểm tra xem hành động ở trang chi tiết có thành công không
+            if (resultCode == Activity.RESULT_OK) {
+                // 3. Nếu thành công, cách đơn giản và an toàn nhất là tải lại toàn bộ danh sách
+                //    Điều này xử lý được cả trường hợp XÓA và BỎ NỔI BẬT từ trang chi tiết.
+                Toast.makeText(this, "Đang cập nhật danh sách nổi bật...", Toast.LENGTH_SHORT).show();
+                loadFeaturedProjects();
+            }
+        }
     }
 }
