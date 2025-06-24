@@ -23,13 +23,19 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="xoa">#E3E3E3</color>
-
+    <color name="blue_background">#0070C0</color>
         <color name="colorPrimaryLight">#BB86FC</color> <!-- Ví dụ màu cho chip active -->
-
+    <!--    Notification-->
     <color name="status_pending">#FFA726</color> <!-- Orange -->
-    <color name="status_accepted">#4CAF50</color> <!-- Green -->
     <color name="status_declined">#F44336</color> <!-- Red -->
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
-
+    <color name="status_accepted">#198CE4</color>
+    <color name="text_secondary_read_content">#505050</color> <!-- Màu xám nhạt hơn cho nội dung đã đọc -->
+    <color name="text_secondary_read_title">#2C2C2C</color>   <!-- Màu xám cho tiêu đề đã đọc -->
+    <color name="unread_notification_highlight_background">#0A000000</color> <!-- Màu nền rất nhạt cho thông báo chưa đọc (ví dụ: 5% black) -->
+    <color name="read_notification_background">@android:color/white</color> <!-- Nền trắng cho thông báo đã đọc -->
+    <color name="button_blue_background">#0D8BF0</color>
+    <color name="button_accept_background_blue">#1976D2</color> <!-- Một màu xanh dương đẹp (Blue 700) -->
+    <color name="button_decline_stroke_red">#D32F2F</color>
 </resources>

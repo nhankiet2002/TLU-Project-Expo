@@ -4,26 +4,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="8dp"
     app:cardElevation="2dp"
-    android:foreground="?android:attr/selectableItemBackground">
+
+    android:background="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- Avatar/Icon -->
+        <!-- Ảnh đại diện/Biểu tượng -->
         <ImageView
             android:id="@+id/ivAvatarOrIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:scaleType="centerCrop"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:src="@drawable/ic_default_avatar"
+            tools:src="@drawable/ic_default_avatar"
             android:contentDescription="@string/user_avatar" />
+
+        <ImageView
+            android:id="@+id/ivMoreOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_more_horiz"
+            android:contentDescription="@string/more_options"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvTitle"
+            app:tint="@color/text_secondary" />
 
         <!-- Tên người gửi hoặc tiêu đề thông báo -->
         <TextView
@@ -32,11 +44,12 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
-            android:textSize="16sp"
+            android:textSize="15sp"
             app:layout_constraintStart_toEndOf="@id/ivAvatarOrIcon"
             app:layout_constraintTop_toTopOf="@id/ivAvatarOrIcon"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ivMoreOptions"
             android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
             tools:text="Ashwin Bose" />
 
         <!-- Nội dung thông báo -->
@@ -45,12 +58,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
-            android:textSize="14sp"
+            android:textSize="15sp"
             app:layout_constraintStart_toStartOf="@id/tvTitle"
             app:layout_constraintTop_toBottomOf="@id/tvTitle"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/tvTitle"
             android:layout_marginTop="2dp"
-            tools:text="đã mời bạn vào Design File - Final Project." />
+            android:drawablePadding="4dp"
+            tools:text="is requesting access to Design File - Final Project." />
 
         <!-- Thời gian -->
         <TextView
@@ -59,54 +73,53 @@
             android:layout_height="wrap_content"
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvTitle"
-            app:layout_constraintTop_toBottomOf="@id/tvContent"
+            app:layout_constraintStart_toStartOf="@+id/tvContent"
+            app:layout_constraintTop_toBottomOf="@+id/tvContent"
             android:layout_marginTop="4dp"
-            tools:text="2 phút trước" />
+            tools:text="2m" />
 
-        <!-- Nút Chấp nhận/Từ chối cho lời mời -->
+        <!-- Vùng chứa nút Chấp nhận/Từ chối/Thử ngay -->
         <LinearLayout
             android:id="@+id/layoutInviteActions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="8dp"
-            android:visibility="gone">
+            app:layout_constraintStart_toStartOf="@+id/tvContent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTime"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            tools:visibility="visible">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAccept"
+                style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="Chấp nhận"
+                android:layout_height="40dp"
+                android:text="Accept"
                 android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:backgroundTint="@color/status_accepted"
-                android:layout_marginEnd="8dp" />
+                android:textColor="@color/white"
+                app:backgroundTint="@color/button_accept_background_blue"
+                app:cornerRadius="4dp"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="16dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDecline"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="Từ chối"
+                android:layout_height="40dp"
+                android:text="Decline"
                 android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:backgroundTint="@color/status_declined" />
+                android:textColor="@color/button_decline_stroke_red"
+                app:strokeColor="@color/button_decline_stroke_red"
+                app:cornerRadius="4dp"
+                android:paddingHorizontal="16dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"/>
         </LinearLayout>
-
-        <!-- Đường kẻ phân cách dưới -->
-        <View
-            android:id="@+id/separator"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/light_gray"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginTop="12dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.cardview.widget.CardView> 
+</androidx.cardview.widget.CardView>

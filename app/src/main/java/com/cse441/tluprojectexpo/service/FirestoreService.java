@@ -15,6 +15,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,9 +83,39 @@ public class FirestoreService {
         void onSuccess();
         void onError(String errorMessage);
     }
-
+    public interface NotificationUpdateListener { // Có thể dùng chung UpdateCallback
+        void onSuccess();
+        void onError(String errorMessage);
+    }
     // --- KẾT THÚC INTERFACES CHO EditProjectActivity ---
 
+    public void updateNotificationReadStatus(String notificationId, boolean newReadStatus, NotificationUpdateListener listener) {
+        if (notificationId == null || notificationId.isEmpty()) {
+            if (listener != null) listener.onError("Notification ID không hợp lệ.");
+            return;
+        }
+        if (listener == null) return;
+
+        db.collection(Constants.COLLECTION_NOTIFICATIONS) // Giả sử bạn có Constants.COLLECTION_NOTIFICATIONS
+                .document(notificationId)
+                .update("isRead", newReadStatus) // "isRead" là tên trường trong Firestore
+                .addOnSuccessListener(aVoid -> listener.onSuccess())
+                .addOnFailureListener(e -> listener.onError("Lỗi cập nhật trạng thái thông báo: " + e.getMessage()));
+    }
+
+    public void deleteNotification(String notificationId, NotificationUpdateListener listener) {
+        if (notificationId == null || notificationId.isEmpty()) {
+            if (listener != null) listener.onError("Notification ID không hợp lệ.");
+            return;
+        }
+        if (listener == null) return;
+
+        db.collection(Constants.COLLECTION_NOTIFICATIONS) // Giả sử bạn có Constants.COLLECTION_NOTIFICATIONS
+                .document(notificationId)
+                .delete()
+                .addOnSuccessListener(aVoid -> listener.onSuccess())
+                .addOnFailureListener(e -> listener.onError("Lỗi xóa thông báo: " + e.getMessage()));
+    }
     // --- PHƯƠNG THỨC CHO CreateProjectActivity (NẾU CÓ VÀ CẦN GIỮ LẠI) ---
     public void fetchCategories(CategoriesFetchListener listener) {
         if (listener == null) return;
@@ -189,9 +220,9 @@ public class FirestoreService {
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         User user = new User();
                         user.setUserId(document.getId());
-                        user.setFullName(document.getString("fullName"));
-                        user.setAvatarUrl(document.getString("avatarUrl"));
-                        user.setClassName(document.getString("className"));
+                        user.setFullName(document.getString("FullName"));
+                        user.setAvatarUrl(document.getString("AvatarUrl"));
+                        user.setClassName(document.getString("ClassName"));
                         members.add(user);
                         userRoles.put(document.getId(), document.getString("RoleInProject"));
                     }
