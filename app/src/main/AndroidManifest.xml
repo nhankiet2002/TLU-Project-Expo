@@ -98,6 +98,11 @@
             android:exported="false"
             android:label="Chi tiết dự án" />
 
+        <!-- KHAI BÁO ACTIVITY CHỈNH SỬA DỰ ÁN -->
+        <activity
+            android:name=".ui.editproject.EditProjectActivity"
+            android:exported="false"
+            android:label="Chỉnh sửa dự án" />
 
     </application>
 

@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:background="@android:color/white"
     android:fitsSystemWindows="true"
-    tools:context="com.cse441.tluprojectexpo.ui.createproject.CreateFragment"> <!-- Hoặc EditProjectActivity -->
+    tools:context="com.cse441.tluprojectexpo.ui.editproject.EditProjectActivity"> <!-- Hoặc EditProjectActivity -->
 
     <!-- Top Bar -->
     <RelativeLayout
@@ -304,40 +304,56 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingHorizontal="16dp"
-        android:gravity="center">
+        android:paddingBottom="16dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_delete_project"
-            android:layout_width="0dp"
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/pb_editing_project"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Xóa Dự Án"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            app:strokeColor="@android:color/holo_red_dark"
-            android:textColor="@android:color/holo_red_dark"
-            app:cornerRadius="8dp"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingVertical="14dp"
-            android:layout_marginEnd="8dp"/>
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_save_changes"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Lưu Thay Đổi"
-            android:textColor="@android:color/white"
-            app:backgroundTint="@color/black"
-            app:cornerRadius="8dp"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingVertical="14dp"
-            android:layout_marginStart="8dp"/>
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_delete_project"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Xóa Dự Án"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="@android:color/holo_red_dark"
+                android:textColor="@android:color/holo_red_dark"
+                app:cornerRadius="8dp"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingVertical="14dp"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save_changes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Lưu Thay Đổi"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/black"
+                app:cornerRadius="8dp"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingVertical="14dp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
     </LinearLayout>
 
 

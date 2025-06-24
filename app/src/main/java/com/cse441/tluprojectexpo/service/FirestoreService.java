@@ -1,14 +1,16 @@
 package com.cse441.tluprojectexpo.service;
 
-
 // Import model Comment, Project, User của bạn
-
+import com.cse441.tluprojectexpo.model.Comment;
+import com.cse441.tluprojectexpo.model.Project;
 import com.cse441.tluprojectexpo.model.User;
+import com.cse441.tluprojectexpo.model.LinkItem;
 import com.cse441.tluprojectexpo.utils.Constants;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,8 +42,28 @@ public class FirestoreService {
         void onTechnologiesFetched(List<String> technologyNames, Map<String, String> technologyNameToIdMap);
         void onError(String errorMessage);
     }
-    // --- KẾT THÚC INTERFACES CHO CreateProjectActivity ---
 
+    // --- INTERFACES CHO EditProjectActivity ---
+    public interface ProjectFetchListener {
+        void onProjectFetched(Project project);
+        void onError(String errorMessage);
+    }
+
+    public interface ProjectMembersFetchListener {
+        void onMembersFetched(List<User> members, Map<String, String> userRoles);
+        void onError(String errorMessage);
+    }
+
+    public interface ProjectLinksFetchListener {
+        void onLinksFetched(List<LinkItem> links);
+        void onError(String errorMessage);
+    }
+
+    public interface ProjectMediaFetchListener {
+        void onMediaFetched(List<Map<String, String>> mediaList);
+        void onError(String errorMessage);
+    }
+    // --- KẾT THÚC INTERFACES CHO EditProjectActivity ---
 
     // --- PHƯƠNG THỨC CHO CreateProjectActivity (NẾU CÓ VÀ CẦN GIỮ LẠI) ---
     public void fetchCategories(CategoriesFetchListener listener) {
@@ -109,4 +131,119 @@ public class FirestoreService {
     }
     // --- KẾT THÚC PHƯƠNG THỨC CHO CreateProjectActivity ---
 
+    // --- PHƯƠNG THỨC CHO EditProjectActivity ---
+    public void getProjectById(String projectId, ProjectFetchListener listener) {
+        if (projectId == null || projectId.isEmpty()) {
+            if (listener != null) listener.onError("Project ID không hợp lệ.");
+            return;
+        }
+        if (listener == null) return;
+
+        db.collection(Constants.COLLECTION_PROJECTS).document(projectId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Project project = documentSnapshot.toObject(Project.class);
+                        if (project != null) {
+                            project.setProjectId(documentSnapshot.getId());
+                            listener.onProjectFetched(project);
+                        } else {
+                            listener.onError("Lỗi phân tích dữ liệu dự án.");
+                        }
+                    } else {
+                        listener.onError("Dự án không tồn tại.");
+                    }
+                })
+                .addOnFailureListener(e -> listener.onError("Lỗi tải dự án: " + e.getMessage()));
+    }
+
+    public void getProjectMembers(String projectId, ProjectMembersFetchListener listener) {
+        if (projectId == null || projectId.isEmpty()) {
+            if (listener != null) listener.onError("Project ID không hợp lệ.");
+            return;
+        }
+        if (listener == null) return;
+
+        db.collection(Constants.COLLECTION_PROJECTS).document(projectId)
+                .collection("members").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<User> members = new ArrayList<>();
+                    Map<String, String> userRoles = new HashMap<>();
+                    
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String userId = document.getString("userId");
+                        String role = document.getString("role");
+                        String displayName = document.getString("displayName");
+                        String email = document.getString("email");
+                        
+                        if (userId != null) {
+                            User user = new User();
+                            user.setUserId(userId);
+                            user.setFullName(displayName);
+                            user.setEmail(email);
+                            members.add(user);
+                            userRoles.put(userId, role != null ? role : "Thành viên");
+                        }
+                    }
+                    
+                    listener.onMembersFetched(members, userRoles);
+                })
+                .addOnFailureListener(e -> listener.onError("Lỗi tải thành viên dự án: " + e.getMessage()));
+    }
+
+    public void getProjectLinks(String projectId, ProjectLinksFetchListener listener) {
+        if (projectId == null || projectId.isEmpty()) {
+            if (listener != null) listener.onError("Project ID không hợp lệ.");
+            return;
+        }
+        if (listener == null) return;
+
+        db.collection(Constants.COLLECTION_PROJECTS).document(projectId)
+                .collection("links").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<LinkItem> links = new ArrayList<>();
+                    
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String platform = document.getString("platform");
+                        String url = document.getString("url");
+                        
+                        if (platform != null && url != null) {
+                            LinkItem link = new LinkItem(platform, url);
+                            links.add(link);
+                        }
+                    }
+                    
+                    listener.onLinksFetched(links);
+                })
+                .addOnFailureListener(e -> listener.onError("Lỗi tải liên kết dự án: " + e.getMessage()));
+    }
+
+    public void getProjectMedia(String projectId, ProjectMediaFetchListener listener) {
+        if (projectId == null || projectId.isEmpty()) {
+            if (listener != null) listener.onError("Project ID không hợp lệ.");
+            return;
+        }
+        if (listener == null) return;
+
+        db.collection(Constants.COLLECTION_PROJECTS).document(projectId)
+                .collection("media").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Map<String, String>> mediaList = new ArrayList<>();
+                    
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String url = document.getString("url");
+                        String resourceType = document.getString("resourceType");
+                        
+                        if (url != null) {
+                            Map<String, String> mediaItem = new HashMap<>();
+                            mediaItem.put("url", url);
+                            mediaItem.put("resourceType", resourceType != null ? resourceType : "image");
+                            mediaList.add(mediaItem);
+                        }
+                    }
+                    
+                    listener.onMediaFetched(mediaList);
+                })
+                .addOnFailureListener(e -> listener.onError("Lỗi tải media dự án: " + e.getMessage()));
+    }
+    // --- KẾT THÚC PHƯƠNG THỨC CHO EditProjectActivity ---
 }
