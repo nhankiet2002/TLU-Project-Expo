@@ -1,16 +1,24 @@
 // MainActivity.java
 package com.cse441.tluprojectexpo;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -23,7 +31,12 @@ import com.cse441.tluprojectexpo.ui.createproject.CreateProjectActivity;
 import com.cse441.tluprojectexpo.ui.Home.listener.OnScrollInteractionListener;
 // Bỏ import HomeFragment nếu không cần trực tiếp (chỉ cần interface)
 // import com.cse441.tluprojectexpo.ui.Home.HomeFragment;
+import com.cse441.tluprojectexpo.utils.NotificationHelper;
+import com.cse441.tluprojectexpo.repository.NotificationRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 // SỬA: Implement interface đã import
 public class MainActivity extends AppCompatActivity implements OnScrollInteractionListener {
@@ -34,6 +47,9 @@ public class MainActivity extends AppCompatActivity implements OnScrollInteracti
     private int bottomNavHeight = 0;
     private int previouslySelectedViewPagerItem = 0;
 
+    // ActivityResultLauncher cho notification permission
+    private ActivityResultLauncher<String> notificationPermissionLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +58,23 @@ public class MainActivity extends AppCompatActivity implements OnScrollInteracti
 
         viewPager = findViewById(R.id.view_pager);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        // Khởi tạo notification permission launcher
+        notificationPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            isGranted -> {
+                if (isGranted) {
+                    // Lấy FCM token sau khi có quyền
+                    getFCMToken();
+                }
+            }
+        );
+
+        // Tạo notification channel
+        NotificationHelper.createNotificationChannel(this);
+
+        // Kiểm tra và yêu cầu quyền notification
+        checkNotificationPermission();
 
         bottomNavigationView.post(() -> {
             bottomNavHeight = bottomNavigationView.getHeight();
@@ -106,6 +139,75 @@ public class MainActivity extends AppCompatActivity implements OnScrollInteracti
             v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.bottom);
             return WindowInsetsCompat.CONSUMED;
         });
+
+        // Xử lý intent từ notification
+        handleNotificationIntent();
+    }
+
+    /**
+     * Kiểm tra và yêu cầu quyền notification
+     */
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
+                    != PackageManager.PERMISSION_GRANTED) {
+                NotificationHelper.checkAndRequestNotificationPermission(this, notificationPermissionLauncher);
+            } else {
+                // Đã có quyền, lấy FCM token
+                getFCMToken();
+            }
+        } else {
+            // Android < 13, không cần quyền đặc biệt
+            getFCMToken();
+        }
+    }
+
+    /**
+     * Lấy FCM token và lưu vào database
+     */
+    private void getFCMToken() {
+        FirebaseMessaging.getInstance().getToken()
+            .addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    Log.w("MainActivity", "Fetching FCM registration token failed", task.getException());
+                    return;
+                }
+
+                // Lấy token thành công
+                String token = task.getResult();
+                Log.d("MainActivity", "FCM Token: " + token);
+                
+                // Lưu token vào database
+                NotificationRepository notificationRepository = new NotificationRepository();
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (currentUser != null) {
+                    notificationRepository.saveFCMToken(currentUser.getUid(), token, 
+                        new NotificationRepository.NotificationActionListener() {
+                            @Override
+                            public void onSuccess() {
+                                Log.d("MainActivity", "FCM Token saved successfully");
+                            }
+                            @Override
+                            public void onError(String errorMessage) {
+                                Log.e("MainActivity", "Error saving FCM token: " + errorMessage);
+                            }
+                        });
+                } else {
+                    Log.w("MainActivity", "User not logged in, cannot save FCM token");
+                }
+            });
+    }
+
+    /**
+     * Xử lý intent từ notification
+     */
+    private void handleNotificationIntent() {
+        Intent intent = getIntent();
+        if (intent != null && intent.getBooleanExtra("openNotifications", false)) {
+            // Mở tab notification
+            viewPager.setCurrentItem(1);
+            bottomNavigationView.getMenu().findItem(R.id.menu_notification).setChecked(true);
+        }
     }
 
     @Override
@@ -128,7 +230,6 @@ public class MainActivity extends AppCompatActivity implements OnScrollInteracti
         showBottomNavForPageChange();
     }
 
-
     private void adjustViewPagerMargin(boolean isBottomNavEffectivelyHidden) {
         if (viewPager == null || (bottomNavHeight == 0 && !isBottomNavEffectivelyHidden) ) {
             if (!isBottomNavEffectivelyHidden) return; // Chỉ return nếu bottomNavHeight=0 VÀ isBottomNavEffectivelyHidden=false
@@ -142,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements OnScrollInteracti
         viewPager.setLayoutParams(params);
         // viewPager.requestLayout(); // Có thể không cần thiết nếu setLayoutParams đã trigger layout pass
     }
-
 
     private void hideBottomNavForPageChange() {
         if (isBottomNavVisible) {

@@ -5,6 +5,11 @@
 
     <!-- Quyền Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Quyền Notification -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- Quyền đọc/ghi storage tuỳ theo phiên bản Android -->
     <!-- Dành cho thiết bị chạy Android 12L (API 32) trở xuống -->
@@ -29,6 +34,15 @@
         android:theme="@style/Theme.TLUProjectExpo"
         tools:targetApi="31"
         android:name=".MyApplication">
+
+        <!-- Firebase Cloud Messaging Service -->
+        <service
+            android:name=".service.NotificationService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
         <!-- Debug Activities -->
         <activity

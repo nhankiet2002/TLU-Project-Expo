@@ -38,6 +38,55 @@ public class NotificationRepository {
     }
 
     /**
+     * Lưu FCM token của user
+     */
+    public void saveFCMToken(String userId, String fcmToken, NotificationActionListener listener) {
+        if (userId == null || userId.isEmpty() || fcmToken == null || fcmToken.isEmpty()) {
+            if (listener != null) listener.onError("Thông tin không hợp lệ");
+            return;
+        }
+
+        db.collection("UserTokens")
+            .document(userId)
+            .set(new java.util.HashMap<String, Object>() {{
+                put("userId", userId);
+                put("fcmToken", fcmToken);
+                put("lastUpdated", Timestamp.now());
+            }})
+            .addOnSuccessListener(aVoid -> {
+                if (listener != null) listener.onSuccess();
+            })
+            .addOnFailureListener(e -> {
+                if (listener != null) listener.onError("Lỗi khi lưu token: " + e.getMessage());
+            });
+    }
+
+    /**
+     * Lấy FCM token của user
+     */
+    public void getFCMToken(String userId, NotificationActionListener listener) {
+        if (userId == null || userId.isEmpty()) {
+            if (listener != null) listener.onError("User ID không hợp lệ");
+            return;
+        }
+
+        db.collection("UserTokens")
+            .document(userId)
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    String fcmToken = documentSnapshot.getString("fcmToken");
+                    if (listener != null) listener.onSuccess();
+                } else {
+                    if (listener != null) listener.onError("Không tìm thấy token");
+                }
+            })
+            .addOnFailureListener(e -> {
+                if (listener != null) listener.onError("Lỗi khi lấy token: " + e.getMessage());
+            });
+    }
+
+    /**
      * Tạo thông báo mời tham gia dự án
      */
     public void createProjectInvitation(
@@ -67,7 +116,11 @@ public class NotificationRepository {
 
         db.collection("Notifications")
           .add(notification)
-          .addOnSuccessListener(docRef -> { if (listener != null) listener.onSuccess(); })
+          .addOnSuccessListener(docRef -> { 
+              if (listener != null) listener.onSuccess(); 
+              // TODO: Gửi push notification qua FCM
+              sendPushNotification(recipientUserId, "Lời mời tham gia dự án", notification.getMessage(), "PROJECT_INVITATION", targetProjectId, null);
+          })
           .addOnFailureListener(e -> { if (listener != null) listener.onError(e.getMessage()); });
     }
 
@@ -93,6 +146,54 @@ public class NotificationRepository {
                             userName[0] = user.getFullName();
                         }
                     }
+
+                    // Tạo notification object
+                    Notification notification = new Notification();
+                    notification.setRecipientUserId(projectOwnerId);
+                    notification.setActorUserId(currentUser.getUid());
+                    notification.setActorFullName(userName[0]);
+                    notification.setActorAvatarUrl(currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : "");
+                    notification.setType("NEW_COMMENT");
+                    notification.setMessage(userName[0] + " đã bình luận vào dự án của bạn: " + commentText);
+                    notification.setTargetProjectId(projectId);
+                    notification.setTargetCommentId(commentId);
+                    notification.setTargetCommentSnippet(commentText.length() > 100 ? commentText.substring(0, 100) + "..." : commentText);
+                    notification.setCreatedAt(Timestamp.now());
+                    notification.setRead(false);
+                    notification.setActionUrl("/project/" + projectId + "/comment/" + commentId);
+
+                    // Lưu vào Firestore
+                    db.collection(Constants.COLLECTION_NOTIFICATIONS)
+                        .add(notification)
+                        .addOnSuccessListener(docRef -> {
+                            if (listener != null) listener.onSuccess();
+                            // TODO: Gửi push notification qua FCM
+                            sendPushNotification(projectOwnerId, "Bình luận mới", notification.getMessage(), "NEW_COMMENT", projectId, commentId);
+                        })
+                        .addOnFailureListener(e -> {
+                            if (listener != null) listener.onError("Lỗi khi tạo thông báo: " + e.getMessage());
+                        });
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onError("Lỗi khi lấy thông tin user: " + e.getMessage());
+                });
+        } else {
+            if (listener != null) listener.onSuccess(); // Không cần thông báo cho chính mình
+        }
+    }
+
+    /**
+     * Gửi push notification qua FCM (placeholder - cần implement với Cloud Functions)
+     */
+    private void sendPushNotification(String recipientUserId, String title, String message, String type, String projectId, String commentId) {
+        // TODO: Implement gửi push notification qua Firebase Cloud Functions
+        // Hiện tại chỉ log để debug
+        Log.d(TAG, "Should send push notification to user: " + recipientUserId);
+        Log.d(TAG, "Title: " + title + ", Message: " + message);
+        Log.d(TAG, "Type: " + type + ", ProjectId: " + projectId + ", CommentId: " + commentId);
+    }
+
+    /**
                     db.collection(Constants.COLLECTION_PROJECTS).document(projectId).get()
                         .addOnSuccessListener(projectDoc -> {
                             if (projectDoc.exists()) {
