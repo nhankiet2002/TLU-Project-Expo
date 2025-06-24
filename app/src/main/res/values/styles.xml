@@ -68,4 +68,12 @@
         <item name="rippleColor">#4DFFFFFF</item>
     </style>
 
+    <style name="MyTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Màu của viền và hint khi không focus -->
+        <item name="boxStrokeColor">@color/text_input_layout_stroke_color</item>
+
+        <!-- Màu của hint khi focus -->
+        <item name="hintTextColor">@color/text_input_layout_stroke_color</item>
+    </style>
+
 </resources>

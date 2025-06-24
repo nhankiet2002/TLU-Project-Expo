@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- File: res/color/text_input_layout_stroke_color.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Màu khi EditText được focus (state_focused="true") -->
+    <!-- Đặt là MÀU ĐEN -->
+    <item android:color="@android:color/black" android:state_focused="true"/>
+
+    <!-- Màu của hint khi được focus -->
+    <item android:color="@android:color/black" android:state_hovered="true"/>
+
+    <!-- Màu khi EditText có lỗi -->
+    <item android:color="?attr/colorError" android:state_enabled="true"/>
+
+    <!-- Màu mặc định (khi không focus) -->
+    <item android:color="#4D000000" /> <!-- Màu đen trong suốt 30% -->
+</selector>

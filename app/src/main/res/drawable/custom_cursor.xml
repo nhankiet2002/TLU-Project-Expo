@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- File: res/drawable/custom_cursor.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Chỉnh SIZE (độ dày) của cursor tại đây -->
+    <size android:width="2dp" />
+
+    <!-- Chỉnh MÀU SẮC của cursor tại đây -->
+    <solid android:color="@android:color/black" />
+
+</shape>

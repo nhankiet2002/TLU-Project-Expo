@@ -81,26 +81,12 @@
         app:layout_constraintTop_toBottomOf="@+id/search_user_magenment"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btn_see_more_user_management"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         tools:ignore="MissingConstraints" />
-    <Button
-        android:id="@+id/btn_see_more_user_management"
-        android:text="@string/see_more"
-        android:layout_width="380dp"
-        android:layout_height="40dp"
-        android:background="@drawable/button_see_more"
-        app:backgroundTint="@null"
-        android:layout_marginTop="61dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginHorizontal="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <ProgressBar
         android:id="@+id/progress_bar_loading"
