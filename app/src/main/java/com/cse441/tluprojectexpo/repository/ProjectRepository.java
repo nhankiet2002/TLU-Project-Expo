@@ -206,7 +206,7 @@ public class ProjectRepository {
                                 if (user != null) {
                                     memberInfos.add(new Project.UserShortInfo(
                                             userSnap.getId(), user.getFullName(),
-                                            user.getAvatarUrl(), roles.get(i)
+                                            user.getAvatarUrl(), roles.get(i), user.getClassName()
                                     ));
                                 }
                             }

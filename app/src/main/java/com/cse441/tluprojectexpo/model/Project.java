@@ -157,6 +157,7 @@ public class Project implements Serializable {
         private String fullName;
         private String avatarUrl;
         private String roleInProject;
+        private String className;
 
         public UserShortInfo() {}
         public UserShortInfo(String userId, String fullName, String avatarUrl, String roleInProject) {
@@ -164,6 +165,13 @@ public class Project implements Serializable {
             this.fullName = fullName;
             this.avatarUrl = avatarUrl;
             this.roleInProject = roleInProject;
+        }
+        public UserShortInfo(String userId, String fullName, String avatarUrl, String roleInProject, String className) {
+            this.userId = userId;
+            this.fullName = fullName;
+            this.avatarUrl = avatarUrl;
+            this.roleInProject = roleInProject;
+            this.className = className;
         }
         public String getUserId() { return userId; }
         public void setUserId(String userId) { this.userId = userId; }
@@ -173,6 +181,8 @@ public class Project implements Serializable {
         public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
         public String getRoleInProject() { return roleInProject; }
         public void setRoleInProject(String roleInProject) { this.roleInProject = roleInProject; }
+        public String getClassName() { return className; }
+        public void setClassName(String className) { this.className = className; }
     }
 
     // --- INNER STATIC CLASS CHO Comment ---
