@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.ui.createproject.uimanager;
+package com.cse441.tluprojectexpo.ui.common.uimanager;
 
 
 import android.content.Context;
@@ -123,4 +123,4 @@ public class SelectedMembersUiManager {
             container.addView(memberView);
         }
     }
-}
+} 

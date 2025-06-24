@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@color/white"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -24,6 +25,7 @@
             app:titleTextColor="@android:color/black"
             app:titleTextAppearance="@style/Toolbar.TitleText"
             app:menu="@menu/main_toolbar_menu"
+            android:background="@color/white"
             app:layout_scrollFlags="scroll|enterAlways|snap" />
 
         <!-- Container cho Thanh tìm kiếm và Nút sắp xếp -->
@@ -34,6 +36,7 @@
             android:paddingEnd="16dp"
             android:paddingTop="6dp"
             android:paddingBottom="6dp"
+            android:background="@color/white"
             app:layout_scrollFlags="scroll|enterAlways|snap">
 
             <ImageButton
@@ -80,6 +83,7 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
+            android:background="@color/white"
             app:layout_scrollFlags="scroll|enterAlways|snap">
 
             <com.google.android.material.chip.ChipGroup

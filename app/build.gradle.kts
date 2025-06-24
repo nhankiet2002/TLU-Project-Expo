@@ -54,6 +54,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.android.gms:play-services-tasks:18.2.0")
 
     // Material Design
     implementation("com.google.android.material:material:1.10.0")

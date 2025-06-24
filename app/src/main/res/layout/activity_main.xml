@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@color/white"
     tools:context=".MainActivity">
 
     <com.cse441.tluprojectexpo.NonSwipeableViewPager
@@ -20,7 +21,7 @@
         android:layout_height="50dp"
         android:minHeight="50dp"
         android:layout_alignParentBottom="true"
-        android:background="?android:attr/windowBackground"
+        android:background="@color/white"
         app:elevation="0dp"
         app:itemIconSize="24dp"
         app:itemPaddingTop="5dp"
@@ -28,6 +29,7 @@
         app:itemTextColor="@color/custom_color_nav"
         app:itemIconTint="@color/custom_color_nav"
         app:labelVisibilityMode="labeled"
+        app:itemActiveIndicatorStyle="@color/black"
         app:menu="@menu/menu_nav"/>
 
 </RelativeLayout>

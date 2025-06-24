@@ -2,13 +2,17 @@ package com.cse441.tluprojectexpo.ui.Notification;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,295 +20,336 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.Notification;
-import com.cse441.tluprojectexpo.repository.NotificationRepository;
+import com.cse441.tluprojectexpo.service.FirestoreService;
 import com.cse441.tluprojectexpo.ui.Notification.adapter.NotificationAdapter;
+import com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity; // Đảm bảo đường dẫn này đúng
+import com.cse441.tluprojectexpo.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.cse441.tluprojectexpo.utils.Constants;
-import android.app.AlertDialog;
-import android.util.Log;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link NotificationFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class NotificationFragment extends Fragment implements NotificationAdapter.NotificationActionListener {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "NotificationFragment";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private RecyclerView recyclerView;
-    private NotificationAdapter adapter;
-    private NotificationRepository notificationRepository;
+    private RecyclerView recyclerViewNotifications;
+    private NotificationAdapter notificationAdapter;
+    private List<Notification> notificationList;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private View emptyView;
-    private FirebaseUser currentUser;
+    private ProgressBar progressBarInitialLoad;
+    private LinearLayout emptyView;
 
-    public NotificationFragment() {
-        // Required empty public constructor
-    }
+    private FirestoreService firestoreService;
+    private String currentUserId;
+    private FirebaseFirestore db;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static NotificationFragment newInstance(String param1, String param2) {
-        NotificationFragment fragment = new NotificationFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_notification, container, false);
+
+        // Khởi tạo Views
+        recyclerViewNotifications = view.findViewById(R.id.recyclerViewNotifications);
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        progressBarInitialLoad = view.findViewById(R.id.progressBarInitialLoad);
+        emptyView = view.findViewById(R.id.emptyView);
+
+        // Khởi tạo Services và Firebase
+        firestoreService = new FirestoreService();
+        db = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUid();
         }
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_notification, container, false);
-
-        // Khởi tạo các view
-        recyclerView = root.findViewById(R.id.recyclerViewNotifications);
-        swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
-        emptyView = root.findViewById(R.id.emptyView);
 
         // Khởi tạo RecyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new NotificationAdapter(new ArrayList<>(), this);
-        recyclerView.setAdapter(adapter);
+        notificationList = new ArrayList<>();
+        // Truyền context (getContext()) vào adapter, getContext() an toàn ở đây
+        if (getContext() != null) {
+            notificationAdapter = new NotificationAdapter(getContext(), notificationList, this);
+            recyclerViewNotifications.setLayoutManager(new LinearLayoutManager(getContext()));
+            recyclerViewNotifications.setAdapter(notificationAdapter);
+        } else {
+            Log.e(TAG, "Context is null during adapter initialization in onCreateView.");
+            // Có thể hiển thị thông báo lỗi hoặc không làm gì cả, tùy thuộc vào luồng ứng dụng
+        }
 
-        // Khởi tạo repository và lấy user hiện tại
-        notificationRepository = new NotificationRepository();
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        // Setup swipe refresh
+        // Thiết lập SwipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(this::loadNotifications);
 
-        // Load thông báo lần đầu
-        loadNotifications();
+        // Tải dữ liệu ban đầu
+        if (currentUserId != null) {
+            // Hiển thị ProgressBar cho lần tải đầu tiên nếu danh sách rỗng
+            if (notificationList.isEmpty()) {
+                progressBarInitialLoad.setVisibility(View.VISIBLE);
+                recyclerViewNotifications.setVisibility(View.GONE);
+                emptyView.setVisibility(View.GONE);
+            }
+            loadNotifications();
+        } else {
+            // Xử lý trường hợp người dùng chưa đăng nhập
+            progressBarInitialLoad.setVisibility(View.GONE);
+            swipeRefreshLayout.setEnabled(false); // Vô hiệu hóa refresh nếu chưa login
+            emptyView.setVisibility(View.VISIBLE);
+            recyclerViewNotifications.setVisibility(View.GONE);
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Vui lòng đăng nhập để xem thông báo.", Toast.LENGTH_LONG).show();
+            }
+        }
 
-        return root;
+        return view;
     }
 
     private void loadNotifications() {
-        if (currentUser == null) return;
+        if (currentUserId == null) {
+            swipeRefreshLayout.setRefreshing(false);
+            progressBarInitialLoad.setVisibility(View.GONE);
+            updateUIBasedOnData(); // Đảm bảo empty view hiển thị nếu cần
+            return;
+        }
 
-        swipeRefreshLayout.setRefreshing(true);
-        notificationRepository.fetchUserNotifications(currentUser.getUid(), 
-            new NotificationRepository.NotificationsLoadListener() {
-                @Override
-                public void onNotificationsLoaded(List<Notification> notifications) {
-                    swipeRefreshLayout.setRefreshing(false);
-                    adapter.updateNotifications(notifications);
-                    updateEmptyView(notifications.isEmpty());
-                }
-
-                @Override
-                public void onNotificationsEmpty() {
-                    swipeRefreshLayout.setRefreshing(false);
-                    adapter.updateNotifications(new ArrayList<>());
-                    updateEmptyView(true);
-                }
-
-                @Override
-                public void onError(String errorMessage) {
-                    swipeRefreshLayout.setRefreshing(false);
-                    Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                }
-            });
-    }
-
-    private void updateEmptyView(boolean isEmpty) {
-        if (isEmpty) {
-            recyclerView.setVisibility(View.GONE);
-            emptyView.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
+        // Chỉ hiển thị progressBarInitialLoad nếu không phải là refresh từ swipe và list rỗng
+        if (!swipeRefreshLayout.isRefreshing() && notificationList.isEmpty()) {
+            progressBarInitialLoad.setVisibility(View.VISIBLE);
+            recyclerViewNotifications.setVisibility(View.GONE);
             emptyView.setVisibility(View.GONE);
         }
+
+        db.collection(Constants.COLLECTION_NOTIFICATIONS)
+                .whereEqualTo("recipientUserId", currentUserId)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .get()
+                .addOnCompleteListener(task -> {
+                    progressBarInitialLoad.setVisibility(View.GONE);
+                    swipeRefreshLayout.setRefreshing(false);
+
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        notificationList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Notification notification = document.toObject(Notification.class);
+                            notificationList.add(notification);
+                        }
+                        if (notificationAdapter != null) {
+                            notificationAdapter.updateNotifications(new ArrayList<>(notificationList)); // Tạo copy để tránh lỗi ConcurrentModification
+                        }
+                        updateUIBasedOnData();
+                    } else {
+                        Log.e(TAG, "Lỗi tải thông báo: ", task.getException());
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), getString(R.string.error_loading_notifications) + (task.getException() != null ? ": " + task.getException().getMessage() : ""), Toast.LENGTH_SHORT).show();
+                        }
+                        updateUIBasedOnData(); // Vẫn cập nhật UI để hiển thị empty view nếu cần
+                    }
+                });
     }
+
+    private void updateUIBasedOnData() {
+        if (notificationList.isEmpty()) {
+            emptyView.setVisibility(View.VISIBLE);
+            recyclerViewNotifications.setVisibility(View.GONE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            recyclerViewNotifications.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     @Override
     public void onNotificationClicked(Notification notification) {
-        notificationRepository.markNotificationAsRead(notification.getNotificationId(),
-            new NotificationRepository.NotificationActionListener() {
-                @Override
-                public void onSuccess() {
-                    notification.setRead(true); // cập nhật trạng thái local
-                    adapter.notifyDataSetChanged(); // cập nhật lại UI
-                    // Xử lý click theo loại thông báo
-                    switch (notification.getType()) {
-                        case "PROJECT_INVITATION":
-                            navigateToProjectDetail(notification.getTargetProjectId(), null);
-                            break;
-                        case "NEW_COMMENT":
-                        case "NEW_REPLY":
-                            navigateToProjectDetail(notification.getTargetProjectId(), notification.getTargetCommentId());
-                            break;
-                        default:
-                            // Có thể xử lý các loại khác nếu cần
-                            break;
+        Log.d(TAG, "Notification clicked: " + notification.getMessage() + " | Type: " + notification.getType() + " | ProjectId: " + notification.getTargetProjectId());
+
+        // Đánh dấu là đã đọc nếu chưa đọc (chỉ khi người dùng click trực tiếp vào item)
+        if (!notification.isRead()) {
+            // Không gọi onToggleReadStatus ở đây để tránh Toast "Đã đánh dấu đã đọc"
+            // khi người dùng chỉ muốn mở item.
+            // onToggleReadStatus nên dành cho action từ menu.
+            // Trực tiếp gọi service để cập nhật trạng thái đọc.
+            if (notification.getNotificationId() != null && !notification.getNotificationId().isEmpty()) {
+                firestoreService.updateNotificationReadStatus(notification.getNotificationId(), true, new FirestoreService.NotificationUpdateListener() {
+                    @Override
+                    public void onSuccess() {
+                        int position = -1;
+                        for (int i = 0; i < notificationList.size(); i++) {
+                            if (notificationList.get(i).getNotificationId().equals(notification.getNotificationId())) {
+                                position = i;
+                                break;
+                            }
+                        }
+                        if (position != -1) {
+                            notificationList.get(position).setRead(true);
+                            if(notificationAdapter != null) {
+                                notificationAdapter.updateNotificationItem(position, notificationList.get(position));
+                            }
+                        }
+                        Log.d(TAG, "Notification marked as read upon click.");
                     }
-                }
-                @Override
-                public void onError(String errorMessage) {
-                    Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                }
-            });
-    }
-
-    private void handleProjectInvite(Notification notification) {
-        // TODO: Hiển thị dialog xác nhận tham gia dự án
-        // Sau khi người dùng chọn, cập nhật trạng thái thông báo
-        showProjectInviteDialog(notification);
-    }
-
-    private void showProjectInviteDialog(Notification notification) {
-        new AlertDialog.Builder(getContext())
-            .setTitle("Lời mời tham gia dự án")
-            .setMessage(notification.getMessage())
-            .setPositiveButton("Đồng ý", (dialog, which) -> {
-                // Thêm user vào ProjectMembers
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                String projectId = notification.getTargetProjectId();
-                String userId = notification.getRecipientUserId();
-                String role = Constants.DEFAULT_MEMBER_ROLE;
-                db.collection(Constants.COLLECTION_PROJECT_MEMBERS)
-                    .add(new java.util.HashMap<String, Object>() {{
-                        put(Constants.FIELD_PROJECT_ID, projectId);
-                        put(Constants.FIELD_USER_ID, userId);
-                        put(Constants.FIELD_ROLE_IN_PROJECT, role);
-                    }})
-                    .addOnSuccessListener(docRef -> {
-                        notificationRepository.updateProjectInvitationStatus(notification.getNotificationId(), "ACCEPTED",
-                            new NotificationRepository.NotificationActionListener() {
-                                @Override
-                                public void onSuccess() {
-                                    Toast.makeText(getContext(), "Đã chấp nhận lời mời", Toast.LENGTH_SHORT).show();
-                                    loadNotifications();
-                                }
-                                @Override
-                                public void onError(String errorMessage) {
-                                    Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "Lỗi khi thêm vào dự án: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-            })
-            .setNegativeButton("Từ chối", (dialog, which) -> {
-                notificationRepository.updateProjectInvitationStatus(notification.getNotificationId(), "DECLINED",
-                    new NotificationRepository.NotificationActionListener() {
-                        @Override
-                        public void onSuccess() {
-                            Toast.makeText(getContext(), "Đã từ chối lời mời", Toast.LENGTH_SHORT).show();
-                            loadNotifications();
-                        }
-                        @Override
-                        public void onError(String errorMessage) {
-                            Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-            })
-            .setCancelable(true)
-            .show();
-    }
-
-    private void navigateToProjectDetail(String projectId, String commentId) {
-        Intent intent = new Intent(getContext(), com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity.class);
-        intent.putExtra(com.cse441.tluprojectexpo.ui.detailproject.ProjectDetailActivity.EXTRA_PROJECT_ID, projectId);
-        if (commentId != null) {
-            intent.putExtra("commentId", commentId);
+                    @Override
+                    public void onError(String errorMessage) {
+                        Log.e(TAG, "Failed to mark notification as read upon click: " + errorMessage);
+                    }
+                });
+            }
         }
-        startActivity(intent);
+
+        // Kiểm tra xem thông báo có targetProjectId không để điều hướng đến chi tiết dự án
+        String targetProjectId = notification.getTargetProjectId();
+        if (targetProjectId != null && !targetProjectId.isEmpty() && getContext() != null) {
+            switch (notification.getType()) {
+                case "PROJECT_INVITATION":
+                case "NEW_COMMENT":
+                case "NEW_REPLY":
+                case "PROJECT_VOTE":
+                case "INVITATION_ACCEPTED":
+                case "INVITATION_DECLINED":
+                    // Và các type khác mà bạn muốn điều hướng đến chi tiết dự án
+                    Intent intent = new Intent(getContext(), ProjectDetailActivity.class);
+                    intent.putExtra(ProjectDetailActivity.EXTRA_PROJECT_ID, targetProjectId);
+                    startActivity(intent);
+                    break;
+                case "COMMENT_VOTE":
+                    Intent commentIntent = new Intent(getContext(), ProjectDetailActivity.class);
+                    commentIntent.putExtra(ProjectDetailActivity.EXTRA_PROJECT_ID, targetProjectId);
+                    // if (notification.getTargetCommentId() != null) {
+                    //     commentIntent.putExtra("COMMENT_ID_KEY", notification.getTargetCommentId());
+                    // }
+                    startActivity(commentIntent);
+                    break;
+                default:
+                    Toast.makeText(getContext(), "Hành động cho thông báo này chưa được xác định.", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        } else if (notification.getActionUrl() != null && !notification.getActionUrl().isEmpty() && getContext() != null) {
+            // Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(notification.getActionUrl()));
+            // startActivity(browserIntent);
+            Toast.makeText(getContext(), "Action URL: " + notification.getActionUrl(), Toast.LENGTH_SHORT).show();
+        } else if (getContext() != null) {
+            Toast.makeText(getContext(), "Thông báo này không có hành động cụ thể.", Toast.LENGTH_SHORT).show();
+        }
     }
+
 
     @Override
     public void onAcceptInvite(Notification notification) {
-        // Thêm user vào ProjectMembers
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String projectId = notification.getTargetProjectId();
-        String userId = notification.getRecipientUserId();
-        String role = notification.getInvitationRole() != null ? notification.getInvitationRole() : "Thành viên";
-        db.collection("ProjectMembers")
-            .add(new java.util.HashMap<String, Object>() {{
-                put("ProjectId", projectId);
-                put("UserId", userId);
-                put("RoleInProject", role);
-            }})
-            .addOnSuccessListener(docRef -> {
-                // Cập nhật trạng thái và nội dung notification
-                String newContent = "Bạn đã chấp nhận lời mời tham gia vào dự án với vai trò " + role;
-                db.collection("Notifications")
-                    .document(notification.getNotificationId())
-                    .update("invitationStatus", "accepted", "message", newContent)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(getContext(), "Đã chấp nhận lời mời", Toast.LENGTH_SHORT).show();
-                        loadNotifications();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "Lỗi khi cập nhật nội dung thông báo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-            })
-            .addOnFailureListener(e -> {
-                Toast.makeText(getContext(), "Lỗi khi thêm vào dự án: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            });
+        Log.d(TAG, "Accept invite for project: " + notification.getTargetProjectId());
+        if (getContext() != null) {
+            Toast.makeText(getContext(), "Đã chấp nhận lời mời (chức năng đang phát triển)", Toast.LENGTH_SHORT).show();
+        }
+        // TODO: Implement accept invitation logic
     }
 
     @Override
     public void onDeclineInvite(Notification notification) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String projectId = notification.getTargetProjectId();
-        String userId = notification.getRecipientUserId();
-        String role = notification.getInvitationRole() != null ? notification.getInvitationRole() : "Thành viên";
-        // Cập nhật trạng thái và nội dung notification trước
-        String newContent = "Bạn đã từ chối lời mời tham gia vào dự án với vai trò " + role;
-        db.collection("Notifications")
-            .document(notification.getNotificationId())
-            .update("invitationStatus", "declined", "message", newContent)
-            .addOnSuccessListener(aVoid -> {
-                // Xóa user khỏi ProjectMembers nếu đã có
-                db.collection("ProjectMembers")
-                    .whereEqualTo("ProjectId", projectId)
-                    .whereEqualTo("UserId", userId)
-                    .get()
-                    .addOnSuccessListener(querySnapshot -> {
-                        for (com.google.firebase.firestore.DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                            doc.getReference().delete();
+        Log.d(TAG, "Decline invite for project: " + notification.getTargetProjectId());
+        if (getContext() != null) {
+            Toast.makeText(getContext(), "Đã từ chối lời mời (chức năng đang phát triển)", Toast.LENGTH_SHORT).show();
+        }
+        // TODO: Implement decline invitation logic
+    }
+
+    @Override
+    public void onToggleReadStatus(Notification notification) {
+        if (notification.getNotificationId() == null || notification.getNotificationId().isEmpty()) {
+            if (getContext() != null) Toast.makeText(getContext(), R.string.error_updating_notification, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Notification ID is null or empty for toggle read status.");
+            return;
+        }
+
+        boolean newReadStatus = !notification.isRead();
+
+        firestoreService.updateNotificationReadStatus(notification.getNotificationId(), newReadStatus, new FirestoreService.NotificationUpdateListener() {
+            @Override
+            public void onSuccess() {
+                int position = -1;
+                for (int i = 0; i < notificationList.size(); i++) {
+                    if (notificationList.get(i).getNotificationId().equals(notification.getNotificationId())) {
+                        position = i;
+                        break;
+                    }
+                }
+
+                if (position != -1) {
+                    notificationList.get(position).setRead(newReadStatus);
+                    if (notificationAdapter != null) {
+                        notificationAdapter.updateNotificationItem(position, notificationList.get(position));
+                    }
+                } else {
+                    Log.w(TAG, "Notification to toggle read status not found in current list: " + notification.getNotificationId());
+                }
+                if (getContext() != null) {
+                    Toast.makeText(getContext(),
+                            newReadStatus ? R.string.notification_marked_as_read : R.string.notification_marked_as_unread,
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(TAG, "Error toggling read status: " + errorMessage);
+                if (getContext() != null) Toast.makeText(getContext(), R.string.error_updating_notification, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onDeleteNotification(Notification notification) {
+        if (notification.getNotificationId() == null || notification.getNotificationId().isEmpty()) {
+            if (getContext() != null) Toast.makeText(getContext(), R.string.error_deleting_notification, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Notification ID is null or empty for delete.");
+            return;
+        }
+
+        if (getContext() == null) {
+            Log.e(TAG, "Context is null, cannot show AlertDialog for delete.");
+            return;
+        }
+
+        new AlertDialog.Builder(requireContext()) // requireContext() is safer here
+                .setTitle(R.string.delete_notification)
+                .setMessage(R.string.confirm_delete_notification)
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    firestoreService.deleteNotification(notification.getNotificationId(), new FirestoreService.NotificationUpdateListener() {
+                        @Override
+                        public void onSuccess() {
+                            int position = -1;
+                            // Phải tìm lại vị trí vì list có thể đã thay đổi
+                            for (int i = 0; i < notificationList.size(); i++) {
+                                if (notificationList.get(i).getNotificationId().equals(notification.getNotificationId())) {
+                                    position = i;
+                                    break;
+                                }
+                            }
+                            if (position != -1) {
+                                if (notificationAdapter != null) {
+                                    // Xóa khỏi list nguồn TRƯỚC khi gọi removeNotificationItem của adapter
+                                    // nếu removeNotificationItem của adapter không tự xóa khỏi list nguồn.
+                                    // Trong trường hợp này, removeNotificationItem trong adapter đã làm điều đó.
+                                    notificationAdapter.removeNotificationItem(position);
+                                }
+                            } else {
+                                Log.w(TAG, "Notification to delete not found in current list: " + notification.getNotificationId());
+                                // Nếu không tìm thấy, có thể tải lại toàn bộ list để đồng bộ
+                                // loadNotifications();
+                            }
+                            updateUIBasedOnData();
+                            if (getContext() != null) Toast.makeText(getContext(), R.string.notification_deleted, Toast.LENGTH_SHORT).show();
                         }
-                        Toast.makeText(getContext(), "Đã từ chối lời mời", Toast.LENGTH_SHORT).show();
-                        loadNotifications();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "Lỗi khi xóa thành viên khỏi dự án: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        @Override
+                        public void onError(String errorMessage) {
+                            Log.e(TAG, "Error deleting notification: " + errorMessage);
+                            if (getContext() != null) Toast.makeText(getContext(), R.string.error_deleting_notification, Toast.LENGTH_SHORT).show();
+                        }
                     });
-            })
-            .addOnFailureListener(e -> {
-                Toast.makeText(getContext(), "Lỗi khi cập nhật nội dung thông báo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            });
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 }

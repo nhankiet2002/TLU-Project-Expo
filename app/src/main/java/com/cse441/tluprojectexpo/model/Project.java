@@ -6,17 +6,15 @@ import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Project implements Serializable {
 
     @DocumentId
     private String projectId;
 
-    // --- CÁC TRƯỜNG KHỚP VỚI FIRESTORE ---
-    // Annotation @PropertyName được đặt TRÊN TRƯỜNG (FIELD)
-
+    // Các PropertyName ở đây cần khớp với tên trường trong Firestore "Projects" collection
     @PropertyName("Title")
     private String title;
 
@@ -70,8 +68,6 @@ public class Project implements Serializable {
     @Exclude
     private List<UserShortInfo> projectMembersInfo;
 
-    // --- CONSTRUCTOR ---
-    // Constructor rỗng là BẮT BUỘC cho Firebase
     public Project() {
         this.mediaGalleryUrls = new ArrayList<>();
         this.technologyNames = new ArrayList<>();
@@ -80,8 +76,7 @@ public class Project implements Serializable {
     }
 
     // --- GETTERS AND SETTERS ---
-    // Không cần đặt @PropertyName ở đây nữa
-
+    // (Giữ nguyên các getters và setters bạn đã có)
     public String getProjectId() { return projectId; }
     public void setProjectId(String projectId) { this.projectId = projectId; }
 
@@ -150,9 +145,11 @@ public class Project implements Serializable {
     public void setProjectMembersInfo(List<UserShortInfo> projectMembersInfo) { this.projectMembersInfo = projectMembersInfo; }
 
 
-    // --- INNER STATIC CLASS (Giữ nguyên, đã đúng) ---
-    public static class MediaItem implements Serializable {
+    // --- INNER STATIC CLASS CHO MediaItem ---
+    public static class MediaItem implements Serializable { // Thêm Serializable nếu cần
+        @PropertyName("url") // Khớp với JSON
         private String url;
+        @PropertyName("type") // Khớp với JSON
         private String type;
 
         public MediaItem() {}
@@ -167,6 +164,7 @@ public class Project implements Serializable {
         private String fullName;
         private String avatarUrl;
         private String roleInProject;
+        private String className;
 
         public UserShortInfo() {}
 
@@ -174,9 +172,15 @@ public class Project implements Serializable {
             this.userId = id;
             this.fullName = fullName;
             this.avatarUrl = avatarUrl;
-            this.roleInProject = s;
+            this.roleInProject = roleInProject;
         }
-
+        public UserShortInfo(String userId, String fullName, String avatarUrl, String roleInProject, String className) {
+            this.userId = userId;
+            this.fullName = fullName;
+            this.avatarUrl = avatarUrl;
+            this.roleInProject = roleInProject;
+            this.className = className;
+        }
         public String getUserId() { return userId; }
         public void setUserId(String userId) { this.userId = userId; }
         public String getFullName() { return fullName; }
@@ -185,6 +189,8 @@ public class Project implements Serializable {
         public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
         public String getRoleInProject() { return roleInProject; }
         public void setRoleInProject(String roleInProject) { this.roleInProject = roleInProject; }
+        public String getClassName() { return className; }
+        public void setClassName(String className) { this.className = className; }
     }
 
     @Exclude

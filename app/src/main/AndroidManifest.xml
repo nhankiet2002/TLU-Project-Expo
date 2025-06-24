@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.cse441.tluprojectexpo">
+
     <!-- Quyền Internet -->
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- Quyền đọc/ghi storage tuỳ theo phiên bản Android -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Quyền Notification -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Quyền đọc/ghi storage tuỳ theo phiên bản Android -->
     <!-- Dành cho thiết bị chạy Android 12L (API 32) trở xuống -->
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" /> <!-- Dành cho Android 13+ -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <!-- Dành cho Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <!-- <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> Nếu dùng âm thanh -->
 
     <application
-        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,20 +32,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TLUProjectExpo"
-        tools:replace="android:fullBackupContent"
-        tools:targetApi="31">
-        <activity
-            android:name=".admin.ProjectDetailViewAdmin"
-            android:exported="false" />
-        <activity
-            android:name=".admin.AdminHomePage"
-            android:exported="false" /> <!-- Debug Activities -->
-        <activity
-            android:name=".DebugMenu"
-            android:exported="false" />
-        <activity
-            android:name=".ProjectDetail"
-            android:exported="false" /> <!-- Admin Activities -->
+        tools:targetApi="31"
+        android:name=".MyApplication">
+
+        <!-- Firebase Cloud Messaging Service -->
+        <service
+            android:name=".service.NotificationService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Admin Activities -->
         <activity
             android:name=".admin.UserDetailManagementPage"
             android:exported="false" />
@@ -54,32 +62,48 @@
             android:exported="false" />
         <activity
             android:name=".admin.UserManagementPage"
-            android:exported="false" /> <!-- Auth Activities -->
+            android:exported="false" />
+
+        <!-- Auth Activities -->
         <activity
             android:name=".auth.OpenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".auth.RegisterActivity" />
-        <activity android:name=".auth.CheckEmailActivity" />
-        <activity android:name=".auth.LoginActivity" />
-        <activity android:name=".auth.ForgotPasswordActivity" /> <!-- Main App Activity -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-        <activity android:name=".auth.SettingProfileActivity" />
-        <activity android:name=".auth.SaveProfileSuccessfulActivity" />
-        <activity android:name=".auth.ResetPasswordActivity" />
+        <activity android:name=".auth.RegisterActivity"
+            android:exported="false"/>
+        <activity android:name=".auth.CheckEmailActivity"
+            android:exported="false"/>
+        <activity android:name=".auth.LoginActivity"
+            android:exported="false"/>
+        <activity android:name=".auth.ForgotPasswordActivity"
+            android:exported="false"/>
+
+        <!-- Main App Activity -->
+        <activity android:name=".MainActivity"
+            android:exported="false"/>
+
+        <!-- KHAI BÁO ACTIVITY TẠO DỰ ÁN MỚI TẠI ĐÂY -->
         <activity
             android:name=".ui.createproject.CreateProjectActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="Tạo dự án" />
+
+        <!-- KHAI BÁO ACTIVITY CHI TIẾT DỰ ÁN MỚI TẠI ĐÂY -->
         <activity
             android:name=".ui.detailproject.ProjectDetailActivity"
-            android:exported="false"></activity>
+            android:exported="false"
+            android:label="Chi tiết dự án" />
+
+        <!-- KHAI BÁO ACTIVITY CHỈNH SỬA DỰ ÁN -->
+        <activity
+            android:name=".ui.editproject.EditProjectActivity"
+            android:exported="false"
+            android:label="Chỉnh sửa dự án" />
+
     </application>
 
 </manifest>

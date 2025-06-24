@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:background="@android:color/white"
     android:fitsSystemWindows="true"
-    tools:context="com.cse441.tluprojectexpo.ui.createproject.CreateFragment"> <!-- Hoặc EditProjectActivity -->
+    tools:context="com.cse441.tluprojectexpo.ui.editproject.EditProjectActivity"> <!-- Hoặc EditProjectActivity -->
 
     <!-- Top Bar -->
     <RelativeLayout
@@ -135,42 +135,69 @@
             </FrameLayout>
 
             <!-- Lĩnh vực/ Chủ đề -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_category"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Lĩnh vực/ Chủ đề"
+                android:text="Lĩnh vực/ Chủ đề"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="4dp"/>
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_categories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="4dp"
+                app:chipSpacingVertical="4dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_category"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập và chọn lĩnh vực"
                 app:boxCornerRadiusTopStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusBottomEnd="8dp"
                 android:layout_marginBottom="16dp">
                 <AutoCompleteTextView
-                    android:id="@+id/actv_category"
+                    android:id="@+id/actv_category_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="none"
-                    tools:ignore="LabelFor" />
+                    android:inputType="textCapWords"
+                    android:completionThreshold="1" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Công nghệ -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_technology"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <!-- Công nghệ sử dụng -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Công nghệ"
+                android:text="Công nghệ sử dụng"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="4dp"/>
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_technologies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="4dp"
+                app:chipSpacingVertical="4dp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_technology_input"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập và chọn công nghệ"
                 app:boxCornerRadiusTopStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusBottomEnd="8dp"
                 android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_technology"
+                <AutoCompleteTextView
+                    android:id="@+id/actv_technology_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapSentences" />
+                    android:inputType="textCapWords"
+                    android:completionThreshold="1" />
             </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -304,9 +331,24 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingHorizontal="16dp"
-        android:gravity="center">
+        android:paddingBottom="16dp">
+
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/pb_editing_project"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_delete_project"
@@ -338,6 +380,7 @@
             android:textStyle="bold"
             android:paddingVertical="14dp"
             android:layout_marginStart="8dp"/>
+        </LinearLayout>
     </LinearLayout>
 
 

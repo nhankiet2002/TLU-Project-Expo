@@ -37,9 +37,9 @@ import com.bumptech.glide.Glide;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.LinkItem;
 import com.cse441.tluprojectexpo.model.User;
-import com.cse441.tluprojectexpo.ui.createproject.uimanager.AddedLinksUiManager;
-import com.cse441.tluprojectexpo.ui.createproject.uimanager.MediaGalleryUiManager;
-import com.cse441.tluprojectexpo.ui.createproject.uimanager.SelectedMembersUiManager;
+import com.cse441.tluprojectexpo.ui.common.uimanager.AddedLinksUiManager;
+import com.cse441.tluprojectexpo.ui.common.uimanager.MediaGalleryUiManager;
+import com.cse441.tluprojectexpo.ui.common.uimanager.SelectedMembersUiManager;
 import com.cse441.tluprojectexpo.service.CloudinaryUploadService;
 import com.cse441.tluprojectexpo.service.FirestoreService;
 import com.cse441.tluprojectexpo.repository.ProjectCreationService;
@@ -905,7 +905,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
         showCreatingProgress(false, null);
         new AlertDialog.Builder(this)
                 .setTitle("Thành công")
-                .setMessage("Dự án đã được tạo thành công!" +
+                .setMessage("Dự án đã được tạo thành công! " +
                         "Vui lòng chờ hệ thống duyệt dự án nhé.")
                 .setPositiveButton("Đóng", (dialog, which) -> {
                     clearForm();

@@ -1,545 +1,771 @@
-//package com.cse441.tluprojectexpo.Project;
-//
-//
-//import android.app.Activity;
-//import android.content.DialogInterface;
-//import android.content.Intent;
-//import android.net.Uri;
-//import android.os.Bundle;
-//import android.provider.MediaStore;
-//import android.text.TextUtils;
-//import android.util.Log;
-//import android.view.MenuItem;
-//import android.view.View;
-//import android.widget.ArrayAdapter;
-//import android.widget.Button;
-//import android.widget.ImageView;
-//import android.widget.Spinner;
-//import android.widget.Toast;
-//
-//import androidx.activity.result.ActivityResultLauncher;
-//import androidx.activity.result.contract.ActivityResultContracts;
-//import androidx.annotation.NonNull;
-//import androidx.appcompat.app.AlertDialog;
-//import androidx.appcompat.app.AppCompatActivity;
-//import androidx.appcompat.widget.Toolbar;
-//import androidx.recyclerview.widget.LinearLayoutManager;
-//import androidx.recyclerview.widget.RecyclerView;
-//
-//import com.bumptech.glide.Glide;
-//import com.cse441.tluprojectexpo.R;
-//import com.cse441.tluprojectexpo.model.Project;
-//import com.cse441.tluprojectexpo.model.User; // Giả sử bạn có model User
-//// Import các adapter nếu bạn tạo file riêng
-//// import com.cse441.tluprojectexpo.adapter.EditableMemberListAdapter;
-//// import com.cse441.tluprojectexpo.adapter.EditableMediaGalleryAdapter;
-//
-//import com.google.android.gms.tasks.Continuation;
-//import com.google.android.gms.tasks.OnCompleteListener;
-//import com.google.android.gms.tasks.Task;
-//import com.google.android.gms.tasks.Tasks;
-//import com.google.android.material.chip.Chip;
-//import com.google.android.material.chip.ChipGroup;
-//import com.google.android.material.progressindicator.LinearProgressIndicator; // Thêm nếu dùng
-//import com.google.android.material.textfield.TextInputEditText;
-//import com.google.firebase.Timestamp;
-//import com.google.firebase.auth.FirebaseAuth;
-//import com.google.firebase.auth.FirebaseUser;
-//import com.google.firebase.firestore.CollectionReference;
-//import com.google.firebase.firestore.DocumentReference;
-//import com.google.firebase.firestore.DocumentSnapshot;
-//import com.google.firebase.firestore.FieldValue;
-//import com.google.firebase.firestore.FirebaseFirestore;
-//import com.google.firebase.firestore.QueryDocumentSnapshot;
-//import com.google.firebase.firestore.WriteBatch;
-//
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.HashMap;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.UUID;
-//import java.util.stream.Collectors;
-//
-//public class EditProjectActivity extends AppCompatActivity {
-//
-//    private static final String TAG = "EditProjectActivity";
-//    public static final String EXTRA_EDIT_PROJECT_ID = "EXTRA_EDIT_PROJECT_ID";
-//
-//    // UI Elements
-//    private Toolbar toolbar;
-//    private TextInputEditText editTextProjectTitleEdit, editTextProjectDescriptionEdit,
-//            editTextProjectSourceUrlEdit, editTextProjectDemoUrlEdit;
-//    private ImageView imageViewProjectThumbnailEdit;
-//    private Button buttonChangeThumbnail, buttonSelectCategoriesEdit, buttonSelectTechnologiesEdit,
-//            buttonAddMemberEdit, buttonAddMediaEdit, buttonSaveChanges;
-//    private Spinner spinnerProjectStatusEdit, spinnerProjectCourseEdit;
-//    private ChipGroup chipGroupCategoriesEdit, chipGroupTechnologiesEdit;
-//    private RecyclerView recyclerViewMembersEdit, recyclerViewMediaGalleryEdit;
-//    // private LinearProgressIndicator progressIndicator; // Optional
-//
-//    // Firebase
-//    private FirebaseFirestore db;
-//    private FirebaseAuth mAuth;
-//    private FirebaseUser currentUser;
-//
-//
-//    // Data
-//    private String projectIdToEdit;
-//    private Project currentEditingProject;
-//    private Uri newThumbnailUri = null; // Uri của ảnh thumbnail mới được chọn
-//    private List<Project.MediaItem> currentMediaItems = new ArrayList<>();
-//    private List<Uri> newMediaUris = new ArrayList<>(); // Uri của media mới được chọn
-//    private List<String> removedMediaUrls = new ArrayList<>(); // URL của media bị xóa
-//    private List<Project.UserShortInfo> currentMembers = new ArrayList<>();
-//    // TODO: Adapter cho members và media (cần có chức năng xóa)
-//    // private EditableMemberListAdapter memberAdapterEdit;
-//    // private EditableMediaGalleryAdapter mediaAdapterEdit;
-//
-//    // TODO: Lists for selected categories/technologies
-//    private List<String> selectedCategoryIds = new ArrayList<>();
-//    private List<String> selectedTechnologyIds = new ArrayList<>();
-//    // TODO: Data for spinners
-//    private List<String> statusOptions = Arrays.asList("Đang phát triển", "Hoàn thành", "Tạm dừng", "Đã hủy"); // Ví dụ
-//    private Map<String, String> courseMap = new HashMap<>(); // <CourseName, CourseId>
-//
-//
-//    // ActivityResultLaunchers
-//    private ActivityResultLauncher<Intent> pickThumbnailLauncher;
-//    private ActivityResultLauncher<Intent> pickMediaLauncher;
-//
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_edit_project);
-//
-//        db = FirebaseFirestore.getInstance();
-//        mAuth = FirebaseAuth.getInstance();
-//        currentUser = mAuth.getCurrentUser();
-//        storage = FirebaseStorage.getInstance();
-//
-//        projectIdToEdit = getIntent().getStringExtra(EXTRA_EDIT_PROJECT_ID);
-//
-//        if (currentUser == null) {
-//            Toast.makeText(this, "Bạn cần đăng nhập để sửa dự án.", Toast.LENGTH_LONG).show();
-//            finish();
-//            return;
-//        }
-//        if (projectIdToEdit == null || projectIdToEdit.isEmpty()) {
-//            Toast.makeText(this, "Không có ID dự án để sửa.", Toast.LENGTH_LONG).show();
-//            finish();
-//            return;
-//        }
-//
-//        initViews();
-//        setupToolbar();
-//        setupSpinners(); // Load data cho spinner trước
-//        initResultLaunchers();
-//        setupListeners();
-//
-//        loadProjectDataForEditing();
-//    }
-//
-//    private void initViews() {
-//        toolbar = findViewById(R.id.toolbarEditProject);
-//        editTextProjectTitleEdit = findViewById(R.id.editTextProjectTitleEdit);
-//        editTextProjectDescriptionEdit = findViewById(R.id.editTextProjectDescriptionEdit);
-//        imageViewProjectThumbnailEdit = findViewById(R.id.imageViewProjectThumbnailEdit);
-//        buttonChangeThumbnail = findViewById(R.id.buttonChangeThumbnail);
-//        editTextProjectSourceUrlEdit = findViewById(R.id.editTextProjectSourceUrlEdit);
-//        editTextProjectDemoUrlEdit = findViewById(R.id.editTextProjectDemoUrlEdit);
-//        spinnerProjectStatusEdit = findViewById(R.id.spinnerProjectStatusEdit);
-//        spinnerProjectCourseEdit = findViewById(R.id.spinnerProjectCourseEdit);
-//        chipGroupCategoriesEdit = findViewById(R.id.chipGroupCategoriesEdit);
-//        buttonSelectCategoriesEdit = findViewById(R.id.buttonSelectCategoriesEdit);
-//        chipGroupTechnologiesEdit = findViewById(R.id.chipGroupTechnologiesEdit);
-//        buttonSelectTechnologiesEdit = findViewById(R.id.buttonSelectTechnologiesEdit);
-//        recyclerViewMembersEdit = findViewById(R.id.recyclerViewMembersEdit);
-//        buttonAddMemberEdit = findViewById(R.id.buttonAddMemberEdit);
-//        recyclerViewMediaGalleryEdit = findViewById(R.id.recyclerViewMediaGalleryEdit);
-//        buttonAddMediaEdit = findViewById(R.id.buttonAddMediaEdit);
-//        buttonSaveChanges = findViewById(R.id.buttonSaveChanges);
-//        // progressIndicator = findViewById(R.id.progressIndicatorEdit); // Nếu bạn thêm
-//
-//        // TODO: Setup RecyclerViews với Editable Adapters
-//        // recyclerViewMembersEdit.setLayoutManager(new LinearLayoutManager(this));
-//        // memberAdapterEdit = new EditableMemberListAdapter(this, currentMembers, memberId -> removeMember(memberId));
-//        // recyclerViewMembersEdit.setAdapter(memberAdapterEdit);
-//
-//        // recyclerViewMediaGalleryEdit.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-//        // mediaAdapterEdit = new EditableMediaGalleryAdapter(this, currentMediaItems, mediaItem -> removeMediaItem(mediaItem));
-//        // recyclerViewMediaGalleryEdit.setAdapter(mediaAdapterEdit);
-//    }
-//
-//    private void setupToolbar() {
-//        setSupportActionBar(toolbar);
-//        if (getSupportActionBar() != null) {
-//            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//            getSupportActionBar().setDisplayShowHomeEnabled(true);
-//        }
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        if (item.getItemId() == android.R.id.home) {
-//            finish(); // Hoặc hiển thị dialog xác nhận nếu có thay đổi chưa lưu
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
-//
-//    private void initResultLaunchers() {
-//        pickThumbnailLauncher = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null && result.getData().getData() != null) {
-//                        newThumbnailUri = result.getData().getData();
-//                        Glide.with(this).load(newThumbnailUri).centerCrop().into(imageViewProjectThumbnailEdit);
-//                    }
-//                });
-//
-//        pickMediaLauncher = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-//                        if (result.getData().getClipData() != null) { // Chọn nhiều ảnh/video
-//                            int count = result.getData().getClipData().getItemCount();
-//                            for (int i = 0; i < count; i++) {
-//                                Uri mediaUri = result.getData().getClipData().getItemAt(i).getUri();
-//                                newMediaUris.add(mediaUri);
-//                                // TODO: Hiển thị preview các media mới chọn hoặc cập nhật adapter ngay
-//                            }
-//                        } else if (result.getData().getData() != null) { // Chọn một ảnh/video
-//                            Uri mediaUri = result.getData().getData();
-//                            newMediaUris.add(mediaUri);
-//                            // TODO: Hiển thị preview
-//                        }
-//                        // TODO: Cập nhật UI cho media gallery
-//                        // mediaAdapterEdit.notifyDataSetChanged(); // Cần cập nhật list cho adapter trước
-//                        Toast.makeText(this, "Đã thêm " + newMediaUris.size() + " media mới.", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//    }
-//
-//
-//    private void setupSpinners() {
-//        // Status Spinner
-//        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, statusOptions);
-//        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinnerProjectStatusEdit.setAdapter(statusAdapter);
-//
-//        // Course Spinner (Load từ Firestore)
-//        List<String> courseNames = new ArrayList<>();
-//        courseNames.add("Không chọn môn học"); // Option mặc định
-//        ArrayAdapter<String> courseAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, courseNames);
-//        courseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinnerProjectCourseEdit.setAdapter(courseAdapter);
-//
-//        db.collection("Courses").get().addOnSuccessListener(queryDocumentSnapshots -> {
-//            courseMap.clear();
-//            for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-//                String courseId = doc.getId();
-//                String courseName = doc.getString("CourseName"); // Giả sử trường tên là "CourseName"
-//                if (courseName != null) {
-//                    courseMap.put(courseName, courseId);
-//                    courseNames.add(courseName);
-//                }
-//            }
-//            courseAdapter.notifyDataSetChanged();
-//            // Sau khi load xong course, nếu currentEditingProject đã có, thì chọn course đó
-//            if (currentEditingProject != null && currentEditingProject.getCourseId() != null) {
-//                selectSpinnerItemByCourseId(currentEditingProject.getCourseId());
-//            }
-//        }).addOnFailureListener(e -> Log.e(TAG, "Error loading courses for spinner", e));
-//    }
-//
-//
-//    private void setupListeners() {
-//        buttonChangeThumbnail.setOnClickListener(v -> openImagePickerForThumbnail());
-//        buttonAddMediaEdit.setOnClickListener(v -> openMediaPicker());
-//        buttonSaveChanges.setOnClickListener(v -> confirmSaveChanges());
-//
-//        // TODO: Listeners for selecting categories, technologies, adding members
-//        // buttonSelectCategoriesEdit.setOnClickListener(v -> showCategorySelectionDialog());
-//        // buttonSelectTechnologiesEdit.setOnClickListener(v -> showTechnologySelectionDialog());
-//        // buttonAddMemberEdit.setOnClickListener(v -> showMemberSearchDialog());
-//    }
-//
-//    private void openImagePickerForThumbnail() {
-//        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//        pickThumbnailLauncher.launch(intent);
-//    }
-//    private void openMediaPicker() {
-//        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-//        intent.setType("image/* video/*"); // Cho phép chọn cả ảnh và video
-//        // Hoặc chỉ ảnh: intent.setType("image/*");
-//        pickMediaLauncher.launch(intent);
-//    }
-//
-//
-//    private void loadProjectDataForEditing() {
-//        // showLoading(true); // Nếu có progress indicator
-//        DocumentReference projectRef = db.collection("Projects").document(projectIdToEdit);
-//        projectRef.get().addOnSuccessListener(documentSnapshot -> {
-//            // showLoading(false);
-//            if (documentSnapshot.exists()) {
-//                currentEditingProject = documentSnapshot.toObject(Project.class);
-//                if (currentEditingProject != null) {
-//                    // Kiểm tra quyền sở hữu (creatorId phải là user hiện tại)
-//                    if (!currentUser.getUid().equals(currentEditingProject.getCreatorUserId())) {
-//                        Toast.makeText(this, "Bạn không có quyền sửa dự án này.", Toast.LENGTH_LONG).show();
-//                        finish();
-//                        return;
-//                    }
-//                    currentEditingProject.setProjectId(documentSnapshot.getId());
-//                    populateFieldsWithProjectData();
-//                    // Load thêm thông tin liên quan (categories, technologies, members)
-//                    loadRelatedDataForEditing();
-//                } else {
-//                    Toast.makeText(this, "Lỗi khi đọc dữ liệu dự án.", Toast.LENGTH_SHORT).show();
-//                    finish();
-//                }
-//            } else {
-//                Toast.makeText(this, "Dự án không tồn tại.", Toast.LENGTH_SHORT).show();
-//                finish();
-//            }
-//        }).addOnFailureListener(e -> {
-//            // showLoading(false);
-//            Log.e(TAG, "Error loading project for editing", e);
-//            Toast.makeText(this, "Lỗi tải dự án: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//            finish();
-//        });
-//    }
-//
-//    private void populateFieldsWithProjectData() {
-//        if (currentEditingProject == null) return;
-//
-//        editTextProjectTitleEdit.setText(currentEditingProject.getTitle());
-//        editTextProjectDescriptionEdit.setText(currentEditingProject.getDescription());
-//        editTextProjectSourceUrlEdit.setText(currentEditingProject.getProjectUrl());
-//        editTextProjectDemoUrlEdit.setText(currentEditingProject.getDemoUrl());
-//
-//        if (currentEditingProject.getThumbnailUrl() != null && !currentEditingProject.getThumbnailUrl().isEmpty()) {
-//            Glide.with(this)
-//                    .load(currentEditingProject.getThumbnailUrl())
-//                    .placeholder(R.drawable.ic_placeholder_image)
-//                    .error(R.drawable.ic_image_error)
-//                    .centerCrop()
-//                    .into(imageViewProjectThumbnailEdit);
-//        }
-//
-//        // Set status spinner
-//        if (currentEditingProject.getStatus() != null) {
-//            int statusPosition = ((ArrayAdapter<String>) spinnerProjectStatusEdit.getAdapter()).getPosition(currentEditingProject.getStatus());
-//            if (statusPosition >= 0) {
-//                spinnerProjectStatusEdit.setSelection(statusPosition);
-//            }
-//        }
-//
-//        // Set course spinner (sẽ được chọn lại sau khi courseMap load xong nếu cần)
-//        if (currentEditingProject.getCourseId() != null && !courseMap.isEmpty()) {
-//            selectSpinnerItemByCourseId(currentEditingProject.getCourseId());
-//        }
-//
-//        // Populate media gallery
-//        if(currentEditingProject.getMediaGalleryUrls() != null){
-//            currentMediaItems.clear();
-//            currentMediaItems.addAll(currentEditingProject.getMediaGalleryUrls());
-//            // TODO: mediaAdapterEdit.notifyDataSetChanged();
-//        }
-//    }
-//
-//    private void selectSpinnerItemByCourseId(String courseIdToSelect) {
-//        if (courseIdToSelect == null || courseMap.isEmpty()) return;
-//        for (Map.Entry<String, String> entry : courseMap.entrySet()) {
-//            if (courseIdToSelect.equals(entry.getValue())) {
-//                String courseNameToSelect = entry.getKey();
-//                int coursePosition = ((ArrayAdapter<String>) spinnerProjectCourseEdit.getAdapter()).getPosition(courseNameToSelect);
-//                if (coursePosition >= 0) {
-//                    spinnerProjectCourseEdit.setSelection(coursePosition);
-//                }
-//                break;
-//            }
-//        }
-//    }
-//
-//
-//    private void loadRelatedDataForEditing() {
-//        // TODO: Load Categories, Technologies, Members và điền vào ChipGroups/RecyclerViews
-//        // Ví dụ load Categories:
-//        // db.collection("ProjectCategories").whereEqualTo("projectId", projectIdToEdit).get()...
-//        // rồi lấy categoryId, query "Categories" để lấy tên, add vào selectedCategoryIds và updateChipGroupCategoriesEdit()
-//
-//        // Ví dụ load Members:
-//        // db.collection("ProjectMembers").whereEqualTo("projectId", projectIdToEdit).get()...
-//        // rồi lấy userId, role, query "Users" để lấy thông tin, add vào currentMembers và memberAdapterEdit.notifyDataSetChanged()
-//    }
-//
-//
-//    private void confirmSaveChanges() {
-//        new AlertDialog.Builder(this)
-//                .setTitle("Xác nhận Lưu")
-//                .setMessage("Bạn có chắc chắn muốn lưu các thay đổi này không?")
-//                .setPositiveButton("Lưu", (dialog, which) -> saveProjectChanges())
-//                .setNegativeButton("Hủy", null)
-//                .show();
-//    }
-//
-//    private void saveProjectChanges() {
-//        String title = editTextProjectTitleEdit.getText().toString().trim();
-//        String description = editTextProjectDescriptionEdit.getText().toString().trim();
-//        // ... lấy các giá trị khác
-//
-//        if (TextUtils.isEmpty(title) || TextUtils.isEmpty(description)) {
-//            Toast.makeText(this, "Tên dự án và mô tả không được để trống.", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        // showLoading(true);
-//        buttonSaveChanges.setEnabled(false);
-//
-//        DocumentReference projectRef = db.collection("Projects").document(projectIdToEdit);
-//        Map<String, Object> projectUpdates = new HashMap<>();
-//        projectUpdates.put("Title", title);
-//        projectUpdates.put("Description", description);
-//        projectUpdates.put("ProjectUrl", editTextProjectSourceUrlEdit.getText().toString().trim());
-//        projectUpdates.put("DemoUrl", editTextProjectDemoUrlEdit.getText().toString().trim());
-//        projectUpdates.put("Status", spinnerProjectStatusEdit.getSelectedItem().toString());
-//        projectUpdates.put("UpdatedAt", FieldValue.serverTimestamp());
-//
-//        String selectedCourseName = spinnerProjectCourseEdit.getSelectedItem().toString();
-//        if (!"Không chọn môn học".equals(selectedCourseName) && courseMap.containsKey(selectedCourseName)) {
-//            projectUpdates.put("CourseId", courseMap.get(selectedCourseName));
-//        } else {
-//            projectUpdates.put("CourseId", null); // Hoặc FieldValue.delete() nếu muốn xóa trường
-//        }
-//
-//
-//        // Xử lý upload ảnh (thumbnail, media gallery) và cập nhật URL
-//        // Đây là phần phức tạp, cần xử lý tuần tự hoặc song song có kiểm soát
-//
-//        Task<Void> mainUpdateTask = Task.forResult(null); // Task khởi đầu
-//
-//        // 1. Upload thumbnail mới nếu có
-//        if (newThumbnailUri != null) {
-//            mainUpdateTask = mainUpdateTask.continueWithTask(task ->
-//                    uploadImageToStorage(newThumbnailUri, "project_thumbnails/" + projectIdToEdit + "_thumbnail_" + System.currentTimeMillis())
-//                            .onSuccessTask(downloadUrl -> {
-//                                projectUpdates.put("ThumbnailUrl", downloadUrl.toString());
-//                                return Tasks.forResult(null);
-//                            })
-//            );
-//        }
-//
-//        // 2. Xử lý Media Gallery: Xóa cũ, upload mới
-//        mainUpdateTask = mainUpdateTask.continueWithTask(task -> {
-//            // Lấy danh sách URL media hiện tại (không bao gồm những cái đã bị removedMediaUrls)
-//            List<Project.MediaItem> finalMediaItems = new ArrayList<>(currentEditingProject.getMediaGalleryUrls()); // Bắt đầu với list gốc
-//            finalMediaItems.removeIf(item -> removedMediaUrls.contains(item.getUrl())); // Xóa những cái đã đánh dấu xóa
-//
-//
-//            // Upload media mới
-//            List<Task<Project.MediaItem>> uploadMediaTasks = new ArrayList<>();
-//            for (Uri mediaUri : newMediaUris) {
-//                // TODO: Xác định type (image/video) từ Uri nếu cần
-//                String mediaType = "image"; // Hoặc "video"
-//                String fileName = "project_media/" + projectIdToEdit + "/" + UUID.randomUUID().toString();
-//                uploadMediaTasks.add(
-//                        uploadImageToStorage(mediaUri, fileName)
-//                                .onSuccessTask(downloadUrl -> Tasks.forResult(new Project.MediaItem(downloadUrl.toString(), mediaType)))
-//                );
-//            }
-//
-//            return Tasks.whenAllSuccess(uploadMediaTasks).onSuccessTask(newUploadedItems -> {
-//                finalMediaItems.addAll((List<Project.MediaItem>)newUploadedItems); // Ép kiểu cẩn thận
-//                projectUpdates.put("MediaGalleryUrls", finalMediaItems.stream()
-//                        .map(item -> { // Chuyển thành Map để Firestore lưu đúng
-//                            Map<String, Object> map = new HashMap<>();
-//                            map.put("url", item.getUrl());
-//                            map.put("type", item.getType());
-//                            return map;
-//                        }).collect(Collectors.toList()));
-//                // TODO: Xóa các file media cũ trên Storage (removedMediaUrls)
-//                deleteOldMediaFromStorage(removedMediaUrls);
-//                return Tasks.forResult(null);
-//            });
-//        });
-//
-//
-//        // 3. Thực hiện cập nhật document Project
-//        mainUpdateTask = mainUpdateTask.continueWithTask(task -> projectRef.update(projectUpdates));
-//
-//        // 4. Cập nhật các collection liên quan (ProjectCategories, ProjectTechnologies, ProjectMembers)
-//        // Dùng WriteBatch cho hiệu quả
-//        mainUpdateTask = mainUpdateTask.continueWithTask(task -> {
-//            WriteBatch batch = db.batch();
-//            // TODO: Xóa các liên kết cũ và thêm các liên kết mới cho Categories, Technologies, Members
-//            // Ví dụ cho Categories:
-//            // - Query ProjectCategories theo projectIdToEdit để xóa
-//            // - Thêm document mới vào ProjectCategories cho mỗi selectedCategoryId
-//            return batch.commit();
-//        });
-//
-//
-//        mainUpdateTask.addOnSuccessListener(aVoid -> {
-//            // showLoading(false);
-//            buttonSaveChanges.setEnabled(true);
-//            Toast.makeText(EditProjectActivity.this, "Dự án đã được cập nhật!", Toast.LENGTH_SHORT).show();
-//            setResult(Activity.RESULT_OK); // Để activity trước có thể refresh nếu cần
-//            finish();
-//        }).addOnFailureListener(e -> {
-//            // showLoading(false);
-//            buttonSaveChanges.setEnabled(true);
-//            Log.e(TAG, "Error updating project", e);
-//            Toast.makeText(EditProjectActivity.this, "Lỗi cập nhật dự án: " + e.getMessage(), Toast.LENGTH_LONG).show();
-//        });
-//    }
-//
-//
-//    private Task<Uri> uploadImageToStorage(Uri imageUri, String storagePath) {
-//        StorageReference fileRef = storage.getReference().child(storagePath);
-//        UploadTask uploadTask = fileRef.putFile(imageUri);
-//
-//        return uploadTask.continueWithTask((Task<UploadTask.TaskSnapshot> task) -> {
-//            if (!task.isSuccessful()) {
-//                throw task.getException();
-//            }
-//            return fileRef.getDownloadUrl();
-//        });
-//    }
-//
-//    private void deleteOldMediaFromStorage(List<String> urlsToDelete) {
-//        for (String url : urlsToDelete) {
-//            if (url == null || url.isEmpty()) continue;
-//            try {
-//                StorageReference photoRef = storage.getReferenceFromUrl(url);
-//                photoRef.delete().addOnSuccessListener(aVoid ->
-//                        Log.d(TAG, "Successfully deleted old media: " + url)
-//                ).addOnFailureListener(exception ->
-//                        Log.e(TAG, "Failed to delete old media: " + url, exception)
-//                );
-//            } catch (IllegalArgumentException e) {
-//                Log.e(TAG, "Invalid URL for deletion: " + url, e);
-//            }
-//        }
-//    }
-//
-//
-//    // TODO: Các hàm để hiển thị dialog chọn Categories/Technologies/Members
-//    // Ví dụ: private void showCategorySelectionDialog() { ... }
-//
-//    // TODO: Các hàm để xử lý việc xóa item khỏi RecyclerViews và cập nhật các list tương ứng
-//    // private void removeMember(String memberIdToRemove) { ... }
-//    // private void removeMediaItem(Project.MediaItem mediaItemToRemove) { ... currentMediaItems.remove(...); removedMediaUrls.add(...); }
-//
-//
-//    // private void showLoading(boolean isLoading) {
-//    //     if (progressIndicator != null) {
-//    //         progressIndicator.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-//    //     }
-//    //     buttonSaveChanges.setEnabled(!isLoading);
-//    //     // Vô hiệu hóa các trường khác nếu cần
-//    // }
-//}
+package com.cse441.tluprojectexpo.ui.editproject;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.bumptech.glide.Glide;
+import com.cse441.tluprojectexpo.R;
+import com.cse441.tluprojectexpo.model.LinkItem;
+import com.cse441.tluprojectexpo.model.Project;
+import com.cse441.tluprojectexpo.model.User;
+import com.cse441.tluprojectexpo.model.Notification;
+import com.cse441.tluprojectexpo.repository.NotificationRepository;
+import com.cse441.tluprojectexpo.repository.ProjectDeletionManager;
+import com.cse441.tluprojectexpo.repository.ProjectFormManager;
+import com.cse441.tluprojectexpo.repository.ProjectNotificationManager;
+import com.cse441.tluprojectexpo.repository.ProjectRepository;
+import com.cse441.tluprojectexpo.repository.ProjectSaveManager;
+import com.cse441.tluprojectexpo.service.CloudinaryUploadService;
+import com.cse441.tluprojectexpo.service.FirestoreService;
+import com.cse441.tluprojectexpo.ui.createproject.AddMemberDialogFragment;
+import com.cse441.tluprojectexpo.ui.common.uimanager.AddedLinksUiManager;
+import com.cse441.tluprojectexpo.ui.common.uimanager.MediaGalleryUiManager;
+import com.cse441.tluprojectexpo.ui.common.uimanager.SelectedMembersUiManager;
+import com.cse441.tluprojectexpo.utils.ImagePickerDelegate;
+import com.cse441.tluprojectexpo.utils.PermissionManager;
+import com.cse441.tluprojectexpo.utils.UiHelper;
+
+import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.cse441.tluprojectexpo.utils.Constants;
+
+public class EditProjectActivity extends AppCompatActivity implements
+        AddMemberDialogFragment.AddUserDialogListener,
+        SelectedMembersUiManager.OnMemberInteractionListener,
+        AddedLinksUiManager.OnLinkInteractionListener,
+        MediaGalleryUiManager.OnMediaInteractionListener {
+
+    private static final String TAG = "EditProjectActivity";
+    public static final String EXTRA_PROJECT_ID = "PROJECT_ID";
+
+    // UI Components
+    private TextInputEditText etProjectName, etProjectDescription;
+    private AutoCompleteTextView actvCategoryInput, actvStatus, actvTechnologyInput;
+    private TextInputLayout tilProjectName, tilProjectDescription, tilCategory, tilTechnologyInput, tilStatus;
+    private ChipGroup chipGroupCategories, chipGroupTechnologies;
+    private FrameLayout flProjectImageContainer;
+    private ImageView ivProjectImagePreview, ivProjectImagePlaceholderIcon;
+    private ImageView ivBackArrow;
+    private TextView tvTitle;
+    private MaterialButton btnAddMedia, btnAddMember, btnAddLink, btnSaveChanges, btnDeleteProject;
+    private FlexboxLayout flexboxMediaPreviewContainer;
+    private TextView tvMediaGalleryLabel;
+    private LinearLayout llSelectedMembersContainer, llAddedLinksContainer;
+    private LinearLayout llMemberSectionRoot, llLinkSectionRoot, llMediaSectionRoot;
+    private ProgressBar pbEditingProject;
+
+    // Data
+    private Uri projectImageUri = null;
+    private List<Uri> selectedMediaUris = new ArrayList<>();
+    private List<User> selectedProjectUsers = new ArrayList<>();
+    private Map<String, String> userRolesInProject = new HashMap<>();
+    private List<LinkItem> projectLinks = new ArrayList<>();
+    private List<String> selectedCategoryNames = new ArrayList<>();
+    private List<String> selectedTechnologyNames = new ArrayList<>();
+    
+    // Track original members for notification purposes
+    private List<User> originalProjectUsers = new ArrayList<>();
+    private Map<String, String> originalUserRoles = new HashMap<>();
+    
+    // Track existing media URLs (from current project) vs new media URIs (to be uploaded)
+    private List<Map<String, String>> existingMediaUrls = new ArrayList<>();
+    private List<Uri> newMediaUris = new ArrayList<>();
+
+    // Categories and Technologies
+    private List<String> categoryNameListForDropdown = new ArrayList<>();
+    private Map<String, String> categoryNameToIdMap = new HashMap<>();
+    private ArrayAdapter<String> categoryAdapter;
+    private String selectedCategoryId = null;
+
+    private List<String> allAvailableTechnologyNames = new ArrayList<>();
+    private Map<String, String> technologyNameToIdMap = new HashMap<>();
+    private Map<String, String> technologyIdToNameMap = new HashMap<>();
+
+    private List<String> statusNameListForDropdown = new ArrayList<>();
+    private ArrayAdapter<String> statusAdapter;
+
+    // Services
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private FirestoreService firestoreService;
+    private ProjectRepository projectRepository;
+    private NotificationRepository notificationRepository;
+    private PermissionManager permissionManager;
+    private ActivityResultLauncher<String[]> permissionLauncher;
+    private ImagePickerDelegate imagePickerDelegate;
+    private CloudinaryUploadService cloudinaryUploadService;
+
+    // UI Managers
+    private SelectedMembersUiManager selectedMembersUiManager;
+    private AddedLinksUiManager addedLinksUiManager;
+    private MediaGalleryUiManager mediaGalleryUiManager;
+
+    private static final int ACTION_PICK_PROJECT_IMAGE = 1;
+    private static final int ACTION_PICK_MEDIA = 2;
+    private int currentPickerAction;
+    private boolean hasUserMadeChanges = false;
+
+    private String currentProjectId;
+    private Project currentProject;
+
+    // Managers
+    private ProjectFormManager formManager;
+    private ProjectSaveManager saveManager;
+    private ProjectNotificationManager notificationManager;
+    private ProjectDeletionManager deletionManager;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_edit_project);
+
+        currentProjectId = getIntent().getStringExtra(EXTRA_PROJECT_ID);
+        if (currentProjectId == null || currentProjectId.isEmpty()) {
+            Toast.makeText(this, "ID dự án không hợp lệ.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        initializeManagersAndServices();
+        initializeLaunchersAndHelpers();
+        initializeViews();
+        initializeUiManagers();
+        setupAdaptersAndData();
+        setupEventListeners();
+        setupInputValidationListeners();
+
+        loadProjectDetails();
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                handleCustomBackPressed();
+            }
+        });
+    }
+
+    private void initializeManagersAndServices() {
+        formManager = new ProjectFormManager(this);
+        saveManager = new ProjectSaveManager(this, formManager);
+        notificationManager = new ProjectNotificationManager();
+        deletionManager = new ProjectDeletionManager();
+        firestoreService = new FirestoreService();
+        projectRepository = new ProjectRepository();
+    }
+
+    private void initializeLaunchersAndHelpers() {
+        permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::handlePermissionResult);
+        
+        ActivityResultLauncher<Intent> projectImageLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::handleProjectImageResult);
+        ActivityResultLauncher<Intent> mediaLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::handleMediaResult);
+        
+        permissionManager = new PermissionManager(this, permissionLauncher);
+        imagePickerDelegate = new ImagePickerDelegate(projectImageLauncher, mediaLauncher);
+    }
+
+    private void initializeViews() {
+        tvTitle = findViewById(R.id.tv_title);
+        if (tvTitle != null) tvTitle.setText("Chỉnh sửa Dự án");
+
+        etProjectName = findViewById(R.id.et_project_name);
+        etProjectDescription = findViewById(R.id.et_project_description);
+        actvCategoryInput = findViewById(R.id.actv_category_input);
+        tilCategory = findViewById(R.id.til_category);
+        chipGroupCategories = findViewById(R.id.chip_group_categories);
+        actvStatus = findViewById(R.id.actv_status);
+        tilStatus = findViewById(R.id.til_status);
+        chipGroupTechnologies = findViewById(R.id.chip_group_technologies);
+        actvTechnologyInput = findViewById(R.id.actv_technology_input);
+        tilTechnologyInput = findViewById(R.id.til_technology_input);
+
+        flProjectImageContainer = findViewById(R.id.fl_project_image_container);
+        ivProjectImagePreview = findViewById(R.id.iv_project_image_preview);
+        ivProjectImagePlaceholderIcon = findViewById(R.id.iv_project_image_placeholder_icon);
+        ivBackArrow = findViewById(R.id.iv_back_arrow);
+
+        btnAddMedia = findViewById(R.id.btn_add_media);
+        btnAddMember = findViewById(R.id.btn_add_member);
+        btnAddLink = findViewById(R.id.btn_add_link);
+        btnSaveChanges = findViewById(R.id.btn_save_changes);
+        btnDeleteProject = findViewById(R.id.btn_delete_project);
+
+        flexboxMediaPreviewContainer = findViewById(R.id.flexbox_media_preview_container);
+        tvMediaGalleryLabel = findViewById(R.id.tv_media_gallery_label);
+        llSelectedMembersContainer = findViewById(R.id.ll_selected_members_container);
+        llAddedLinksContainer = findViewById(R.id.ll_added_links_container);
+        llMemberSectionRoot = findViewById(R.id.ll_member_section_root);
+        llLinkSectionRoot = findViewById(R.id.ll_link_section_root);
+        llMediaSectionRoot = findViewById(R.id.ll_media_section_root);
+
+        pbEditingProject = findViewById(R.id.pb_editing_project);
+    }
+
+    private void initializeUiManagers() {
+        selectedMembersUiManager = new SelectedMembersUiManager(this, llSelectedMembersContainer, formManager.getSelectedProjectUsers(), formManager.getUserRolesInProject(), this);
+        addedLinksUiManager = new AddedLinksUiManager(this, llAddedLinksContainer, formManager.getProjectLinks(), this);
+        mediaGalleryUiManager = new MediaGalleryUiManager(this, flexboxMediaPreviewContainer, tvMediaGalleryLabel, formManager.getSelectedMediaUris(), this);
+    }
+
+    private void updateAllUIs() {
+        if (selectedMembersUiManager != null) selectedMembersUiManager.updateUI();
+        if (mediaGalleryUiManager != null) mediaGalleryUiManager.updateUI();
+        if (addedLinksUiManager != null) addedLinksUiManager.updateUI();
+        updateMediaGalleryLabel();
+    }
+
+    private void setupAdaptersAndData() {
+        // Category Adapter
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
+        actvCategoryInput.setAdapter(categoryAdapter);
+        formManager.fetchCategories(new FirestoreService.CategoriesFetchListener() {
+            @Override
+            public void onCategoriesFetched(List<String> fetchedCategoryNames, Map<String, String> fetchedNameToIdMap) {
+                formManager.updateCategoryData(fetchedCategoryNames, fetchedNameToIdMap);
+                categoryAdapter.clear();
+                categoryAdapter.addAll(fetchedCategoryNames);
+                categoryAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(TAG, "Error fetching categories: " + errorMessage);
+            }
+        });
+
+        // Technology Adapter
+        ArrayAdapter<String> technologyAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
+        actvTechnologyInput.setAdapter(technologyAdapter);
+        formManager.fetchTechnologies(new FirestoreService.TechnologyFetchListener() {
+            @Override
+            public void onTechnologiesFetched(List<String> fetchedTechnologyNames, Map<String, String> fetchedTechNameToIdMap) {
+                formManager.updateTechnologyData(fetchedTechnologyNames, fetchedTechNameToIdMap);
+                technologyAdapter.clear();
+                technologyAdapter.addAll(fetchedTechnologyNames);
+                technologyAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(TAG, "Error fetching technologies: " + errorMessage);
+            }
+        });
+
+        // Status Adapter
+        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, formManager.getStatusNameListForDropdown());
+        actvStatus.setAdapter(statusAdapter);
+    }
+
+    private void setupEventListeners() {
+        ivBackArrow.setOnClickListener(v -> handleCustomBackPressed());
+        flProjectImageContainer.setOnClickListener(v -> onPickProjectImage());
+        actvCategoryInput.setOnItemClickListener((parent, view, position, id) -> onCategorySelected(parent.getItemAtPosition(position).toString()));
+        actvTechnologyInput.setOnItemClickListener((parent, view, position, id) -> onTechnologySelected(parent.getItemAtPosition(position).toString()));
+        btnAddMember.setOnClickListener(v -> onAddMember());
+        btnAddLink.setOnClickListener(v -> onAddLink());
+        btnAddMedia.setOnClickListener(v -> onAddMedia());
+        btnSaveChanges.setOnClickListener(v -> onSaveChanges());
+        btnDeleteProject.setOnClickListener(v -> onDeleteProject());
+    }
+    
+    // Event handler methods
+    private void onPickProjectImage() {
+        if (checkLoginAndNotify("thêm ảnh dự án")) {
+            currentPickerAction = ACTION_PICK_PROJECT_IMAGE;
+            if (permissionManager != null) {
+                permissionManager.checkAndRequestStoragePermissions();
+            } else {
+                imagePickerDelegate.launchProjectImagePicker();
+            }
+        }
+    }
+    
+    private void onCategorySelected(String categoryName) {
+        if (formManager.addCategory(categoryName)) {
+            addChipToGroup(chipGroupCategories, categoryName, () -> formManager.removeCategory(categoryName));
+            hasUserMadeChanges = true;
+        } else {
+            Toast.makeText(this, "Không thể thêm lĩnh vực. Đã đạt giới hạn hoặc đã tồn tại.", Toast.LENGTH_SHORT).show();
+        }
+        actvCategoryInput.setText("");
+        hideKeyboard();
+    }
+    
+    private void onTechnologySelected(String techName) {
+        if (formManager.addTechnology(techName)) {
+            addChipToGroup(chipGroupTechnologies, techName, () -> formManager.removeTechnology(techName));
+            hasUserMadeChanges = true;
+        } else {
+            Toast.makeText(this, "Không thể thêm công nghệ. Đã đạt giới hạn hoặc đã tồn tại.", Toast.LENGTH_SHORT).show();
+        }
+        actvTechnologyInput.setText("");
+        hideKeyboard();
+    }
+    
+    private void onAddMember() {
+        if (checkLoginAndNotify("thêm thành viên")) {
+            AddMemberDialogFragment.newInstance().show(getSupportFragmentManager(), "AddMemberDialog");
+        }
+    }
+
+    private void onAddLink() {
+        if (checkLoginAndNotify("thêm liên kết")) {
+            boolean githubLinkExists = formManager.getProjectLinks().stream().anyMatch(item -> "GitHub".equalsIgnoreCase(item.getPlatform()));
+            boolean demoLinkExists = formManager.getProjectLinks().stream().anyMatch(item -> "Demo".equalsIgnoreCase(item.getPlatform()));
+
+            if (githubLinkExists && demoLinkExists) {
+                Toast.makeText(this, "Bạn đã thêm đủ liên kết GitHub và Demo.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String platformToAdd = !githubLinkExists ? "GitHub" : "Demo";
+            formManager.addLink("", platformToAdd);
+            updateAllUIs();
+            hasUserMadeChanges = true;
+        }
+    }
+
+    private void onAddMedia() {
+        if (checkLoginAndNotify("thêm media")) {
+            if (formManager.getSelectedMediaUris().size() >= 10) {
+                Toast.makeText(this, "Bạn chỉ có thể thêm tối đa 10 media.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            currentPickerAction = ACTION_PICK_MEDIA;
+            if (permissionManager != null && permissionManager.checkAndRequestStoragePermissions()) {
+                if (imagePickerDelegate != null) imagePickerDelegate.launchMediaPicker();
+            }
+        }
+    }
+
+    private void onSaveChanges() {
+        if (checkLoginAndNotify("lưu thay đổi") && validateForm()) {
+            promptSaveConfirmation();
+        }
+    }
+
+    private void onDeleteProject() {
+        if (checkLoginAndNotify("xóa dự án")) {
+            promptDeleteConfirmation();
+        }
+    }
+
+    private void setupInputValidationListeners() {
+        addTextWatcherToTrackChanges(etProjectName);
+        addTextWatcherToTrackChanges(etProjectDescription);
+        addTextWatcherToClearError(etProjectName, tilProjectName);
+        addTextWatcherToClearError(etProjectDescription, tilProjectDescription);
+    }
+
+    private void loadProjectDetails() {
+        firestoreService.getProjectById(currentProjectId, new FirestoreService.ProjectFetchListener() {
+            @Override
+            public void onProjectFetched(Project project) {
+                currentProject = project;
+                populateUiWithProjectData();
+                loadAdditionalProjectData();
+            }
+            @Override
+            public void onError(String errorMessage) {
+                Toast.makeText(EditProjectActivity.this, "Lỗi tải dự án: " + errorMessage, Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
+    }
+
+    private void populateUiWithProjectData() {
+        if (currentProject == null) return;
+        etProjectName.setText(currentProject.getTitle());
+        etProjectDescription.setText(currentProject.getDescription());
+        actvStatus.setText(currentProject.getStatus(), false);
+
+        if (currentProject.getThumbnailUrl() != null && !currentProject.getThumbnailUrl().isEmpty()) {
+            ivProjectImagePreview.setVisibility(View.VISIBLE);
+            Glide.with(this).load(currentProject.getThumbnailUrl()).into(ivProjectImagePreview);
+            ivProjectImagePlaceholderIcon.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadAdditionalProjectData() {
+        // Categories
+        projectRepository.fetchCategoriesForProject(currentProjectId, new ProjectRepository.ProjectRelatedListListener<String>() {
+            @Override
+            public void onListFetched(List<String> categories) {
+                categories.forEach(cat -> {
+                    formManager.addCategory(cat);
+                    addChipToGroup(chipGroupCategories, cat, () -> formManager.removeCategory(cat));
+                });
+            }
+            @Override public void onListEmpty() {}
+            @Override public void onError(String errorMessage) {}
+        });
+
+        // Technologies
+        projectRepository.fetchTechnologiesForProject(currentProjectId, new ProjectRepository.ProjectRelatedListListener<String>() {
+            @Override
+            public void onListFetched(List<String> technologies) {
+                technologies.forEach(tech -> {
+                    formManager.addTechnology(tech);
+                    addChipToGroup(chipGroupTechnologies, tech, () -> formManager.removeTechnology(tech));
+                });
+            }
+            @Override public void onListEmpty() {}
+            @Override public void onError(String errorMessage) {}
+        });
+
+        // Members
+        projectRepository.fetchProjectMembers(currentProjectId, new ProjectRepository.ProjectRelatedListListener<Project.UserShortInfo>() {
+            @Override
+            public void onListFetched(List<Project.UserShortInfo> memberInfos) {
+                if (memberInfos == null) return;
+
+                formManager.getSelectedProjectUsers().clear();
+                formManager.getUserRolesInProject().clear();
+                originalProjectUsers.clear();
+                originalUserRoles.clear();
+
+                for (Project.UserShortInfo info : memberInfos) {
+                    User user = new User();
+                    user.setUserId(info.getUserId());
+                    user.setFullName(info.getFullName());
+                    user.setAvatarUrl(info.getAvatarUrl());
+                    user.setClassName(info.getClassName()); 
+                    
+                    String role = info.getRoleInProject();
+                    
+                    if(formManager.addMember(user)){
+                        formManager.updateMemberRole(user.getUserId(), role);
+                    }
+
+                    originalProjectUsers.add(user);
+                    if (user.getUserId() != null && role != null) {
+                        originalUserRoles.put(user.getUserId(), role);
+                    }
+                }
+                updateAllUIs();
+            }
+            @Override public void onListEmpty() {}
+            @Override public void onError(String errorMessage) {}
+        });
+
+        // Links
+        if (currentProject.getProjectUrl() != null) formManager.addLink(currentProject.getProjectUrl(), "GitHub");
+        if (currentProject.getDemoUrl() != null) formManager.addLink(currentProject.getDemoUrl(), "Demo");
+
+        // Media
+        if (currentProject.getMediaGalleryUrls() != null) {
+            currentProject.getMediaGalleryUrls().forEach(mediaItem -> {
+                Uri uri = Uri.parse(mediaItem.getUrl());
+                formManager.addMedia(uri);
+                existingMediaUrls.add(Map.of("url", mediaItem.getUrl(), "type", mediaItem.getType()));
+            });
+        }
+        updateAllUIs();
+    }
+
+    private boolean validateForm() {
+        boolean isValid = true;
+        if (TextUtils.isEmpty(etProjectName.getText())) {
+            tilProjectName.setError("Vui lòng nhập tên dự án");
+            isValid = false;
+        }
+        if (TextUtils.isEmpty(etProjectDescription.getText())) {
+            tilProjectDescription.setError("Vui lòng nhập mô tả dự án");
+            isValid = false;
+        }
+        if (formManager.getSelectedCategoryNames().isEmpty()) {
+            tilCategory.setError("Vui lòng chọn ít nhất một lĩnh vực");
+            isValid = false;
+        }
+        if (TextUtils.isEmpty(actvStatus.getText())) {
+            tilStatus.setError("Vui lòng chọn trạng thái");
+            isValid = false;
+        }
+        return isValid;
+    }
+
+    private void promptSaveConfirmation() {
+        new AlertDialog.Builder(this)
+                .setTitle("Lưu thay đổi")
+                .setMessage("Bạn có chắc chắn muốn lưu các thay đổi này?")
+                .setPositiveButton("Lưu", (dialog, which) -> startSaveProcess())
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void startSaveProcess() {
+        showProgress(true, "Đang xử lý dữ liệu...");
+        hideKeyboard();
+
+        String projectName = etProjectName.getText().toString().trim();
+        String projectDescription = etProjectDescription.getText().toString().trim();
+        String status = actvStatus.getText().toString().trim();
+
+        saveManager.updateProject(currentProjectId, projectName, projectDescription, status, currentProject, existingMediaUrls, newMediaUris, new ProjectSaveManager.ProjectSaveListener() {
+            @Override
+            public void onSuccess(String projectId, boolean wasPreviouslyApproved) {
+                showProgress(false, null);
+                notificationManager.sendMemberChangeNotifications(originalProjectUsers, originalUserRoles, formManager.getSelectedProjectUsers(), formManager.getUserRolesInProject(), projectId, projectName);
+                
+                if (wasPreviouslyApproved) {
+                    Toast.makeText(EditProjectActivity.this, "Cập nhật dự án thành công. Vui lòng chờ xét duyệt dự án.", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(EditProjectActivity.this, "Cập nhật dự án thành công!", Toast.LENGTH_LONG).show();
+                }
+                finish();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                showProgress(false, null);
+                Toast.makeText(EditProjectActivity.this, "Lỗi cập nhật: " + errorMessage, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onProgress(String message) {
+                showProgress(true, message);
+            }
+        });
+    }
+
+    private void promptDeleteConfirmation() {
+        new AlertDialog.Builder(this)
+                .setTitle("Xóa dự án")
+                .setMessage("Bạn có chắc chắn muốn xóa dự án này? Hành động này không thể hoàn tác.")
+                .setPositiveButton("Xóa", (dialog, which) -> deleteProject())
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void deleteProject() {
+        showProgress(true, "Đang xóa dự án và các dữ liệu liên quan...");
+        deletionManager.deleteProject(currentProjectId, new ProjectDeletionManager.DeleteCallback() {
+            @Override
+            public void onSuccess() {
+                showProgress(false, null);
+                Toast.makeText(EditProjectActivity.this, "Đã xóa dự án thành công!", Toast.LENGTH_LONG).show();
+                
+                // Trả về kết quả để trang danh sách có thể cập nhật
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("project_deleted", true);
+                resultIntent.putExtra("deleted_project_id", currentProjectId);
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                showProgress(false, null);
+                Toast.makeText(EditProjectActivity.this, "Lỗi khi xóa dự án: " + errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void handleCustomBackPressed() {
+        if (hasUserMadeChanges) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Thoát")
+                    .setMessage("Bạn có thay đổi chưa lưu. Bạn có chắc chắn muốn thoát?")
+                    .setPositiveButton("Thoát", (dialog, which) -> finish())
+                    .setNegativeButton("Ở lại", null)
+                    .show();
+        } else {
+            finish();
+        }
+    }
+    
+    // Interface implementations
+    @Override
+    public void onUserSelected(User user) {
+        if (formManager.addMember(user)) {
+            updateAllUIs();
+            hasUserMadeChanges = true;
+        }
+    }
+
+    @Override
+    public void onMemberRemoved(User user, int index) {
+        if (formManager.removeMember(user.getUserId())) {
+            updateAllUIs();
+            hasUserMadeChanges = true;
+        }
+    }
+
+    @Override
+    public void onMemberRoleChanged(User user, String newRole, int index) {
+        if (formManager.updateMemberRole(user.getUserId(), newRole)) {
+            hasUserMadeChanges = true;
+        }
+    }
+
+    @Override
+    public void onLinkRemoved(LinkItem linkItem, int index) {
+        if (formManager.removeLink(index)) {
+            updateAllUIs();
+            hasUserMadeChanges = true;
+        }
+    }
+
+    @Override
+    public void onLinkUrlChanged(LinkItem linkItem, String newUrl, int index) {
+        if(formManager.updateLink(index, newUrl, linkItem.getPlatform())) {
+             hasUserMadeChanges = true;
+        }
+    }
+
+    @Override
+    public void onLinkPlatformChanged(LinkItem linkItem, String newPlatform, int index) {
+        if(formManager.updateLink(index, linkItem.getUrl(), newPlatform)) {
+             hasUserMadeChanges = true;
+        }
+    }
+
+    @Override
+    public void onMediaRemoved(Uri uri, int index) {
+        if(formManager.removeMedia(index)) {
+            // Also update local tracking lists
+            newMediaUris.remove(uri);
+            existingMediaUrls.removeIf(media -> uri.toString().equals(media.get("url")));
+            
+            updateAllUIs();
+            hasUserMadeChanges = true;
+        }
+    }
+    
+    // Result Handlers
+    private void handlePermissionResult(Map<String, Boolean> permissionsResult) {
+        boolean allGranted = permissionsResult.values().stream().allMatch(b -> b);
+        if (allGranted) {
+            if (currentPickerAction == ACTION_PICK_PROJECT_IMAGE) imagePickerDelegate.launchProjectImagePicker();
+            else if (currentPickerAction == ACTION_PICK_MEDIA) imagePickerDelegate.launchMediaPicker();
+        } else {
+            Toast.makeText(this, "Quyền truy cập bộ nhớ bị từ chối.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleProjectImageResult(androidx.activity.result.ActivityResult result) {
+        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+            Uri uri = result.getData().getData();
+            formManager.setProjectImageUri(uri);
+            ivProjectImagePreview.setVisibility(View.VISIBLE);
+            ivProjectImagePreview.setImageURI(uri);
+            ivProjectImagePlaceholderIcon.setVisibility(View.GONE);
+            hasUserMadeChanges = true;
+        }
+    }
+
+    private void handleMediaResult(androidx.activity.result.ActivityResult result) {
+        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+            Uri uri = result.getData().getData();
+            if (formManager.addMedia(uri)) {
+                newMediaUris.add(uri); // Track new files for upload
+                updateAllUIs();
+                hasUserMadeChanges = true;
+                Toast.makeText(this, "Đã thêm media.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Media đã tồn tại hoặc đã đạt giới hạn.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    
+    // Helper Methods
+    private boolean checkLoginAndNotify(String actionMessage) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            UiHelper.showInfoDialog(this, "Yêu cầu đăng nhập", "Vui lòng đăng nhập để " + actionMessage + ".");
+            return false;
+        }
+        return true;
+    }
+
+    private void addChipToGroup(ChipGroup chipGroup, String text, Runnable onRemove) {
+        Chip chip = new Chip(this);
+        chip.setText(text);
+        chip.setCloseIconVisible(true);
+        chip.setOnCloseIconClickListener(v -> {
+            chipGroup.removeView(chip);
+            onRemove.run();
+            hasUserMadeChanges = true;
+        });
+        chipGroup.addView(chip);
+    }
+    
+    private void updateMediaGalleryLabel() {
+        if (tvMediaGalleryLabel != null) {
+            int count = formManager.getSelectedMediaUris().size();
+            tvMediaGalleryLabel.setText("Thư viện Media" + (count > 0 ? " (" + count + " items)" : ""));
+        }
+    }
+    
+    private void showProgress(boolean show, @Nullable String message) {
+        pbEditingProject.setVisibility(show ? View.VISIBLE : View.GONE);
+        btnSaveChanges.setEnabled(!show);
+        btnDeleteProject.setEnabled(!show);
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(getCurrentFocus() != null ? getCurrentFocus().getWindowToken() : null, 0);
+        }
+    }
+    
+    private void addTextWatcherToTrackChanges(TextView textView) {
+        if (textView != null) {
+            textView.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { hasUserMadeChanges = true; }
+                @Override public void afterTextChanged(Editable s) {}
+            });
+        }
+    }
+    
+    private void addTextWatcherToClearError(TextView textView, TextInputLayout textInputLayout) {
+        if (textView != null && textInputLayout != null) {
+            textView.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    textInputLayout.setError(null);
+                }
+                @Override public void afterTextChanged(Editable s) {}
+            });
+        }
+    }
+} 

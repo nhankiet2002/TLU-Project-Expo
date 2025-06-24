@@ -1,4 +1,4 @@
-package com.cse441.tluprojectexpo.ui.createproject.uimanager;
+package com.cse441.tluprojectexpo.ui.common.uimanager;
 
 import android.content.Context;
 import android.text.Editable;
@@ -14,7 +14,7 @@ import com.cse441.tluprojectexpo.utils.UiHelper;
 import com.cse441.tluprojectexpo.R;
 import com.cse441.tluprojectexpo.model.LinkItem;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout; // Thêm
+import com.google.android.material.textfield.TextInputLayout;
 import java.util.List;
 
 public class AddedLinksUiManager {
@@ -69,12 +69,11 @@ public class AddedLinksUiManager {
                 actvPlatform.setText(currentLinkItem.getPlatform(), false);
             } else if (platformItems.length > 0) {
                 actvPlatform.setText(platformItems[0], false);
-                // Thông báo thay đổi platform mặc định
                 if (listener != null) listener.onLinkPlatformChanged(currentLinkItem, platformItems[0], linkIndex);
             }
 
             actvPlatform.setOnItemClickListener((parent, MView, position, id) -> {
-                if (linkIndex < projectLinks.size() && listener != null) { // Kiểm tra index
+                if (linkIndex < projectLinks.size() && listener != null) {
                     listener.onLinkPlatformChanged(projectLinks.get(linkIndex), parent.getItemAtPosition(position).toString(), linkIndex);
                 }
             });
@@ -85,7 +84,7 @@ public class AddedLinksUiManager {
             etLinkUrl.addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
                 @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
-                    if (linkIndex < projectLinks.size() && listener != null) { // Kiểm tra index
+                    if (linkIndex < projectLinks.size() && listener != null) {
                         listener.onLinkUrlChanged(projectLinks.get(linkIndex), s.toString(), linkIndex);
                     }
                 }
@@ -93,11 +92,11 @@ public class AddedLinksUiManager {
             });
 
             ivRemoveLink.setOnClickListener(v_remove -> {
-                if (linkIndex < projectLinks.size() && listener != null) { // Kiểm tra index
+                if (linkIndex < projectLinks.size() && listener != null) {
                     listener.onLinkRemoved(projectLinks.get(linkIndex), linkIndex);
                 }
             });
             container.addView(linkView);
         }
     }
-}
+} 

@@ -112,7 +112,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
 
             // Hiển thị tên tác giả (CreatorFullName)
             if (project.getCreatorFullName() != null && !project.getCreatorFullName().isEmpty()) {
-                textViewAuthor.setText(project.getCreatorFullName());
+                textViewAuthor.setText("Bởi: "+ project.getCreatorFullName());
                 textViewAuthor.setVisibility(View.VISIBLE);
             } else {
                 textViewAuthor.setVisibility(View.GONE);

@@ -60,6 +60,22 @@
     <string name="error_loading_projects">Lỗi khi tải danh sách dự án.</string>
     <string name="no_notifications">Không có thông báo nào</string>
     <string name="user_avatar">Ảnh đại diện người dùng</string>
+    <!--Notification-->
+    <string name="more_options">Tùy chọn khác</string>
+    <string name="mark_as_read">Đánh dấu đã đọc</string>
+    <string name="mark_as_unread">Đánh dấu chưa đọc</string>
+    <string name="notification_default_title">Thông báo</string>
+    <string name="status_accepted">Đã chấp nhận</string>
+    <string name="status_declined">Đã từ chối</string>
+    <string name="error_updating_notification">Lỗi khi cập nhật thông báo.</string>
+    <string name="notification_marked_as_read">Đã đánh dấu là đã đọc.</string>
+    <string name="notification_marked_as_unread">Đã đánh dấu là chưa đọc.</string>
+    <string name="error_loading_notifications">Lỗi tải thông báo</string>
+    <string name="delete_notification">Xóa thông báo</string> <!-- Tiêu đề cho AlertDialog và menu item -->
+    <string name="notification_deleted">Đã xóa thông báo.</string>
+    <string name="error_deleting_notification">Lỗi khi xóa thông báo.</string>
+    <string name="confirm_delete_notification">Bạn có chắc chắn muốn xóa thông báo này không?</string>
+    <string name="delete">Xóa</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
