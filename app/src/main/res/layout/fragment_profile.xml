@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5"
+
     tools:context=".ui.Profile.ProfileFragment"> <!-- Đổi context nếu cần -->
 
     <!-- Content to show when user is logged in -->
@@ -47,7 +48,7 @@
                     android:id="@+id/textViewUserName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Đàm Nhân Kiệt"
+                    android:text="Tên người dùng"
                     android:textSize="24sp"
                     android:textStyle="bold"
                     android:textColor="@android:color/black"/>

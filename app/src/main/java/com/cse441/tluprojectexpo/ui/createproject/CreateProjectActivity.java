@@ -905,7 +905,7 @@ public class CreateProjectActivity extends AppCompatActivity implements
         showCreatingProgress(false, null);
         new AlertDialog.Builder(this)
                 .setTitle("Thành công")
-                .setMessage("Dự án đã được tạo thành công!" +
+                .setMessage("Dự án đã được tạo thành công! " +
                         "Vui lòng chờ hệ thống duyệt dự án nhé.")
                 .setPositiveButton("Đóng", (dialog, which) -> {
                     clearForm();

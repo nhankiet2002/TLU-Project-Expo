@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ui.Notification.NotificationFragment">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -15,8 +18,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingBottom="16dp"
-            tools:listitem="@layout/item_notification" />
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            tools:listitem="@layout/item_notification"
+            android:visibility="gone"
+        tools:visibility="visible"/>
 
         <LinearLayout
             android:id="@+id/emptyView"
@@ -26,24 +32,32 @@
             android:gravity="center"
             android:orientation="vertical"
             android:visibility="gone"
-            tools:visibility="visible">
+        tools:visibility="gone">
 
-            <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:contentDescription="@string/no_notifications"
-                android:src="@drawable/ic_bell" />
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:contentDescription="@string/no_notifications"
+            android:src="@drawable/ic_bell"
+            app:tint="?android:attr/textColorSecondary" /> <!-- Tint tùy chọn -->
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/no_notifications"
-                android:textColor="@color/text_secondary"
-                android:textSize="16sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/no_notifications"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="16sp" />
+    </LinearLayout>
 
-        </LinearLayout>
+    <ProgressBar
+        android:id="@+id/progressBarInitialLoad"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
-    </FrameLayout>
-
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</FrameLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
